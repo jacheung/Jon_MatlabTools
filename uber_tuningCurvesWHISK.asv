@@ -14,7 +14,7 @@ elseif strcmp(U{1}.meta.layer,'L3Out')
     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','B77:C82');
     disp(U{1}.meta.layer);
     layer = 'L3Out';
-elseif strcmp(U{1}.meta.layer,'L5bOut')
+   elseif strcmp(U{1}.meta.layer,'L5bOut')
     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','I75:J82');
     disp(U{1}.meta.layer);
     layer = 'L5bOut';
