@@ -1,15 +1,21 @@
-function [varSpikes,prevarSpikes,postvarSpikes] = assist_varAtTouch(array,range)
 % This function will find the indices of touch, the spikes around that
 % touch given by the RANGE (ie -25:50ms) you provide. Lastly it'll find the
 % theta, phase, amplitude, setpoint, max kappa, and pre touch velocity.
 
 % Simple organization tool for visualizing parameters at touch onset
 
-% First 6 columns will be values for the variables 
+% OUTPUT: First 6 columns will be values for the variables 
 % 1) THETA 2) AMP 3) SETPOINT 4) PHASE 5) MAX KAPPA 6) PRE TOUCH VELOCITY 
 % Last columns will be the spikes around your given window 
+% Will output values for ALL TOUCHES, PREDECISION TOUCHES, and POST
+% DECISION TOUCHES
 
 %INPUT: vector with time points you want to view (ie [-25:50])
+
+
+
+function [varSpikes,prevarSpikes,postvarSpikes] = assist_varAtTouch(array,range)
+
 
 
 

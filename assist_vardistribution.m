@@ -1,4 +1,3 @@
-function [govarx,nogovarx,hit,miss,FA,CR,pregovar,prenogovar] = assist_vardistribution(array,variable,prelixGo,prelixNoGo,varargin);
 %Must input array(U{rec}), variable can be 1,2,3,4,5 under varNames, and
 %predecision touches. varargin can be a vector with time ranges for
 %averaging for the variable (will only work for vel or dkappa). 
@@ -8,6 +7,12 @@ function [govarx,nogovarx,hit,miss,FA,CR,pregovar,prenogovar] = assist_vardistri
 %Top plot will be for the variable distribution sorted by go/nogo.
 %Bottom plot will be for the variable distribution sorted by
 %Hit(blue)/FA(green)/CR(red)/miss(black)
+
+function [govarx,nogovarx,hit,miss,FA,CR,pregovar,prenogovar] = assist_vardistribution(array,variable,prelixGo,prelixNoGo,varargin);
+
+if numel(varargin)<3 %if nothing in varargin{3} then plotting feature is turned off
+    varargin{3} = [];
+end
 
 
 go=find(array.meta.trialType==1);
@@ -105,9 +110,8 @@ pregovarx=cell2mat(pregovar);prenogovarx=cell2mat(prenogovar);
 %% Plotting the above but with plot instead of BAR
 % TOP plot = go vs nogo (blue vs red) and predecision go vs nogo( cyan vs
 % magenta) 
-toplot = varargin{3};
-switch toplot
-    case 'on'
+
+if ~isempty(varargin{3})
 figure(70+variable);clf;subplot(2,1,1);
 % plot(histc(govarx,sampspace)/sum(histc(govarx,sampspace)));
 hold on;plot(histc(pregovarx,sampspace)/sum(histc(pregovarx,sampspace)),'b');
