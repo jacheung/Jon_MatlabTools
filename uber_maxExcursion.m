@@ -1,13 +1,15 @@
-clear V
+
  figure(17);clf
  figure(70);clf
  figure(18);clf
+ distmean=[];
+ diststd=[];
 for rec = 1:length(U)
     array=U{rec};
     [~ ,prelixGo, prelixNoGo, ~ ,~ ,~] = assist_predecisionVar(array);
     varx=[1:6];
     for f=1:length(varx)
-        [~, ~,V{rec}.hit{f}, V{rec}.miss{f}, V{rec}.FA{f}, V{rec}.CR{f}, V{rec}.go{f} , V{rec}.nogo{f}] = assist_vardistribution(U{rec},varx(f),prelixGo,prelixNoGo,[-25:0],[5:25],'off');
+        [~, ~,V{rec}.hit{f}, V{rec}.miss{f}, V{rec}.FA{f}, V{rec}.CR{f}, V{rec}.go{f} , V{rec}.nogo{f}] = assist_vardistribution(U{rec},varx(f),prelixGo,prelixNoGo,[-25:0],[5:25]);
     end
     
     gomotor = U{rec}.meta.motorPosition(U{rec}.meta.trialType==1);
@@ -120,7 +122,7 @@ for rec = 1:length(U)
 %            
 %            filt = U{rec}.meta.trialType==0; %elim all gotrials
 %            mp(~filt)=NaN;
-%            
+           
 %            filt = U{rec}.meta.trialType==0 .* U{rec}.meta.trialCorrect==1; %all CR trials
 %            mp(~filt)=NaN;
            
@@ -137,18 +139,19 @@ for rec = 1:length(U)
     end
     ranges=[round(min(xplor)-2):round(max(xplor)+2)];
     vals=histc(xplor,ranges);
-    figure(17);subplot(2,3,rec)
-    bar(ranges,vals/(sum(vals)),'r');
-    hold on; plot([0 0],[0 1],'r','LineWidth',1)
-    xlabel('ThetaREQ - MAX Excursion');ylabel('Proportion of Trials')
-    set(gca,'xlim',[-50 0],'ylim',[0 .1]);
-    alpha(.8)
-    
-        figure(18);subplot(2,3,rec)
-    bar(ranges,vals/(sum(vals)),'r');
+    figure(17);subplot(2,4,rec)
+    bar(ranges,vals/(sum(vals)),'b');
     hold on; plot([0 0],[0 1],'r','LineWidth',1)
     xlabel('ThetaREQ - MAX Excursion');ylabel('Proportion of Trials')
     set(gca,'xlim',[-50 50],'ylim',[0 .1]);
     alpha(.8)
     
+    figure(18);subplot(2,4,rec)
+    bar(ranges,vals/(sum(vals)),'b');
+    hold on; plot([0 0],[0 1],'r','LineWidth',1)
+    xlabel('ThetaREQ - MAX Excursion');ylabel('Proportion of Trials')
+    set(gca,'xlim',[-50 0],'ylim',[0 .1]);
+    alpha(.8)
+    
+    distmean(rec)=mean(xplor);diststd(rec)=std(xplor);distmed(rec)=median(xplor);
 end

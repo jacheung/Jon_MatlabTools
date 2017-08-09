@@ -127,7 +127,7 @@ scatter(1:length(V),predprop(:,3),'r')
 
 
 
-%%
+%% Visualization of the decision boundaries. 
 params = 1;
 FCratio = [];
 for rec = 1:6
