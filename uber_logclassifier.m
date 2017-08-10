@@ -3,9 +3,11 @@ clear all; close all;clc;
 load('Z:\Users\Jon\Projects\Characterization\BV')
 U=BV;
 [V] = classifierWrapper(U);
-
-%% Design Matrix
+%% PARAMETERS SETTING
 clearvars -except V U
+numIterations = 100;
+
+%Design Matrix
 
 for i = 1:length(U)
     pc(i)=mean(U{i}.meta.trialCorrect);
@@ -13,44 +15,44 @@ end
 accprop=cell(1,length(V))
 for rec = 1:length(V)
     
-    %      hx = [V(rec).hit{1}'];
-    %     ntmp=find(V(rec).hit{5}<=0);ptmp=find(V(rec).hit{5}>0);
-    % %     hx = [V(rec).hit{3}(ntmp)' V(rec).hit{4}(ntmp)' V(rec).hit{5}(ntmp)'];
-    %     hy = ones(size(hx,1),1);
-    %
-    %     FAx = [V(rec).FA{1}'];
-    %     Fntmp=find(V(rec).FA{5}<=0);Fptmp=find(V(rec).FA{5}>0);
-    % %     FAx = [V(rec).FA{3}(Fntmp)' V(rec).FA{4}(Fntmp)' V(rec).FA{5}(Fntmp)'];
-    %     FAy = ones(size(FAx,1),1)+1;
-    %
-    %     CRx = [V(rec).CR{1}'];
-    %     Cntmp=find(V(rec).CR{5}<=0);Cptmp=find(V(rec).CR{5}>0);
-    % %     CRx = [V(rec).CR{3}(Cntmp)' V(rec).CR{4}(Cntmp)' V(rec).CR{5}(Cntmp)'];
-    %     CRy1 = ones(size(CRx,1),1)+1;
-    %     %FOR FA VS CR
-    %      %RESAMPLING so CR and FA will be balanced
-    %     [FAx,FAy,CRx,CRy1] = FACRBalance(FAx,CRx);
-    %
-    %     %FOR COUNTS
-    hx = [V(rec).touchNum.hit'];
-    hy = ones(size(hx,1),1);
-    FAx = [V(rec).touchNum.FA'];
-    FAy = ones(size(FAx,1),1)+1;
-    CRx = [V(rec).touchNum.CR'];
-    CRy1 = ones(size(CRx,1),1)+1;
+%          hx = [V(rec).hit{1}'];
+        ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
+        hx = [V(rec).var.hit{3}(ntmp)' V(rec).var.hit{4}(ntmp)' V(rec).var.hit{5}(ntmp)'];
+        hy = ones(size(hx,1),1);
     
-    [FAx,FAy,CRx,CRy1] = FACRBalance(FAx,CRx);
+%         FAx = [V(rec).var.FA{1}'];
+        Fntmp=find(V(rec).var.FA{5}<=0);Fptmp=find(V(rec).var.FA{5}>0);
+        FAx = [V(rec).var.FA{3}(Fntmp)' V(rec).var.FA{4}(Fntmp)' V(rec).var.FA{5}(Fntmp)'];
+        FAy = ones(size(FAx,1),1)+1;
+    
+%         CRx = [V(rec).var.CR{1}'];
+        Cntmp=find(V(rec).var.CR{5}<=0);Cptmp=find(V(rec).var.CR{5}>0);
+        CRx = [V(rec).var.CR{3}(Cntmp)' V(rec).var.CR{4}(Cntmp)' V(rec).var.CR{5}(Cntmp)'];
+        CRy1 = ones(size(CRx,1),1)+1;
+        %FOR FA VS CR
+         %RESAMPLING so CR and FA will be balanced
+        [FAx,FAy,CRx,CRy1] = FACRBalance(FAx,CRx);
+    
+    %     %FOR COUNTS
+%     hx = [V(rec).touchNum.hit'];
+%     hy = ones(size(hx,1),1);
+%     FAx = [V(rec).touchNum.FA'];
+%     FAy = ones(size(FAx,1),1)+1;
+%     CRx = [V(rec).touchNum.CR'];
+%     CRy1 = ones(size(CRx,1),1)+1;
+%     
+%     [FAx,FAy,CRx,CRy1] = FACRBalance(FAx,CRx);
     %
     
     
     
     %COMPLETE DESIGN MATRIX
     %     DmatX{1}=filex_whiten([hx;FAx;CRx]); DmatY{1}=[hy;FAy;CRy1]; %complete design matrix for govsnogo
-    %     DmatX{1}=filex_whiten([hx;FAx;CRx]); DmatY{1}=[hy;FAy;CRy1+1]; %complete design matrix for trial type discrim
+        DmatX{1}=filex_whiten([hx;FAx;CRx]); DmatY{1}=[hy;FAy;CRy1+1]; %complete design matrix for trial type discrim
     %     DmatX{1}=filex_whiten([FAx;CRx]); DmatY{1} = [FAy-1;CRy1]; %complete design matrix for FA CR
     
-    DmatX{1} = ([hx;FAx;CRx]) ;DmatY{1}=[hy;FAy;CRy1]; %complete design matrix for touch counts go/nogo
-    %     DmatX{1}=([hx;FAx;CRx]); DmatY{1}=[hy;FAy;CRy1+1]; %complete design matrix for trial type discrim
+%     DmatX{1} = ([hx;FAx;CRx]) ;DmatY{1}=[hy;FAy;CRy1]; %complete design matrix for touch counts go/nogo
+%         DmatX{1}=([hx;FAx;CRx]); DmatY{1}=[hy;FAy;CRy1+1]; %complete design matrix for trial type discrim
     
     %     DmatX{1}=([FAx;CRx]); DmatY{1} = [FAy-1;CRy1]; %complete design matrix for touch count FA CR
     
@@ -60,7 +62,7 @@ for rec = 1:length(V)
         clear DB
         clear opt_thresh
         
-        for reit = 1:10
+        for reit = 1:numIterations
             rando = randperm(length(DmatX{z}));
             tmpDmatX=DmatX{z}(rando,:);tmpDmatY=DmatY{z}(rando,:);
             
@@ -97,9 +99,8 @@ for rec = 1:length(V)
         train_Acc{z}(rec) = mean(Acc);
         train_std{z}(rec) = std(Acc);
     end
-    
-end
 
+end
 
 
 figure(22);clf;
@@ -128,17 +129,17 @@ scatter(1:length(V),predprop(:,3),'r')
 
 
 %% Visualization of the decision boundaries. 
-params = 1;
+params = 4;
 FCratio = [];
-for rec = 1:6
-    ntmp=find(V(rec).hit{5}<=0);ptmp=find(V(rec).hit{5}>0);
-    hx = [V(rec).hit{3}(ntmp)' V(rec).hit{4}(ntmp)' V(rec).hit{5}(ntmp)'];
+for rec = 1:7
+    ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
+    hx = [V(rec).var.hit{3}(ntmp)' V(rec).var.hit{4}(ntmp)' V(rec).var.hit{5}(ntmp)'];
     hy = ones(size(hx,1),1);
-    Fntmp=find(V(rec).FA{5}<=0);Fptmp=find(V(rec).FA{5}>0);
-    FAx = [V(rec).FA{3}(Fntmp)' V(rec).FA{4}(Fntmp)' V(rec).FA{5}(Fntmp)'];
+    Fntmp=find(V(rec).var.FA{5}<=0);Fptmp=find(V(rec).var.FA{5}>0);
+    FAx = [V(rec).var.FA{3}(Fntmp)' V(rec).var.FA{4}(Fntmp)' V(rec).var.FA{5}(Fntmp)'];
     FAy = ones(size(FAx,1),1)+1;
-    Cntmp=find(V(rec).CR{5}<=0);Cptmp=find(V(rec).CR{5}>0);
-    CRx = [V(rec).CR{3}(Cntmp)' V(rec).CR{4}(Cntmp)' V(rec).CR{5}(Cntmp)'];
+    Cntmp=find(V(rec).var.CR{5}<=0);Cptmp=find(V(rec).var.CR{5}>0);
+    CRx = [V(rec).var.CR{3}(Cntmp)' V(rec).var.CR{4}(Cntmp)' V(rec).var.CR{5}(Cntmp)'];
     CRy1 = ones(size(CRx,1),1)+1;
     
     %FOR FA VS CR
@@ -155,9 +156,9 @@ for rec = 1:6
             CRx = [V(rec).touchNum.CR'];
             x = [0:1:10];
             %
-            %             hx = [V(rec).hit{1}'];
-            %             FAx = [V(rec).FA{1}'];
-            %             CRx = [V(rec).CR{1}'];
+            %             hx = [V(rec).var.hit{1}'];
+            %             FAx = [V(rec).var.FA{1}'];
+            %             CRx = [V(rec).var.CR{1}'];
             %             x = [min([hx;FAx;CRx])-2:1:max([hx;FAx;CRx])+2];
             %
             firstvar = histc(hx,x);secondvar = histc([FAx],x);
@@ -237,7 +238,7 @@ for rec = 1:6
             
             %             hold on;scatter3(centroid(1,1),centroid(1,2),centroid(1,3),'k','linewidth',10)
             %             hold on;scatter3(centroid(2,1),centroid(2,2),centroid(2,3),'b','linewidth',10)
-            for db = [1]
+            for db = [1] %db for go,nogo, hit, fa, cr etc...
                 ms=cell2mat(Bfeat{rec}.theta{1});
                 coords=mean(reshape(ms(db,:)',4,10),2);
                 plot_x = [min(alldat(:,1))-2, min(alldat(:,1))-2, max(alldat(:,1))+2, max(alldat(:,1))+2]; %ranges for amplitude
@@ -246,15 +247,18 @@ for rec = 1:6
                 hold on; fill3(plot_x, plot_y, plot_z,'k'); alpha (.4)
                 xlabel('Amplitude');ylabel('Setpoint');zlabel('Phase')
             end
-            
-            ms=cell2mat(Bfeat{rec}.theta{1});
-            optfeat(:,rec)=mean(reshape(ms(1,:)',4,10),2);
-            
+                ms=cell2mat(Bfeat{rec}.theta{1});
+    optfeat(:,rec)=mean(reshape(ms(1,:)',4,numIterations),2);
+    optfeatstd(:,rec)=std(reshape(ms(1,:)',4,numIterations),0,2);
+
             
     end
     
     
 end
+%%
+figure;filex_barwitherr(optfeatstd',optfeat')
+
 %% FA:CR DISTRIBUTION
 myC=[0 1 0;1 0 0]; % make a colors list
 H=bar(FCratio, 'stack');
