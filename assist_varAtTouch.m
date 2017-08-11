@@ -91,7 +91,7 @@ prevarSpikes=cellfun(@(x,y) cat(2,x,y), vardesign,prevarAligned,'uniformoutput',
 prevarSpikes=prevarSpikes(~cellfun('isempty',prevarSpikes)); %remove empty cells  
 prevarSpikes=cat(1,prevarSpikes{:});
 
-post=ismember(varSpikes,prevarSpikes,'rows');%elim rows in ALL that are same as Pre to find Post
+post=ismember(varSpikes(:,1:4),prevarSpikes(:,1:4),'rows');%use 1st 4 rows varattouch to id which rows are the same and elim for postvar
 postvarSpikes=varSpikes(~post,:);
 
 
