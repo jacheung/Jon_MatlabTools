@@ -171,7 +171,7 @@ for rec = 1:7
             
             for db = [1:2]
                 ms=cell2mat(Bfeat{rec}.theta{1});
-                coords=mean(reshape(ms(db,:)',2,10),2);
+                coords=mean(reshape(ms(db,:)',2,numIterations),2);
                 y= (exp(coords(1)+coords(2)*x)) ./ (1 + exp(coords(1)+coords(2)*x))  ;
                 y1=train_predOpt{1}(rec);
                 colors = ['b','r'];
@@ -204,7 +204,7 @@ for rec = 1:7
             % %ASIDE: Plotting Decision Boundary for 3 variables
             
             ms=cell2mat(Bfeat{rec}.theta{1});
-            coords=mean(reshape(ms(1,:)',4,10),2);
+            coords=mean(reshape(ms(1,:)',4,numIterations),2);
             alldat=filex_whiten([FAx;CRx]);
             centroid=[mean(alldat(1:length(FAx),:));mean(alldat(length(FAx):end,:))];
             
@@ -222,7 +222,7 @@ for rec = 1:7
             
             coords=[];
             ms=cell2mat(Bfeat{rec}.theta{1});
-            coords(:,rec)=mean(reshape(ms(1,:)',4,10),2);
+            coords(:,rec)=mean(reshape(ms(1,:)',4,numIterations),2);
             
         case 4
             % %ASIDE: Plotting Decision Boundary for 3 variables
@@ -240,7 +240,7 @@ for rec = 1:7
             %             hold on;scatter3(centroid(2,1),centroid(2,2),centroid(2,3),'b','linewidth',10)
             for db = [1] %db for go,nogo, hit, fa, cr etc...
                 ms=cell2mat(Bfeat{rec}.theta{1});
-                coords=mean(reshape(ms(db,:)',4,10),2);
+                coords=mean(reshape(ms(db,:)',4,numIterations),2);
                 plot_x = [min(alldat(:,1))-2, min(alldat(:,1))-2, max(alldat(:,1))+2, max(alldat(:,1))+2]; %ranges for amplitude
                 plot_z = [-3 ,3,3,-3];
                 plot_y = (-1/coords(3)) .* (coords(1) + (coords(2).*plot_x) + coords(4).*plot_z - log(train_predOpt{1}(rec)/(1-train_predOpt{1}(rec)))); % log p(go trial) to calculate decision boundary
@@ -256,9 +256,11 @@ for rec = 1:7
     
     
 end
-%%
-figure;filex_barwitherr(optfeatstd',optfeat')
-
+%% Plotting most predictive motor feature
+figure(92);filex_barwitherr(optfeatstd',optfeat')
+xlabel('Mouse Number');title('Most Predictive Motor Feature');
+ylabel('Weight');
+legend('Bias','Amplitude','Setpoint','Phase')
 %% FA:CR DISTRIBUTION
 myC=[0 1 0;1 0 0]; % make a colors list
 H=bar(FCratio, 'stack');

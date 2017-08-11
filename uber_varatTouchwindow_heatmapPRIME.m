@@ -1,57 +1,31 @@
-% if strcmp(U{1}.meta.layer,'L5b')
-%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','I23:J67');
-%     disp(U{1}.meta.layer);
-%     layer = 'L5b';
-% elseif strcmp(U{1}.meta.layer,'L3')
-%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','B25:C44');
-%     disp(U{1}.meta.layer);
-%     layer = 'L3';
-% elseif strcmp(U{1}.meta.layer,'L4')
-%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','O23:P28');
-%     disp(U{1}.meta.layer);
-%     layer = 'L4';
-% elseif strcmp(U{1}.meta.layer,'L3Out')
-%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','B77:C82');
-%     disp(U{1}.meta.layer);
-%     layer = 'L3Out';
-% elseif strcmp(U{1}.meta.layer,'L5bOut')
-%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','I75:J82');
-%     disp(U{1}.meta.layer);
-%     layer = 'L5bOut';
-% else strcmp(U{1}.meta.layer,'L5bInt')
-%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','V75:W81');
-%     disp(U{1}.meta.layer);
-%     layer = 'L5bInt';
-% end
-% txt=txt(~isnan(ndata));
+
+[layer, txt] = loadDataNames(U);
 
 %%
 for p=1:length(U)
-    figure(31);clf;
+    close all;
     rec=p
     countThresh = 3; %min touch in each bin to be considered
     gaussFilt = [3]; %sigma filter for imgaussfilt (can be single value for filtering across rows and columns or two values [x y] for filter of row/column
-    window = [-50:100]; %ms to look around touch
+    window = [-50:200]; %ms to look around touch
     
-    normbinwin=30; %window for normalizing from 0ms:binwin
-    
-    [varspikes, prevarspikes,postvarspikes] = assist_varAtTouch(U{rec},window);
+    [varspikes, preDvarspikes,postDvarspikes] = assist_varAtTouch(U{rec},window);
     % First 6 columns will be values for the variables
     % 1) THETA
     % 2) PRE TOUCH VELOCITY
     % 3) AMP
     % 4) SETPOINT
     % 5) PHASE
-    % 6) MAX KAPPA
-    
+    % 6) MAX KAPPA    
     % Last columns will be the spikes around your given window
-    comp={varspikes, prevarspikes, postvarspikes};
+    
+    comp={varspikes, preDvarspikes, postDvarspikes};
     for g = 1:length(comp)
         %%
         %Plot theta at touch
         fields = [{'theta'} {'velocity'} {'amplitude'} {'setpoint'} {'phase'} {'kappa'}];
-        V.bounds = [{[-99.5:1:99.5]} {[-9750:500:9750]} {[-99.5:1:99.5]} {[-99.5:1:99.5]} {linspace(pi*-1,pi,12)} {[-.95:.05:.95]}];
-        for d = [1  3 4 5] %for variables 1:6
+        V.bounds = [{[-99.5:1:99.5]} {[-9750:125:9750]} {[-99.5:1:99.5]} {[-99.5:1:99.5]} {linspace(pi*-1,pi,12)} {[-.95:.05:.95]}];
+        for d = [1 2 3 4 5 6] %for variables 1:6
             
             if d == 2
                 [sorted, sortedBy ,binBounds]=binslin(comp{g}(:,d),comp{g}(:,7:end),'equalE',numel(V.bounds{d})+1,-10000,10000);
@@ -85,7 +59,7 @@ for p=1:length(U)
             
             %Plotting features
             figure(30+g);subplot(2,3,d);
-            imagesc(imgaussfilt(V.(fields{d}).spikes,gaussFilt));colormap(gca,parula);
+            imagesc(imgaussfilt(V.(fields{d}).spikes,gaussFilt,'padding','replicate'));colormap(gca,parula);
             set(gca,'Ydir','normal','ytick',(1:length(V.(fields{d}).range)),'yticklabel',[V.(fields{d}).range],...
                 'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
             for k=1:size(V.(fields{d}).counts,1)

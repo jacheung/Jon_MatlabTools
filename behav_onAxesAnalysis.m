@@ -1,6 +1,6 @@
 clear all;close all; 
 
-mouseNum = 'AH0668';
+mouseNum = 'AH0712';
 d = (['Z:\Users\Jon\DATA\Behavior\OnAxes']);
 cd(d);
 filelist=dir([d filesep '*.mat']);
@@ -10,7 +10,7 @@ for f = 1:length(filelist)
         list = [list f];
     end
 end
-samp=4
+
 gpsycho = []
 for k = 1:length(list)
     load([ filelist(list(k)).name]);
@@ -61,9 +61,6 @@ for k = 1:length(list)
     rmiss=sum(~tcorr.*rtrim.*gotrim);
     r=[rhit rCR rFA rmiss]./rtrials;
     
-    B.rAcc(samp)=(rhit+rCR)/rtrials;
-    B.nAcc(samp)=(nhit+nCR)/ntrials;
-    B.aAcc(samp)=(ahit+aCR)/atrials;
     
     %% psychometric curves
     psys{1} = [tcorr(atrim)' gotrim(find(atrim==1))' hor(atrim)']; %arc task
@@ -145,14 +142,14 @@ plot([1:10],mean(gpsycho(:,[3:3:end]),2),'r','linewidth',4);
 
 
 %%
-ravg = mean(B.rAcc);rstd = std(B.rAcc);
-aavg = mean(B.aAcc);astd = std(B.aAcc);
-navg = mean(B.nAcc);nstd = std(B.nAcc);
-
-m = [navg aavg ravg];
-s = [nstd astd rstd];
-
-figure(10);errorbar([1:3],m,s,'o')
-title('Population Average n=2 (2 sessions ea)');ylabel('% Accuracy')
-set(gca,'xlim',[0 4],'ylim',[.5 1],'xtick',[1:3],'xticklabel',{'normal';'arc';'radial'},'ytick',...
-    [.5:.1:1])
+% ravg = mean(B.rAcc);rstd = std(B.rAcc);
+% aavg = mean(B.aAcc);astd = std(B.aAcc);
+% navg = mean(B.nAcc);nstd = std(B.nAcc);
+% 
+% m = [navg aavg ravg];
+% s = [nstd astd rstd];
+% 
+% figure(10);errorbar([1:3],m,s,'o')
+% title('Population Average n=2 (2 sessions ea)');ylabel('% Accuracy')
+% set(gca,'xlim',[0 4],'ylim',[.5 1],'xtick',[1:3],'xticklabel',{'normal';'arc';'radial'},'ytick',...
+%     [.5:.1:1])
