@@ -5,112 +5,141 @@ U=BV;
 [V] = classifierWrapper(U);
 %% PARAMETERS SETTING
 clearvars -except V U
-numIterations = 100;
-
-%Design Matrix
+numIterations = 10;
+designvars = 'pas';
+% 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts'
+classes = 'gonogo';
+% 1) 'gonogo' 2) 'FAvsCR' 3) 'lick' 4) allBehavTypes
+normalization = 'whiten';
+% 1) 'whiten' 2) 'none';
+sample ='random';
+% 1) 'bias' (takes 70% from each class for train) 2) 'random' just takes
+% random 70% to train
+% Design Matrix
 
 for i = 1:length(U)
     pc(i)=mean(U{i}.meta.trialCorrect);
+    hx = [V(i).touchNum.hit'];
+    FAx = [V(i).touchNum.FA'];
+    CRx = [V(i).touchNum.CR'];
+    plick(i)=(length(hx)+length(FAx))/(length(FAx)+length(CRx)+length(hx));
 end
-accprop=cell(1,length(V))
+
+
+accprop=cell(1,length(V));
+
 for rec = 1:length(V)
+    switch designvars
+        case 'theta'
+            hx = [V(rec).var.hit{1}'];
+            FAx = [V(rec).var.FA{1}'];
+            CRx = [V(rec).var.CR{1}'];
+            hy = ones(size(hx,1),1);
+            FAy = ones(size(FAx,1),1)+1;
+            CRy1 = ones(size(CRx,1),1)+1;
+        case 'pas'
+            ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
+            hx = [V(rec).var.hit{3}(ntmp)' V(rec).var.hit{4}(ntmp)' V(rec).var.hit{5}(ntmp)'];
+            hy = ones(size(hx,1),1);
+            Fntmp=find(V(rec).var.FA{5}<=0);Fptmp=find(V(rec).var.FA{5}>0);
+            FAx = [V(rec).var.FA{3}(Fntmp)' V(rec).var.FA{4}(Fntmp)' V(rec).var.FA{5}(Fntmp)'];
+            FAy = ones(size(FAx,1),1)+1;
+            Cntmp=find(V(rec).var.CR{5}<=0);Cptmp=find(V(rec).var.CR{5}>0);
+            CRx = [V(rec).var.CR{3}(Cntmp)' V(rec).var.CR{4}(Cntmp)' V(rec).var.CR{5}(Cntmp)'];
+            CRy1 = ones(size(CRx,1),1)+1;
+            
+        case 'counts'
+            hx = [V(rec).touchNum.hit'];
+            hy = ones(size(hx,1),1);
+            FAx = [V(rec).touchNum.FA'];
+            FAy = ones(size(FAx,1),1)+1;
+            CRx = [V(rec).touchNum.CR'];
+            CRy1 = ones(size(CRx,1),1)+1;
+    end
     
-%          hx = [V(rec).hit{1}'];
-        ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
-        hx = [V(rec).var.hit{3}(ntmp)' V(rec).var.hit{4}(ntmp)' V(rec).var.hit{5}(ntmp)'];
-        hy = ones(size(hx,1),1);
+    %     [FAx,FAy,CRx,CRy1] = FACRBalance([FAx ;hx],CRx);
     
-%         FAx = [V(rec).var.FA{1}'];
-        Fntmp=find(V(rec).var.FA{5}<=0);Fptmp=find(V(rec).var.FA{5}>0);
-        FAx = [V(rec).var.FA{3}(Fntmp)' V(rec).var.FA{4}(Fntmp)' V(rec).var.FA{5}(Fntmp)'];
-        FAy = ones(size(FAx,1),1)+1;
+    switch classes
+        case 'gonogo'
+            DmatX=[hx;FAx;CRx]; DmatY=[hy;FAy;CRy1]; %complete design matrix for govsnogo
+        case 'FAvsCR'
+            [FAx,FAy,CRx,CRy1] = FACRBalance([FAx ;hx],CRx);
+            DmatX = [FAx;CRx]; DmatY = [FAy-1;CRy1];
+        case 'lick'
+            DmatX = [hx;FAx;CRx]; DmatY = [hy;FAy-1;CRy1];
+            g1 = [hy;FAy-1];g2 = [CRy1];
+        case 'allBehavTypes'
+            DmatX=[hx;FAx;CRx]; DmatY = [hy;FAy;CRy1+1];
+    end
     
-%         CRx = [V(rec).var.CR{1}'];
-        Cntmp=find(V(rec).var.CR{5}<=0);Cptmp=find(V(rec).var.CR{5}>0);
-        CRx = [V(rec).var.CR{3}(Cntmp)' V(rec).var.CR{4}(Cntmp)' V(rec).var.CR{5}(Cntmp)'];
-        CRy1 = ones(size(CRx,1),1)+1;
-        %FOR FA VS CR
-         %RESAMPLING so CR and FA will be balanced
-        [FAx,FAy,CRx,CRy1] = FACRBalance(FAx,CRx);
-    
-    %     %FOR COUNTS
-%     hx = [V(rec).touchNum.hit'];
-%     hy = ones(size(hx,1),1);
-%     FAx = [V(rec).touchNum.FA'];
-%     FAy = ones(size(FAx,1),1)+1;
-%     CRx = [V(rec).touchNum.CR'];
-%     CRy1 = ones(size(CRx,1),1)+1;
-%     
-%     [FAx,FAy,CRx,CRy1] = FACRBalance(FAx,CRx);
-    %
+    switch normalization
+        case 'whiten'
+            filex_whiten(DmatX);
+    end
     
     
     
-    %COMPLETE DESIGN MATRIX
-    %     DmatX{1}=filex_whiten([hx;FAx;CRx]); DmatY{1}=[hy;FAy;CRy1]; %complete design matrix for govsnogo
-        DmatX{1}=filex_whiten([hx;FAx;CRx]); DmatY{1}=[hy;FAy;CRy1+1]; %complete design matrix for trial type discrim
-    %     DmatX{1}=filex_whiten([FAx;CRx]); DmatY{1} = [FAy-1;CRy1]; %complete design matrix for FA CR
+    clear Acc
+    clear DB
+    clear opt_thresh
     
-%     DmatX{1} = ([hx;FAx;CRx]) ;DmatY{1}=[hy;FAy;CRy1]; %complete design matrix for touch counts go/nogo
-%         DmatX{1}=([hx;FAx;CRx]); DmatY{1}=[hy;FAy;CRy1+1]; %complete design matrix for trial type discrim
-    
-    %     DmatX{1}=([FAx;CRx]); DmatY{1} = [FAy-1;CRy1]; %complete design matrix for touch count FA CR
-    
-    for z=1:length(DmatX)
+    for reit = 1:numIterations
+        rando = randperm(length(DmatX));
+        tmpDmatX=DmatX(rando,:);tmpDmatY=DmatY(rando,:);
         
-        clear Acc
-        clear DB
-        clear opt_thresh
+        switch sample
+            case 'bias'
+                %             %FOR FA VS CR
+                %             sample evenly from FA and CR for training set
+                g1counts = round(numel(g1)*.7);
+                g2counts = round(numel(g2)*.7);
+                g1s = find(tmpDmatY==unique(g1));
+                g2s = find(tmpDmatY==unique(g2));
+                train=[g2s(1:g2counts);g1s(1:g1counts)];
+                test = [1:length(tmpDmatY)]';
+                test(train)=[];
+                
+                [thetas,cost,~] = ML_oneVsAll(tmpDmatX(train,:),tmpDmatY(train,:),numel(unique(DmatY)),0);
+                Bfeat{rec}.theta{reit}=thetas;
+                
+                [pred,opt_thresh(reit)]=ML_predictOneVsAll(thetas,tmpDmatX(test,:)...
+                    ,tmpDmatY(test,:),'Max');
+                Acc(reit)= mean(double(pred == tmpDmatY(test))) * 100;
+                F1s(reit,:) = F1score(pred,tmpDmatY(test),2);
+                
+                
+                accprop{rec}=[accprop{rec} ; pred tmpDmatY(test)];
         
-        for reit = 1:numIterations
-            rando = randperm(length(DmatX{z}));
-            tmpDmatX=DmatX{z}(rando,:);tmpDmatY=DmatY{z}(rando,:);
-            
-            %             %FOR FA VS CR
-            %             sample evenly from FA and CR for training set
-            %             CReach = round(numel(CRy1)*.7);
-            %             FAeach = round(numel(FAy)*.7);
-            %             CRs = find(tmpDmatY==2);
-            %             FAs = find(tmpDmatY==1);
-            %             train=[FAs(1:FAeach);CRs(1:CReach)];
-            %             test = [1:length(tmpDmatY)]';
-            %             test(train)=[];
-            %
-            %             [thetas,cost,~] = ML_oneVsAll(tmpDmatX(train,:),tmpDmatY(train,:),numel(unique(DmatY{z})),0);
-            %             Bfeat{rec}.theta{z}{reit}=thetas;
-            %
-            %             [pred,opt_thresh(reit)]=ML_predictOneVsAll(thetas,tmpDmatX(test,:)...
-            %                 ,tmpDmatY(test,:),'F1');
-            %              Acc(reit)= mean(double(pred == tmpDmatY(test))) * 100
-            
-            %             % use this for GO vs NOGO since it doesnt bias sampling
-            [thetas,cost,~] = ML_oneVsAll(tmpDmatX(1:end*.7,:),tmpDmatY(1:end*.7,:),numel(unique(DmatY{z})),0);
-            Bfeat{rec}.theta{z}{reit}=thetas;
-            [pred,opt_thresh(reit)]=ML_predictOneVsAll(thetas,tmpDmatX(end*.7:end,:)...
-                ,tmpDmatY(end*.7:end,:),'Max');
-            Acc(reit)= mean(double(pred == tmpDmatY(end*.7:end) )) * 100
-            accprop{rec}=[accprop{rec} ; pred tmpDmatY(end*.7:end)];
-            
-            %fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == tmpDmatY(end*.6:end))) * 100)
-            
+            case 'random'
+                % use this for GO vs NOGO since it doesnt bias sampling
+                [thetas,cost,~] = ML_oneVsAll(tmpDmatX(1:end*.7,:),tmpDmatY(1:end*.7,:),numel(unique(DmatY)),0);
+                Bfeat{rec}.theta{reit}=thetas;
+                [pred,opt_thresh(reit)]=ML_predictOneVsAll(thetas,tmpDmatX(end*.7:end,:)...
+                    ,tmpDmatY(end*.7:end,:),'Max');
+                Acc(reit)= mean(double(pred == tmpDmatY(end*.7:end) )) * 100;
+                F1s(reit,:) = F1score(pred,tmpDmatY(end*.7:end),2);
+                
+                accprop{rec}=[accprop{rec} ; pred tmpDmatY(end*.7:end)];
+                
         end
+        %fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == tmpDmatY(end*.6:end))) * 100)
         
-        train_predOpt{z}(rec)=mean(opt_thresh);
-        train_Acc{z}(rec) = mean(Acc);
-        train_std{z}(rec) = std(Acc);
     end
 
+    train_F1s(rec,:) = nanmean(nansum(F1s,2));
+    trainF1sstd(rec,:)=nanstd(nansum(F1s,2));
+    train_predOpt(rec)=mean(opt_thresh);
+    train_Acc(rec) = mean(Acc);
+    train_std(rec) = std(Acc);
+    
+    
 end
 
 
-figure(22);clf;
-hold on; errorbar(1:length(V),train_Acc{1},train_std{1},'ko')
-% hold on; errorbar(1:length(V),train_Acc{1},train_std{1},'go')
-% hold on; errorbar(1:length(V),train_Acc{3},train_std{3},'ro')
-%title('Prediction Accuracy of FA vs CR')
-xlabel('Mouse Number');ylabel('% Accuracy')
+figure(22);clf
+hold on; errorbar(1:length(V),train_Acc,train_std,'ko')
+xlabel('Mouse Number');ylabel('% Accuracy of Model')
 set(gca,'ylim',[0 100])
-
 %plotting TRUE POSITIVES (GUESSING class 1 and then it actually being class
 %1)
 predprop = zeros(length(V),3);
@@ -121,15 +150,21 @@ for recs = 1:length(V)
         predprop(recs,i)=mean(guesses(tmp,1)==i)*100;
     end
 end
-hold on; scatter(1:length(V),predprop(:,1),'b');
-scatter(1:length(V),predprop(:,2),'g')
+hold on; scatter(1:length(V),predprop(:,1),'g');
+scatter(1:length(V),predprop(:,2),'r')
 scatter(1:length(V),predprop(:,3),'r')
+legend('Model Accuracy','FA Prediction Accuracy','CR Prediction Accuracy','location','southeast')
+%Total Model Evaluation (F1score) 
+figure(23);
+hold on; errorbar(1:length(V),train_F1s,trainF1sstd,'ro')
+xlabel('Mouse Number');ylabel('Total F1 Score')
+set(gca,'xlim',[1 7],'ylim',[0 2])
 
 
 
 
-%% Visualization of the decision boundaries. 
-params = 4;
+%% Visualization of the decision boundaries.
+params = 3;
 FCratio = [];
 for rec = 1:7
     ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
@@ -151,17 +186,17 @@ for rec = 1:7
     switch params
         case 1
             %FOR TOUCH COUNTS
-            hx = [V(rec).touchNum.hit'];
-            FAx = [V(rec).touchNum.FA'];
-            CRx = [V(rec).touchNum.CR'];
-            x = [0:1:10];
+            %             hx = [V(rec).touchNum.hit'];
+            %             FAx = [V(rec).touchNum.FA'];
+            %             CRx = [V(rec).touchNum.CR'];
+            %             x = [0:1:10];
             %
-            %             hx = [V(rec).var.hit{1}'];
-            %             FAx = [V(rec).var.FA{1}'];
-            %             CRx = [V(rec).var.CR{1}'];
-            %             x = [min([hx;FAx;CRx])-2:1:max([hx;FAx;CRx])+2];
+            hx = [V(rec).var.hit{1}'];
+            FAx = [V(rec).var.FA{1}'];
+            CRx = [V(rec).var.CR{1}'];
+            x = [min([hx;FAx;CRx])-2:1:max([hx;FAx;CRx])+2];
             %
-            firstvar = histc(hx,x);secondvar = histc([FAx],x);
+            firstvar = histc([hx ;FAx],x);secondvar = histc([CRx],x);
             %thirdvar = histc([CRx],x);
             
             figure(12);subplot(2,3,rec)
@@ -178,10 +213,10 @@ for rec = 1:7
                 hold on; plot(x,y,['-.o' colors(db)]);
                 %             hold on; plot([0 10],[y1 y1],'-.ok')
                 set(gca,'xlim',[min(x) max(x)],'ylim',[0 1]);
-                xlabel('Touch Count');ylabel('Proportion of Trials AND P(trialType)')
+                xlabel('Theta at Touch');ylabel('Proportion of Trials AND P(lick)')
             end
             if rec ==3
-                legend('Hit', 'FA','Hit Classifier','FA Classifier', 'CR Classifier')
+                legend('Lick', 'No Lick','Lick Classifier','No Lick Classifier')
             end
         case 2
             % %ASIDE: Plotting Decision Boundary for 2 variables
@@ -203,27 +238,29 @@ for rec = 1:7
         case 3
             % %ASIDE: Plotting Decision Boundary for 3 variables
             
-            ms=cell2mat(Bfeat{rec}.theta{1});
+            ms=cell2mat(Bfeat{rec}.theta);
             coords=mean(reshape(ms(1,:)',4,numIterations),2);
-            alldat=filex_whiten([FAx;CRx]);
-            centroid=[mean(alldat(1:length(FAx),:));mean(alldat(length(FAx):end,:))];
+            alldat=filex_whiten([hx;FAx;CRx]);
+%             centroid=[mean(alldat(1:length(FAx),:));mean(alldat(length(FAx):end,:))];
             
             figure(10);%hold on;subplot(2,3,rec);
-            scatter3(alldat(1:length(FAx),1),alldat(1:length(FAx),2),alldat(1:length(FAx),3),'G')
-            hold on;scatter3(alldat(length(FAx):end,1),alldat(length(FAx):end,2),alldat(length(FAx):end,3),'r')
-            hold on;scatter3(centroid(1,1),centroid(1,2),centroid(1,3),'k','linewidth',10)
-            hold on;scatter3(centroid(2,1),centroid(2,2),centroid(2,3),'b','linewidth',10)
+            scatter3(alldat(1:length(hx),1),alldat(1:length(hx),2),alldat(1:length(hx),3),'b')
+            hold on;scatter3(alldat(length(hx):end,1),alldat(length(hx):end,2),alldat(length(hx):end,3),'r')
+%             hold on;scatter3(centroid(1,1),centroid(1,2),centroid(1,3),'k','linewidth',10)
+%             hold on;scatter3(centroid(2,1),centroid(2,2),centroid(2,3),'b','linewidth',10)
             
             plot_x = [min(alldat(:,1))-2, min(alldat(:,1))-2, max(alldat(:,1))+2, max(alldat(:,1))+2]; %ranges for amplitude
             plot_z = [-3 ,3,3,-3];
-            plot_y = (-1/coords(3)) .* (coords(1) + (coords(2).*plot_x) + coords(4).*plot_z - log(train_predOpt{1}(rec)/(1-train_predOpt{1}(rec)))); % log p(go trial) to calculate decision boundary
+            plot_y = (-1/coords(3)) .* (coords(1) + (coords(2).*plot_x) + (coords(4).*plot_z) - log(train_predOpt(rec)/(1-train_predOpt(rec)))); % log p(go trial) to calculate decision boundary
+            
             hold on; fill3(plot_x, plot_y, plot_z,'k'); alpha (.4)
-            xlabel('Amplitude');ylabel('Setpoint');zlabel('Phase')
+            xlabel('Amplitude');ylabel('Midpoint');zlabel('Phase')
             
             coords=[];
-            ms=cell2mat(Bfeat{rec}.theta{1});
+            ms=cell2mat(Bfeat{rec}.theta);
             coords(:,rec)=mean(reshape(ms(1,:)',4,numIterations),2);
-            
+            optfeat(:,rec)=mean(reshape(ms(1,:)',4,numIterations),2);
+            optfeatstd(:,rec)=std(reshape(ms(1,:)',4,numIterations),0,2);
         case 4
             % %ASIDE: Plotting Decision Boundary for 3 variables
             
@@ -245,12 +282,12 @@ for rec = 1:7
                 plot_z = [-3 ,3,3,-3];
                 plot_y = (-1/coords(3)) .* (coords(1) + (coords(2).*plot_x) + coords(4).*plot_z - log(train_predOpt{1}(rec)/(1-train_predOpt{1}(rec)))); % log p(go trial) to calculate decision boundary
                 hold on; fill3(plot_x, plot_y, plot_z,'k'); alpha (.4)
-                xlabel('Amplitude');ylabel('Setpoint');zlabel('Phase')
+                xlabel('Amplitude');ylabel('Midpoint');zlabel('Phase')
             end
-                ms=cell2mat(Bfeat{rec}.theta{1});
-    optfeat(:,rec)=mean(reshape(ms(1,:)',4,numIterations),2);
-    optfeatstd(:,rec)=std(reshape(ms(1,:)',4,numIterations),0,2);
-
+            ms=cell2mat(Bfeat{rec}.theta{1});
+            optfeat(:,rec)=mean(reshape(ms(1,:)',4,numIterations),2);
+            optfeatstd(:,rec)=std(reshape(ms(1,:)',4,numIterations),0,2);
+            
             
     end
     
@@ -260,7 +297,7 @@ end
 figure(92);filex_barwitherr(optfeatstd',optfeat')
 xlabel('Mouse Number');title('Most Predictive Motor Feature');
 ylabel('Weight');
-legend('Bias','Amplitude','Setpoint','Phase')
+legend('Bias','Amplitude','Midpoint','Phase','Location','northwest')
 %% FA:CR DISTRIBUTION
 myC=[0 1 0;1 0 0]; % make a colors list
 H=bar(FCratio, 'stack');
