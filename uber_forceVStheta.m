@@ -1,5 +1,5 @@
-load('Z:\Users\Jon\Projects\Characterization\BV')
-U=BV;
+% load('Z:\Users\Jon\Projects\Characterization\BV')
+% U=BV;
 %
 countsALL=cell(1,length(U));
 gocorrALL=cell(1,length(U));
@@ -7,7 +7,7 @@ nogocorrALL=cell(1,length(U));
 godurALL=cell(1,length(U));
 nogodurALL=cell(1,length(U));
 
-for rec=1:length(U)
+for rec=1
     varcell=cell(1,3);
     prevarcell=varcell;
     %[varspikes] = assist_varAtTouch(U{rec},-25:50);
@@ -81,12 +81,12 @@ for rec=1:length(U)
         V(rec).miss{f} = cell2mat(V(rec).miss{f});
         V(rec).FA{f} = cell2mat(V(rec).FA{f});
         V(rec).CR{f} = cell2mat(V(rec).CR{f});
-        
+         print(figure(70+f),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer num2str(rec) '_' V(rec).varNames{f}])
+  
     end
-         print(figure(70+f),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\BV' num2str(rec) '_' U{rec}.varNames{f}])
-   
+         
     [counts, gocorr, nogocorr,godur,nogodur] = assist_countsNduration(U{rec},prelixGo,prelixNoGo,duration);
-    %print(figure(123),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer{1} '\Figures\' U{rec}.meta.layer{1} num2str(rec) '_countsNduration' ])
+    print(figure(123),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer num2str(rec) '_countsNduration' ])
     countsALL{rec}=counts;
     gocorrALL{rec}=gocorr;nogocorrALL{rec}=nogocorr; % 2 columns, 1 = count num, 2 = p(lick)
     godurALL{rec}=godur;nogodurALL{rec}=nogodur; %3 rows, 1 = ?, 2 = duration, 3 = p(lick)

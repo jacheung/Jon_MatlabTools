@@ -8,7 +8,7 @@ ActualPos =(actual==i); %all true positives
 
 TP = sum(predictions(ActualPos)==i);
 FN = sum(~(predictions(ActualPos)==i));
-predPos = sum(predictions==1);
+predPos = sum(predictions==i);
 
 P = TP./predPos; %precision defined as TRUEPOS/predicted pos
 

@@ -8,6 +8,16 @@ Gprelixpcth=cell(1,array.k);
 Gprelixtimes=cell(1,array.k);
 Gprelixduration=cell(1,array.k);
 
+licks = squeeze(array.S_ctk(16,:,:))';
+
+fl = [];
+for i = 1:size(licks,1)
+    fl(i) = min([find(licks(i,:)==1) array.t]);
+end
+fl = fl(fl<3000);
+fls = sort(fl);
+flninety= fls(ceil(numel(fls)*.9));
+
 for k =1:array.k %for each trial
     postsamp=array.meta.poleOnset(k)+.95; %pole onset time + time to be touchable (.2s) + sampling period (.75s)
     lixtmp=find(array.S_ctk(16,:,k)==1);
@@ -15,9 +25,9 @@ for k =1:array.k %for each trial
     %lix=find(array.S_ctk(16,:,k)==1,1,'first');%first lick in that trial
     alltouches=[find(array.S_ctk(9,:,k)==1), find(array.S_ctk(12,:,k)==1)]; %all touches in trial
     if lix>0 %all touches before first decision
-        prelix=alltouches(alltouches<lix);
+        prelix=alltouches(alltouches<lix); 
     else
-        prelix=alltouches;
+        prelix=alltouches(alltouches<flninety); %setting touch cut off to be 90 percentile of all lix
     end
     
     duration = [find(array.S_ctk(10,:,k)==1) , find(array.S_ctk(13,:,k)==1)] - alltouches;
@@ -65,7 +75,7 @@ end
 touchespredecision=mean(cellfun(@numel,Gprelixtimes));
 
 %sort pre lick times by GO and NOGO trials
-GprelixtimesGO = Gprelixtimes(array.meta.trialType);
+GprelixtimesGO = Gprelixtimes(logical(array.meta.trialType));
 GprelixtimesNOGO = Gprelixtimes(logical(1-array.meta.trialType));
 Gprelixpcth = Gprelixpcth; %cell array w/ time between touches
 Gprelixduration = Gprelixduration; %cell array w/ time for each touch

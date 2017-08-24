@@ -8,7 +8,7 @@
 %Bottom plot will be for the variable distribution sorted by
 %Hit(blue)/FA(green)/CR(red)/miss(black)
 
-function [govarx,nogovarx,hit,miss,FA,CR,pregovar,prenogovar] = assist_vardistribution(array,variable,prelixGo,prelixNoGo,varargin);
+function [govarx,nogovarx,hit,miss,FA,CR,pregovar,prenogovar] = assist_vardistribution(array,variable,prelixGo,prelixNoGo,varargin)
 
 if numel(varargin)<3 %if nothing in varargin{3} then plotting feature is turned off
     varargin{3} = [];
@@ -31,7 +31,7 @@ switch variable
     case 3
     varname = 'Amplitude';
     case 4
-    varname = 'Setpoint';
+    varname = 'Midpoint';
     case 5
     varname = 'Phase';
     sampspace = [-pi:pi/8:pi];
@@ -50,7 +50,7 @@ for j = 1:length(go)
     gotouchOnIdx=[];
     gotouchOnIdx = [find(array.S_ctk(9,:,go(j))==1); find(array.S_ctk(12,:,go(j))==1)']; %find indices of touch for current go trial
     if exist('wndow') %when doing averages (for vel or kappa) after touch, need to elim those touches that have indices past 4000 frames
-    gotouchOnIdx=gotouchOnIdx(gotouchOnIdx+max(wndow)<3999);
+    gotouchOnIdx=gotouchOnIdx(gotouchOnIdx+max(wndow)<array.t);
     end
     if variable == 2 || variable ==6
         
@@ -76,7 +76,7 @@ for k = 1:length(nogo)
     nogotouchOnIdx=[];
     nogotouchOnIdx = [find(array.S_ctk(9,:,nogo(k))==1); find(array.S_ctk(12,:,nogo(k))==1)'];
     if exist('wndow')
-    nogotouchOnIdx= nogotouchOnIdx(nogotouchOnIdx+max(wndow)<3999);
+    nogotouchOnIdx= nogotouchOnIdx(nogotouchOnIdx+max(wndow)<array.t);
     end
     if variable == 2 || variable ==6
         
@@ -123,8 +123,8 @@ switch variable
     title(['Predecision Go/NoGo Velocity ' num2str(wndow(1)) ' to ' num2str(wndow(end)) 'ms PostTouch Distribution'])
     ylabel('Proportion of Touches')
     case 5 
-    set(gca,'xtick',[1:4:17],'xticklabel',{'-pi','-pi/2',0,'pi/2','pi'}) 
-    title(['Predecision Go/NoGo ' varname ' Distribution'])
+    set(gca,'xtick',[1:4:17],'xticklabel',{'-\pi','-\pi/2',0,'\pi/2','\pi'}) 
+    title([varname ' at Trial Type'])
     ylabel('Proportion of Touches')
     case 6 
     set(gca,'xtick',linspace(0,45,5),'xticklabel',[-.05:.025:.05])
@@ -132,36 +132,42 @@ switch variable
     ylabel('Proportion of Touches')
     otherwise
     set(gca,'xtick',[0:25:100],'xticklabel',[-50:25:50],'xlim',[0 100]);
-    title(['Predecision Go/NoGo' varname ' Distribution'])
+    title([[ varname  ' at Trial Type']])
     ylabel('Proportion of Touches')
 end
+legend('Go','No Go')
 
 
 % BOTTOM plot = predecision variables divided between hit/cr/fa/miss 
 subplot(2,1,2); %subplot(1,2,2)
-plot(histc(cell2mat(hit),sampspace)/sum(histc(cell2mat(hit),sampspace)),'b');
-hold on;plot(histc(cell2mat(FA),sampspace)/sum(histc(cell2mat(FA),sampspace)),'g');
-hold on;plot(histc(cell2mat(CR),sampspace)/sum(histc(cell2mat(CR),sampspace)),'r');
-hold on;plot(histc(cell2mat(miss),sampspace)/sum(histc(cell2mat(miss),sampspace)),'k');
+% plot(histc(cell2mat(hit),sampspace)/sum(histc(cell2mat(hit),sampspace)),'b');
+% hold on;plot(histc(cell2mat(FA),sampspace)/sum(histc(cell2mat(FA),sampspace)),'g');
+% hold on;plot(histc(cell2mat(CR),sampspace)/sum(histc(cell2mat(CR),sampspace)),'r');
+% hold on;plot(histc(cell2mat(miss),sampspace)/sum(histc(cell2mat(miss),sampspace)),'k');
+plot(histc(cell2mat(hit),sampspace),'b');
+hold on;plot(histc(cell2mat(FA),sampspace),'g');
+hold on;plot(histc(cell2mat(CR),sampspace),'r');
+hold on;plot(histc(cell2mat(miss),sampspace),'k');
+
 switch variable
     case 2 
     set(gca,'xtick',linspace(0,70,7),'xticklabel',[-3000:1000:3000])
     title(['Go/NoGo Velocity ' num2str(wndow(1)) ' to ' num2str(wndow(end)) 'ms Predecision Touch'])
-    ylabel('Proportion of Touches')
+    ylabel('Number of Touches')
     case 5 
-    set(gca,'xtick',[1:4:17],'xticklabel',{'-pi','-pi/2',0,'pi/2','pi'}) 
-    title(['Predecision ' varname ' @ Touch x Trial Correct'])
-    ylabel('Proportion of Touches')
+    set(gca,'xtick',[1:4:17],'xticklabel',{'-\pi','-\pi/2',0,'\pi/2','\pi'}) 
+    title([varname ' during Trial Outcome'])
+    ylabel('Number of Touches')
     case 6 
     set(gca,'xtick',linspace(0,45,5),'xticklabel',[-.05:.025:.05])
     title(['Predecision Kappa Change ' num2str(wndow(1)) ' to ' num2str(wndow(end)) 'ms PostTouch Distribution'])
     ylabel('Proportion of Touches')
     otherwise
     set(gca,'xtick',[0:25:100],'xticklabel',[-50:25:50],'xlim',[0 100]);
-    title(['Predecision ' varname ' @ Touch x Trial Correct'])
-    ylabel('Proportion of Touches')
+    title([varname ' during Trial Outcome'])
+    ylabel('Number of Touches')
 end
-    
+    legend ('Hit','False Alarm','Correct Rejection','Miss')
 end
 
 
