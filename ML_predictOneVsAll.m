@@ -1,4 +1,4 @@
-function [p,opt_thresh] = ML_predictOneVsAll(all_theta, X,varargin)
+function [p,opt_thresh,Z] = ML_predictOneVsAll(all_theta, X,varargin)
 %PREDICT Predict the label for a trained one-vs-all classifier. The labels 
 %are in the range 1..K, where K = size(all_theta, 1). 
 %  p = PREDICTONEVSALL(all_theta, X) will return a vector of predictions

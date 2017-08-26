@@ -11,11 +11,23 @@ function [mask] = assist_touchmasks(array)
 %% this is used to mask out touches and allow analysis for phase, setpoint, and amplitude
     tmp=find(array.S_ctk(9,:,:)==1)/array.t;
     d = tmp-floor(tmp); %keep only decimals
-    avail=round(min(d)*array.t); %pole available time in ms
+    avail=round(min(d)*array.t); %pole available time in ms based on first touch 
     offset=round(array.meta.poleOffset*1000);
     offmax=find(offset>array.t);
     offset(offmax)=array.t;
     spikes = squeeze(array.R_ntk);
+    
+    licks = squeeze(array.S_ctk(16,:,:))';
+    
+    fl = [];
+    for i = 1:size(licks,1)
+        fl(i) = min([find(licks(i,:)==1) array.t]);
+    end
+    fl2 = fl(fl<3000);
+    fls = sort(fl2);
+    flninety= fls(ceil(numel(fls)*.9));
+    fl(fl==array.t)=flninety;
+    
     
     firsttouchIdx = [find(array.S_ctk(9,:,:)==1)];
     firsttouchOffIdx = [find(array.S_ctk(10,:,:)==1)];
@@ -50,15 +62,16 @@ function [mask] = assist_touchmasks(array)
     end
    
     availToFirstlick = NaN(size(squeeze(array.S_ctk(1,:,:))));
-        for d = 1:array.k
-            availToFirstlick = 0
-        end
+        
+    for d = 1:array.k
+            availToFirstlick(600:fl(d),d)=1;
+    end
     
     
     
     
     
-    
+    mask.availtolick = availToFirstlick;
     mask.touch = touchEx_mask;
     mask.first = firsttouchEx_mask;
     mask.availend = availtotrialend_mask;

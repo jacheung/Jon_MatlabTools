@@ -15,6 +15,11 @@ for rec = 1:length(uberarray)
     
     [~ ,prelixGo, prelixNoGo, ~ ,~ ,~] = assist_predecisionVar(array);
     varx=[1:6];
+    
+    
+
+    
+    % TOUCH VARIABLES AND TOUCH COUNT 
     for f=1:length(varx)
         [~, ~,V(rec).var.hit{f}, V(rec).var.miss{f}, V(rec).var.FA{f}, V(rec).var.CR{f},~,~] = assist_vardistribution(array,varx(f),prelixGo,prelixNoGo,[-25:0],[5:25]);
         if f == 1
@@ -29,37 +34,64 @@ for rec = 1:length(uberarray)
         V(rec).var.CR{f}    =      cell2mat(V(rec).var.CR{f});     
     end
     
-    V(rec).trialNums.matNames = {'hit','miss','FA','CR','licks'};
+    % TRIAL TYPE ORGANIZATION
+    V(rec).trialNums.matNames = {'hit','miss','FA','CR','licks','lick and hit'};
     V(rec).trialNums.matrix = zeros(5,array.k);
     V(rec).trialNums.matrix(1,find(array.meta.trialType == 1 & array.meta.trialCorrect ==1))= 1; %hit trials
     V(rec).trialNums.matrix(2,find(array.meta.trialType == 1 & array.meta.trialCorrect ==0))= 1; %miss trials
     V(rec).trialNums.matrix(3,find(array.meta.trialType == 0 & array.meta.trialCorrect ==0))= 1; % FA trials
     V(rec).trialNums.matrix(4,find(array.meta.trialType == 0 & array.meta.trialCorrect ==1))= 1; %CR trials
     V(rec).trialNums.matrix(5,:) = sum(V(rec).trialNums.matrix([1 3],:));
-
+    V(rec).trialNums.matrix(6,:) = sum(V(rec).trialNums.matrix([1 5],:))==2;
+    
+    
+    
+    
     %figuring out previous TT and whether it was lick or not
-    lix{1} = [0 V(rec).trialNums.matrix(5,:)]; %padded with 0 to account for indexing
-    lix{2} = [0 0 V(rec).trialNums.matrix(5,:)];
-    lix{3} = [0 0 0 V(rec).trialNums.matrix(5,:)];
+    lix{1} = [0 V(rec).trialNums.matrix(6,:)]; %padded with 0 to account for indexing
+    lix{2} = [0 0 V(rec).trialNums.matrix(6,:)];
+    lix{3} = [0 0 0 V(rec).trialNums.matrix(6,:)];
         
     hx_prevT = find(V(rec).trialNums.matrix(1,:)==1); % using current T num b/c licks shifted by padded 0
     mx_prevT = find(V(rec).trialNums.matrix(2,:)==1);
     FAx_prevT = find(V(rec).trialNums.matrix(3,:)==1); % using current T num b/c licks shifted by padded 0
     CRx_prevT = find(V(rec).trialNums.matrix(4,:)==1); % using current T num b/c licks shifted by padded 0
     
-    V(rec).licks.oneT.hit =lix{1}(hx_prevT);
-    V(rec).licks.oneT.miss =lix{1}(mx_prevT);
-    V(rec).licks.oneT.FA =lix{1}(FAx_prevT);
-    V(rec).licks.oneT.CR =lix{1}(CRx_prevT);
+    Ttype = {'hit','miss','FA','CR'};
+    Ttypemat={hx_prevT,mx_prevT,FAx_prevT,CRx_prevT};
     
-    V(rec).licks.twoT.hit =lix{2}(hx_prevT);
-    V(rec).licks.twoT.miss =lix{2}(mx_prevT);
-    V(rec).licks.twoT.FA =lix{2}(FAx_prevT);
-    V(rec).licks.twoT.CR =lix{2}(CRx_prevT);
+    for d = 1:length(Ttype)
+    V(rec).licks.oneT.(Ttype{d}) = lix{1}(Ttypemat{d});
+    V(rec).licks.twoT.(Ttype{d}) = lix{2}(Ttypemat{d});
+    V(rec).licks.threeT.(Ttype{d}) = lix{3}(Ttypemat{d});
+    end
+
+    % MAX PROTRACTION POLE AVAIL:LICK... UNFINISHED. NOT SURE IF ITLL BE
+    % USEFUL 
+%     [P] = findMaxProtraction(array,'avail2lick');
+% tmp = {'hit','miss','FA','CR'};
+%     inputs = {hx_prevT,mx_prevT,FAx_prevT,CRx_prevT};
+%     for g = 1:length(tmp) %for trial types...
+%     V(rec).maxProt.(tmp{g}){1} = []; V(rec).maxProt.(tmp{g}){3} = [];
+%     V(rec).maxProt.(tmp{g}){4} = []; V(rec).maxProt.(tmp{g}){5} = [];
+% 
+%         for k = 1:length(inputs{g}) %for number of T within trial types...
+%         d = inputs{g}(k); %for specific trial number...
+%     V(rec).maxProt.(tmp{g}){1}(k) = min([max(P.theta(P.trialNums==d)) array.t]);%max theta protraction in each cycle 
+%     test(k) = median(P.theta(P.trialNums==d));
+%     
+% %     V(rec).maxProt.(tmp{g}){3} = [V(rec).maxProt.(tmp{g}){3} ;P.amp(P.trialNums==d)];
+% %     V(rec).maxProt.(tmp{g}){4} = [V(rec).maxProt.(tmp{g}){4}; P.setpoint(P.trialNums==d)];
+% %     V(rec).maxProt.(tmp{g}){5} = [V(rec).maxProt.(tmp{g}){5}; P.phase(P.trialNums==d)];
+%          end
+%     end
     
-    V(rec).licks.threeT.hit =lix{3}(hx_prevT);
-    V(rec).licks.threeT.miss =lix{3}(mx_prevT);
-    V(rec).licks.threeT.FA =lix{3}(FAx_prevT);
-    V(rec).licks.threeT.CR =lix{3}(CRx_prevT);
+    
+    
+    
+    
+    
+    
+    
     
 end
