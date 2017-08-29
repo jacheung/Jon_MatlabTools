@@ -9,7 +9,7 @@ clear F1G
 
 clearvars -except V U BV D F1G
 numIterations = 10;
-designvars = 'ubered';
+designvars = 'theta';
 % 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' $) 'ubered'
 classes = 'lick';
 % 1) 'gonogo' 2) 'FAvsCR' 3) 'lick' 4) allBehavTypes
@@ -258,7 +258,7 @@ for rec = 1:length(V)
     reallickmean=cell2mat(cellfun(@mean,realsorted,'uniformoutput',0));
     reallickstd=cell2mat(cellfun(@std,realsorted,'uniformoutput',0));
     
-    modelsim = sum(abs(reallickmean(:,2)-lickmean(:,2)));
+    modelsim = nansum((reallickmean(:,2)-lickmean(:,2)).^2);
     
     figure(3);subplot(3,3,rec)
     plot(xranges',reallickmean(:,2),'r','linewidth',1)
@@ -274,6 +274,7 @@ for rec = 1:length(V)
         title([U{rec}.meta.layer ' ' designvars ' ' classes])
     end
 end
+set(gcf, 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
 print(figure(3),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_PSYCHO'])
 
 
