@@ -41,6 +41,11 @@ clear U
 layer = 'SM';
 cellNum = [2 11 16 23 27 34:38];
 trialCutoffs = repmat([1 200],numel(cellNum),1);
+%%
+clear U
+layer = 'N';
+cellNum = [1:3];
+trialCutoffs = repmat([1 800],numel(cellNum),1);
 %% 
 
 for cellStep = 1:length(cellNum)

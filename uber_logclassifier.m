@@ -13,7 +13,7 @@ designvars = 'theta';
 % 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' $) 'ubered'
 classes = 'lick';
 % 1) 'gonogo' 2) 'FAvsCR' 3) 'lick' 4) allBehavTypes
-normalization = 'whiten';
+normalization = 'none';
 % 1) 'whiten' 2) 'none';
 sample ='random';
 % 1) 'bias' (takes 70% from each class for train) 2) 'random' just takes
