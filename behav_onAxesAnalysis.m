@@ -1,6 +1,6 @@
 clear all;close all; 
 
-mouseNum = 'AH0712';
+mouseNum = 'AH0717';
 d = (['Z:\Users\Jon\DATA\Behavior\OnAxes']);
 cd(d);
 filelist=dir([d filesep '*.mat']);
@@ -140,7 +140,14 @@ figure(54);
 title ('Continuous Psychometric Curves') 
 plot([1:10],mean(gpsycho(:,[3:3:end]),2),'r','linewidth',4);
 
-
+figure(45);
+plot([1:10],mean(gpsycho(:,[3:3:end]),2),'k','linewidth',4); %continuous
+hold on; plot([1:10],mean(gpsycho(:,[1:3:end]),2),'b','linewidth',4); %arc
+plot([1:10],mean(gpsycho(:,[2:3:end]),2),'c','linewidth',4);%radial
+legend('Horizontal','Arc','Radial','location','southeast');
+set(gca,'xtick',[1 5.5 10],'xticklabel',[-1 0 1],'ytick',[0 .25 .5 .75 1],'ylim', [ 0 1])
+xlabel('Normalized Motor Positions');ylabel('Lick Probability')        
+print(figure(45),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\' mouseNum '_onAxesPsycho'])
 %%
 % ravg = mean(B.rAcc);rstd = std(B.rAcc);
 % aavg = mean(B.aAcc);astd = std(B.aAcc);

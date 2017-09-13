@@ -1,6 +1,6 @@
 clear; close all;clc;
 
-load('Z:\Users\Jon\Projects\Characterization\BV')
+load('Z:\Users\Jon\Projects\Characterization\SM')
 U=BV;
 clear V
 clear F1G
@@ -9,11 +9,11 @@ clear F1G
 
 clearvars -except V U BV D F1G
 numIterations = 10;
-designvars = 'theta';
+designvars = 'ubered';
 % 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' $) 'ubered'
 classes = 'lick';
 % 1) 'gonogo' 2) 'FAvsCR' 3) 'lick' 4) allBehavTypes
-normalization = 'none';
+normalization = 'whiten';
 % 1) 'whiten' 2) 'none';
 sample ='random';
 % 1) 'bias' (takes 70% from each class for train) 2) 'random' just takes
@@ -94,10 +94,10 @@ for rec = 1:length(V)
 %             newLickFeat = V(rec).licks.oneT.hit' .* V(rec).licks.twoT.hit'
             
             [hx,mx,FAx,CRx] = meanVarfinder (V(rec),1);
-            hx = [hx' V(rec).touchNum.hit' V(rec).licks.oneT.hit' V(rec).licks.twoT.hit'];
+            hx = [hx' V(rec).touchNum.hit' V(rec).licks.oneT.hit' V(rec).licks.oneT.hit'.*V(rec).licks.twoT.hit' V(rec).licks.oneT.hit'.*V(rec).licks.twoT.hit'.*V(rec).licks.threeT.hit'];
             %                 mx = [mx' V(rec).touchNum.miss' V(rec).licks.oneT.miss'];
-            FAx = [FAx' V(rec).touchNum.FA' V(rec).licks.oneT.FA' V(rec).licks.twoT.FA'];
-            CRx = [CRx' V(rec).touchNum.CR' V(rec).licks.oneT.CR' V(rec).licks.twoT.CR'];
+            FAx = [FAx' V(rec).touchNum.FA' V(rec).licks.oneT.FA' V(rec).licks.oneT.FA'.*V(rec).licks.twoT.FA' V(rec).licks.oneT.FA'.*V(rec).licks.twoT.FA'.*V(rec).licks.threeT.FA'];
+            CRx = [CRx' V(rec).touchNum.CR' V(rec).licks.oneT.CR' V(rec).licks.oneT.CR'.*V(rec).licks.twoT.CR' V(rec).licks.oneT.CR'.*V(rec).licks.twoT.CR'.*V(rec).licks.threeT.CR'];
             
             hy = ones(size(hx,1),1);
             %                 my = ones(size(mx,1),1);
@@ -230,7 +230,7 @@ for recs = 1:length(V)
 end
 hold on; scatter(1:length(V),predprop(:,1),colors{1});
 scatter(1:length(V),predprop(:,2),colors{2})
-legend('Model Accuracy','Go Prediction Accuracy','No Go Prediction Accuracy','location','southeast')
+legend('Model Accuracy','Lick Prediction Accuracy','No Lick Prediction Accuracy','location','southeast')
 title([U{rec}.meta.layer ' ' designvars ' ' classes])
 print(figure(22),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars])
 
@@ -244,7 +244,7 @@ end
 figure(92);filex_barwitherr(optfeatstd',optfeat')
 xlabel('Mouse Number');title('Most Predictive Feature');
 ylabel('Weight');
-legend('Bias','Theta at Touch','Touch Count','Previous Trial Rewarded','Location','southeast')
+legend('Bias','Theta at Touch','Touch Count','Previous Trial Lick','2 Previous T Lick', '3 Previous T Lick','Location','southeast')
 %% Psychometric Curve Comparison b/t Model and Mouse
 figure(3);clf
 for rec = 1:length(V)
@@ -258,7 +258,9 @@ for rec = 1:length(V)
     reallickmean=cell2mat(cellfun(@mean,realsorted,'uniformoutput',0));
     reallickstd=cell2mat(cellfun(@std,realsorted,'uniformoutput',0));
     
-    modelsim = nansum((reallickmean(:,2)-lickmean(:,2)).^2);
+    modelsim = sqrt(nanmean((reallickmean(:,2)-lickmean(:,2)).^2));
+    
+%     modelsim = nansum((reallickmean(:,2)-lickmean(:,2)).^2);
     
     figure(3);subplot(3,3,rec)
     plot(xranges',reallickmean(:,2),'r','linewidth',1)
@@ -267,7 +269,7 @@ for rec = 1:length(V)
     xlabel('Motor Position')
     set(gca,'xtick',[xranges(1) xranges(6) xranges(11)],'xticklabel',[-1 0 1],'ylim',[0 1],'xlim',[xranges(1) xranges(end)])
     ylabel('Lick Probability')
-    text(xranges(end)*.75,.4,['Model Sim. = ' num2str(modelsim)])
+    text(xranges(end)*.75,.4,['RMSE = ' num2str(modelsim)])
     if rec ==3
         legend('Mouse Performance','Model Performance','location','southeast')
     elseif rec == 2

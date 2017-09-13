@@ -73,25 +73,35 @@ for rec = 1:length(U)
         
         [E{rec}.coeff, ~ , E{rec}.mu] = polyfit(motorthetamean(:,1),motorthetamean(:,2),2);
         f = polyval(E{rec}.coeff,motorthetamean(:,1),[],E{rec}.mu);
-        [E{rec}.FolCoeff, ~ , E{rec}.FolMu] = polyfit(motorFollicleMean(:,1),motorFollicleMean(:,2)./motorFollicleMean(:,3),2);
-        g = polyval(E{rec}.FolCoeff,motorFollicleMean(:,1),[],E{rec}.FolMu);
+        [E{rec}.FolXCoeff, ~ , E{rec}.FolXMu] = polyfit(motorFollicleMean(:,1),motorFollicleMean(:,2),2);
+        g = polyval(E{rec}.FolXCoeff,motorFollicleMean(:,1),[],E{rec}.FolXMu);
+        [E{rec}.FolYCoeff, ~ , E{rec}.FolYMu] = polyfit(motorFollicleMean(:,1),motorFollicleMean(:,3),2);
+        h = polyval(E{rec}.FolYCoeff,motorFollicleMean(:,1),[],E{rec}.FolYMu);
+        
         
         figure(70); subplot(3,4,rec);
         scatter(motorthetamean(:,1),motorthetamean(:,2),'k');
         hold on; plot(motorthetamean(:,1),f,'k')
         xlabel('Motor Position (Distal - Proximal)'); ylabel('Theta at base')
         
-                mp=U{rec}.meta.motorPosition;
+        mp=U{rec}.meta.motorPosition;
         thetareqDB=polyval(E{rec}.coeff,mp,[],E{rec}.mu);
         dbtheta = max(thetareqDB(U{rec}.meta.trialType==1));
         hold on; plot([0 180000],[dbtheta dbtheta],'-.k')
         set(gca,'xlim',[min(motorthetamean(:,1))-10000 180000])
+       
+        figure(80);
+        
+        scatter(motorFollicleMean(:,1),motorFollicleMean(:,2),'r');
+        hold on; plot(motorFollicleMean(:,1),g,'k');
+        ylabel('Follicle X')
         
         yyaxis right
-        scatter(motorFollicleMean(:,1),motorFollicleMean(:,2)./motorFollicleMean(:,3),'r');
-        hold on; plot(motorFollicleMean(:,1),g,'k');
-        ylabel('Follicle X / Follicle Y')
-
+        scatter(motorFollicleMean(:,1),motorFollicleMean(:,2),'m');
+        hold on; plot(motorFollicleMean(:,1),h,'k');
+        ylabel('Follicle Y')
+        xlabel('Motor Position (Distal - Proximal)'); ylabel('Theta at base')
+        
     end
     
     
