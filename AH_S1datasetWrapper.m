@@ -85,6 +85,12 @@ for i = 1:length(m)
     L{i}.meta.layer = 'D';
     
     L{i}.trialTypeMat = c.trialTypeMat
+    
+    L{i}.whisker.follicleX      = cellfun(@(x)x.whiskerTrial.follicleCoordsX,T.trials(useTrials));
+    L{i}.whisker.follicleY      = cellfun(@(x)x.whiskerTrial.follicleCoordsY,T.trials(useTrials));
+    L{i}.whisker.barPos         = cellfun(@(x)x.whiskerTrial.barPos,T.trials(useTrials),'UniformOutput',false);
+
+    
     aux = findstr(d(m(i)).name,'_');
     strCell = d(m(i)).name(aux(2)+1:aux(3)-1);
     metaDataFileName = ['metadata_structure_' strCell '.mat'];

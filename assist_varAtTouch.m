@@ -44,7 +44,7 @@ prevarAligned=cell(1,length(preTOnIdx));
 preTOffIdx=cell(1,length(preTOnIdx));
 for f=1:length(preTOnIdx)
     if ~isempty(preTOnIdx{f})
-    preTOffIdx{f}=preTOnIdx{f}+touchdur{f}(1,:);%bulid touch offIdx to find max Dkappa during touch
+    preTOffIdx{f}=preTOnIdx{f}+touchdur{f}(1,1:length(preTOnIdx{f}));%bulid touch offIdx to find max Dkappa during touch
     spikewin=repmat(preTOnIdx{f}',1,length(range))+repmat(range,length(preTOnIdx{f}),1); %all time pts to find spks
     for d = 1:size(spikewin,1) %used for loop to keep structure of array
     prevarAligned{f}(d,:)=array.R_ntk(:,spikewin(d,:),f);

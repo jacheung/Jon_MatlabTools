@@ -7,7 +7,7 @@ nogocorrALL=cell(1,length(U));
 godurALL=cell(1,length(U));
 nogodurALL=cell(1,length(U));
 
-for rec=1
+for rec=2
     varcell=cell(1,3);
     prevarcell=varcell;
     %[varspikes] = assist_varAtTouch(U{rec},-25:50);

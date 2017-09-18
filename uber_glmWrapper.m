@@ -39,7 +39,8 @@ trialCutoffs = [148 348;190 390;214 414;89 289; 238 438 ; 233 433 ; 62 262] ;
 %%
 clear U
 layer = 'SM';
-cellNum = [2 11 16 23 27 34:38];
+% cellNum = [2 11 16 23 27 34:38];
+cellNum = [2 13 16 23 27 34:38]; %removed 11 b/c no touches 
 trialCutoffs = repmat([1 200],numel(cellNum),1);
 %%
 clear U

@@ -1,35 +1,34 @@
-clear; close all;clc;
 
-load('Z:\Users\Jon\Projects\Characterization\SM')
-U=BV;
+
+
 clear V
 clear F1G
-[V] = classifierWrapper(U);
-%% PARAMETERS SETTING
+ [V] = classifierWrapper(U);
+% PARAMETERS SETTING
 
-clearvars -except V U BV D F1G
+clearvars -except V U BV D SM F1G
 numIterations = 10;
-designvars = 'ubered';
+designvars = 'theta';
 % 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' $) 'ubered'
-classes = 'lick';
+classes = 'gonogo';
 % 1) 'gonogo' 2) 'FAvsCR' 3) 'lick' 4) allBehavTypes
-normalization = 'whiten';
+normalization = 'none';
 % 1) 'whiten' 2) 'none';
-sample ='random';
+sample ='bias';
 % 1) 'bias' (takes 70% from each class for train) 2) 'random' just takes
 % random 70% to train
-balance = 'on';
+balance = 'off';
 % Design Matrix
 
 
 accprop=cell(1,length(V));
 
 for rec = 1:length(V)
-    motorPos = U{rec}.meta.motorPosition;
-    hxMotor = motorPos(logical(V(rec).trialNums.matrix(1,:)))';
-    FAxMotor = motorPos(logical(V(rec).trialNums.matrix(3,:)))';
-    CRxMotor = motorPos(logical(V(rec).trialNums.matrix(4,:)))';
-    
+%     motorPos = U{rec}.meta.motorPosition;
+%     hxMotor = motorPos(logical(V(rec).trialNums.matrix(1,:)))';
+%     FAxMotor = motorPos(logical(V(rec).trialNums.matrix(3,:)))';
+%     CRxMotor = motorPos(logical(V(rec).trialNums.matrix(4,:)))';
+%     
     switch designvars
         case 'theta'
             hx = [V(rec).var.hit{1}'];
@@ -40,30 +39,34 @@ for rec = 1:length(V)
             CRy1 = ones(size(CRx,1),1)+1;
             
             
-            htmp =[V(rec).touchNum.hit' hxMotor];
-            FAtmp = [V(rec).touchNum.FA' FAxMotor];
-            CRtmp = [V(rec).touchNum.CR' CRxMotor];
-            newMvals = {htmp,FAtmp,CRtmp};
-            for d = 1:length(newMvals)%for each trial type
-                        newmotor = [] ;
-            for k=1:length(newMvals{d}) %for trials...
-                    j = newMvals{d}(k); %for the number of touches within trial
-                    if ~j==0
-                        tmp = repmat(newMvals{d}(k,2),j,1);
-                        newmotor = [newmotor; tmp];
-                    end
-            end
-                if d == 1
-                    hx = [hx newmotor];
-                elseif d == 2
-                    FAx = [FAx newmotor];
-                elseif d == 3
-                    CRx = [CRx newmotor];
-                end
-            end
+%             htmp =[V(rec).touchNum.hit' hxMotor];
+%             FAtmp = [V(rec).touchNum.FA' FAxMotor];
+%             CRtmp = [V(rec).touchNum.CR' CRxMotor];
+%             
+            htmp =[V(rec).touchNum.hit' ];
+            FAtmp = [V(rec).touchNum.FA' ];
+            CRtmp = [V(rec).touchNum.CR' ];
+%             
+%             newMvals = {htmp,FAtmp,CRtmp};
+%             for d = 1:length(newMvals)%for each trial type
+%                         newmotor = [] ;
+%             for k=1:length(newMvals{d}) %for trials...
+%                     j = newMvals{d}(k); %for the number of touches within trial
+%                     if ~j==0
+%                         tmp = repmat(newMvals{d}(k,2),j,1);
+%                         newmotor = [newmotor; tmp];
+%                     end
+%             end
+%                 if d == 1
+%                     hx = [hx newmotor];
+%                 elseif d == 2
+%                     FAx = [FAx newmotor];
+%                 elseif d == 3
+%                     CRx = [CRx newmotor];
+%                 end
+%             end
             
-           
-            F1color = 'b';
+    
         case 'pas'
             ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
             hx = [V(rec).var.hit{3}(ntmp)' V(rec).var.hit{4}(ntmp)' V(rec).var.hit{5}(ntmp)'];
@@ -85,14 +88,13 @@ for rec = 1:length(V)
             FAy = ones(size(FAx,1),1)+1;
             CRx = [V(rec).touchNum.CR'];
             CRy1 = ones(size(CRx,1),1)+1;
-            hx = [hx hxMotor];
-            FAx = [FAx FAxMotor];
-            CRx = [CRx CRxMotor] ;
+%             hx = [hx hxMotor];
+%             FAx = [FAx FAxMotor];
+%             CRx = [CRx CRxMotor] ;
             F1color = 'r';
             
         case 'ubered'
-%             newLickFeat = V(rec).licks.oneT.hit' .* V(rec).licks.twoT.hit'
-            
+
             [hx,mx,FAx,CRx] = meanVarfinder (V(rec),1);
             hx = [hx' V(rec).touchNum.hit' V(rec).licks.oneT.hit' V(rec).licks.oneT.hit'.*V(rec).licks.twoT.hit' V(rec).licks.oneT.hit'.*V(rec).licks.twoT.hit'.*V(rec).licks.threeT.hit'];
             %                 mx = [mx' V(rec).touchNum.miss' V(rec).licks.oneT.miss'];
@@ -114,6 +116,7 @@ for rec = 1:length(V)
         case 'gonogo'
             DmatX=[hx;FAx;CRx]; DmatY=[hy;FAy;CRy1]; %complete design matrix for govsnogo
             colors = {'b','r'};
+            g1 = [hy]; g2 = [FAy ; CRy1];
         case 'FAvsCR'
             if strcmp(balance,'on')
                 [FAx,FAy,CRx,CRy1] = FACRBalance(FAx,CRx);
@@ -128,7 +131,8 @@ for rec = 1:length(V)
                 DmatX = [lix(:,1:size(lix,2)-1);nolixx(:,1:size(lix,2)-1)]; DmatY = [lixy-1;nolixy];
                 motorX = [lix(:,size(lix,2));nolixx(:,size(lix,2))];
             else
-                DmatX = [hx;FAx;CRx]; DmatY = [hy;FAy-1;CRy1];
+                DmatX = [hx(:,1:size(hx,2)-1);FAx(:,1:size(FAx,2)-1);CRx(:,1:size(CRx,2)-1)]; DmatY = [hy;FAy-1;CRy1];
+                motorX = [hx(:,size(hx,2));FAx(:,size(FAx,2));CRx(:,size(CRx,2))];
             end
             colors = {'b','r'};
             g1 = [hy;FAy-1];g2 = [CRy1];
@@ -150,7 +154,9 @@ for rec = 1:length(V)
     for reit = 1:numIterations
         rando = randperm(length(DmatX));
         tmpDmatX=DmatX(rando,:);tmpDmatY=DmatY(rando,:);
+        if strcmp(classes,'lick')
         tmpMotorX = motorX(rando,:);
+        end
         switch sample
             case 'bias'
                 %             %FOR FA VS CR
@@ -182,14 +188,19 @@ for rec = 1:length(V)
                     ,tmpDmatY(end*.7:end,:),'Max');
                 Acc(reit)= mean(double(pred == tmpDmatY(end*.7:end) )) * 100;
                 F1s(reit,:) = F1score(pred,tmpDmatY(end*.7:end),2);
+                
+                if strcmp(classes,'lick')
                 motorPlick= [motorPlick;tmpMotorX(end*.7:end) prob];
+                end
                 accprop{rec}=[accprop{rec} ; pred tmpDmatY(end*.7:end)];
                 
         end
         %fprintf('\nTraining Set Accuracy: %f\n', mean(double(pred == tmpDmatY(end*.6:end))) * 100)
         
     end
+    if strcmp(classes,'lick')
     train_motorPlick{rec} = motorPlick;
+    end
     train_F1s(rec,:) = nanmean(nansum(F1s,2));
     trainF1sstd(rec,:)=nanstd(nansum(F1s,2));
     train_predOpt(rec)=mean(opt_thresh);
@@ -200,17 +211,24 @@ for rec = 1:length(V)
 end
 
 
-% if strcmp(designvars,'theta')
-%     F1G{1} = train_F1s ;
-% elseif strcmp(designvars,'counts')
-%     F1G{2} = train_F1s ;
-%     figure(20);hold on;scatter(F1G{1},F1G{2},'ro');
-%     set(gca,'xlim',[0 2],'ylim',[0 2],'ytick',0:.5:2);
-%     xlabel('F1 Score Theta');ylabel('F1 Score Touch Count');
+if strcmp(designvars,'theta')
+    F1G{1} = train_F1s ;
+elseif strcmp(designvars,'counts')
+    F1G{2} = train_F1s ;
+    figure(20);hold on;f=scatter(F1G{1},F1G{2});
+    if strcmp(U{rec}.meta.layer,'D')
+    f.CData = [rgb('DarkGreen')];
+    elseif strcmp(U{rec}.meta.layer,'SM')
+        f.CData = [rgb('DarkMagenta')];
+    elseif strcmp(U{rec}.meta.layer,'BV')
+        f.CData = [rgb('DarkTurquoise')];
+    end
+    set(gca,'xlim',[0 2],'ylim',[0 2],'ytick',0:.5:2);
+    xlabel('F1 Score Theta');ylabel('F1 Score Touch Count');
 %     hold on; plot([0 2],[0 2],'-.k')
-% %     legend('Continuous','Discrete','location','northwest')
-%
-% end
+%     legend('Discrete','Semi Continuous','Continuous','location','northwest')
+
+end
 
 
 figure(22);clf;
@@ -230,7 +248,7 @@ for recs = 1:length(V)
 end
 hold on; scatter(1:length(V),predprop(:,1),colors{1});
 scatter(1:length(V),predprop(:,2),colors{2})
-legend('Model Accuracy','Lick Prediction Accuracy','No Lick Prediction Accuracy','location','southeast')
+legend('Model Accuracy','Go Prediction Accuracy','NoGo Prediction Accuracy','location','southeast')
 title([U{rec}.meta.layer ' ' designvars ' ' classes])
 print(figure(22),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars])
 
@@ -245,6 +263,8 @@ figure(92);filex_barwitherr(optfeatstd',optfeat')
 xlabel('Mouse Number');title('Most Predictive Feature');
 ylabel('Weight');
 legend('Bias','Theta at Touch','Touch Count','Previous Trial Lick','2 Previous T Lick', '3 Previous T Lick','Location','southeast')
+print(figure(92),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_WEIGHTS'])
+
 %% Psychometric Curve Comparison b/t Model and Mouse
 figure(3);clf
 for rec = 1:length(V)
@@ -255,26 +275,42 @@ for rec = 1:length(V)
     
     real=[U{rec}.meta.motorPosition;V(rec).trialNums.matrix(5,:)]';%only taking lick row and motorPos row
     [realsorted]= binslin(real(:,1),real,'equalE',12,U{rec}.meta.ranges(1),U{rec}.meta.ranges(2));
-    reallickmean=cell2mat(cellfun(@mean,realsorted,'uniformoutput',0));
-    reallickstd=cell2mat(cellfun(@std,realsorted,'uniformoutput',0));
+
+    reallickmean=cell2mat(cellfun(@(x) mean(x,1),realsorted,'uniformoutput',0));
+    reallickstd=cell2mat(cellfun(@(x) std(x,0,1),realsorted,'uniformoutput',0));
     
-    modelsim = sqrt(nanmean((reallickmean(:,2)-lickmean(:,2)).^2));
+    RMSE = sqrt(nanmean((reallickmean(:,2)-lickmean(:,2)).^2));
     
-%     modelsim = nansum((reallickmean(:,2)-lickmean(:,2)).^2);
-    
-    figure(3);subplot(3,3,rec)
-    plot(xranges',reallickmean(:,2),'r','linewidth',1)
-    hold on;filex_shadedErrorBar(xranges,lickmean(:,2),lickstd(:,2),'k');
-    hold on; plot(xranges',reallickmean(:,2),'r','linewidth',5)
-    xlabel('Motor Position')
-    set(gca,'xtick',[xranges(1) xranges(6) xranges(11)],'xticklabel',[-1 0 1],'ylim',[0 1],'xlim',[xranges(1) xranges(end)])
-    ylabel('Lick Probability')
-    text(xranges(end)*.75,.4,['RMSE = ' num2str(modelsim)])
-    if rec ==3
-        legend('Mouse Performance','Model Performance','location','southeast')
-    elseif rec == 2
-        title([U{rec}.meta.layer ' ' designvars ' ' classes])
+    if strcmp(U{1}.meta.layer,'SM')
+        figure(3);subplot(2,5,rec)
+        scatter(xranges(1),lickmean(1,2),lickstd(1,2),'ko','linewidth',3)
+        hold on;filex_shadedErrorBar(xranges(end-4:end),lickmean(7:end,2),lickstd(7:end,2),'k')
+        scatter(xranges(1),reallickmean(1,2),'ro','linewidth',1)
+        plot(xranges(end-4:end),reallickmean(7:end,2),'r','linewidth',2)
+        
+    elseif strcmp(U{1}.meta.layer,'BV')
+        
+        figure(3);subplot(3,3,rec)
+        plot(xranges',reallickmean(:,2),'r','linewidth',1)
+        hold on;filex_shadedErrorBar(xranges,lickmean(:,2),lickstd(:,2),'k');
+        hold on; plot(xranges',reallickmean(:,2),'r','linewidth',5)
+        
     end
+    
+    
+        xlabel('Motor Position')
+        set(gca,'xtick',[xranges(1) xranges(6) xranges(11)],'xticklabel',[-1 0 1],'ylim',[0 1],'xlim',[xranges(1)-5000 xranges(end)+5000])
+        ylabel('Lick Probability')
+        text(xranges(end)*.75,.4,['RMSE = ' num2str(RMSE)])
+        if rec ==5
+            legend('Mouse Performance','Model Performance','location','southeast')
+        elseif rec == 3
+            title([U{rec}.meta.layer ' ' designvars ' ' classes])
+        end
+    
+    
+    
+    
 end
 set(gcf, 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
 print(figure(3),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_PSYCHO'])
@@ -326,11 +362,11 @@ for rec = 1:length(U)
             end
             
             
-            figure(12);subplot(3,3,rec)
+            figure(12);subplot(2,5,rec)
             h2a=plot(x,firstvar/sum(firstvar),colors{1});h2a.Color(4)=0.5;
             hold on;h2a=plot(x,secondvar/sum(secondvar),colors{2});h2a.Color(4)=0.5;
             
-            for db = [1: 2]
+            for db = [1:2]
                 ms=cell2mat(Bfeat{rec}.theta);
                 coords=mean(reshape(ms(db,:)',2,numIterations),2);
                 y= (exp(coords(1)+coords(2)*x)) ./ (1 + exp(coords(1)+coords(2)*x))  ;
@@ -340,9 +376,9 @@ for rec = 1:length(U)
                 set(gca,'xlim',[min(x) max(x)],'ylim',[0 1]);
                 xlabel('Counts');
             end
-            if rec ==3
-                legend('Lick', 'No Lick','Lick Classifier','No Lick Classifier')
-            elseif rec == 4
+            if rec ==5
+                legend('Go', 'No Go','Go Classifier','No Go Classifier')
+            elseif rec == 6
                 ylabel('Proportion of Trials / P(TrialType)');
             end
             
