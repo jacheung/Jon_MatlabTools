@@ -66,6 +66,8 @@ for rec = 1:length(uberarray)
     V(rec).licks.threeT.(Ttype{d}) = lix{3}(Ttypemat{d});
     end
 
+    
+    V(rec).name = array.meta.layer;
     % MAX PROTRACTION POLE AVAIL:LICK... UNFINISHED. NOT SURE IF ITLL BE
     % USEFUL 
 %     [P] = findMaxProtraction(array,'avail2lick');

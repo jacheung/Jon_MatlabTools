@@ -11,7 +11,7 @@
 %
 %**************************************************************************
 % SM=SM([1 3:10]);
-clearvars -except U D BV SM N
+clearvars -except U D BV SM N KEEP KEEP2
 %% Parameters
 % selectedMotorT filter to choose which type of trials to use to look at
 % max excursion. Options are:
@@ -110,21 +110,23 @@ for rec = 1:length(U)
             thetareqDB=polyval(E{rec}.coeff,mp,[],E{rec}.mu);
             dbtheta = max(thetareqDB(U{rec}.meta.trialType==1));
             hold on; plot([0 180000],[dbtheta dbtheta],'-.k')
-            set(gca,'xlim',[U{rec}.meta.ranges],'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(2)],'xticklabel',[-1 0 1])
+%             set(gca,'xlim',[U{rec}.meta.ranges],'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(2)],'xticklabel',[-1 0 1])
+            set(gca,'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(end)],'xticklabel',[-1 0 1])
             
             
             
             figure(80);subplot(2,5,rec)
             
-            scatter(motorFollicleMean(:,1),motorFollicleMean(:,2),'k');
+            scatter(motorFollicleMean(:,1),motorFollicleMean(:,2)./33,'k');
             %         hold on; plot(motorFollicleMean(:,1),g,'k'); %plot poly fit for follicle X
             ylabel('Follicle X')
             yyaxis right
-            scatter(motorFollicleMean(:,1),motorFollicleMean(:,3),'r');
+            scatter(motorFollicleMean(:,1),motorFollicleMean(:,3)./33,'r');
             %         plot(motorFollicleMean(:,1),h,'r-'); %plot poly fit for follicle Y
             ylabel('Follicle Y')
             xlabel('Normalized Motor Positions');
-            set(gca,'xlim',[U{rec}.meta.ranges],'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(2)],'xticklabel',[-1 0 1])
+%             set(gca,'xlim',[U{rec}.meta.ranges],'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(end)],'xticklabel',[-1 0 1])
+            set(gca,'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(end)],'xticklabel',[-1 0 1])
             
         end
     end
