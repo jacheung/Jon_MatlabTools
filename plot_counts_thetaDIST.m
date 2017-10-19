@@ -22,13 +22,24 @@ end
 
 GgoDist = sum(cell2mat(g'));
 GngDist = sum(cell2mat(ng'));
+gotouch = [];
+nogotouch = [];
+for i = 0:10
+    gotouch = [gotouch ; repmat(i,GgoDist(i+1),1)];
+    nogotouch = [nogotouch; repmat(i,GngDist(i+1),1)];
+end
+
+gos = [mean(gotouch) std(gotouch)]
+nogos = [mean(nogotouch) std(nogotouch)]
+
+
 
 figure(51);
 bar(0:10,GgoDist./sum(GgoDist),'b');alpha(.35);
 hold on; bar(0:10,GngDist./sum(GngDist),'r');alpha(.35);
 set(gca,'xlim',[-.5 11],'xtick',0:5:10,'ylim',[0 .5])
-print(figure(51),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistribution' ])
-print(figure(50),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistributionINDIV' ])
+% print(figure(51),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistribution' ])
+% print(figure(50),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistributionINDIV' ])
 
 
 %% THETA DIST for one single mouse

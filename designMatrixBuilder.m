@@ -2,7 +2,7 @@
 
 
 
-function [DmatX, DmatY, motorX] = designMatrixBuilder(V,U,designvars,classes,normalization,removal,balance)
+function [DmatX, DmatY, motorX] = designMatrixBuilder(V,U,designvars,classes,normalization,removal,balance,sampMethod)
 
 if strcmp(U.meta.layer,'D')
     U.meta.motorPosition = U.meta.trialType;
@@ -104,11 +104,17 @@ switch designvars
         
     case 'ubered'
         
-        [hx,mx,FAx,CRx] = meanVarfinder (V,1,'meanThetas');
+        [hx,mx,FAx,CRx] = meanVarfinder (V,1,U,sampMethod);
         hx = [hx' V.touchNum.hit' V.licks.oneT.hit' V.licks.oneT.hit'.*V.licks.twoT.hit' V.licks.oneT.hit'.*V.licks.twoT.hit'.*V.licks.threeT.hit'];
         %                 mx = [mx' V.touchNum.miss' V.licks.oneT.miss'];
         FAx = [FAx' V.touchNum.FA' V.licks.oneT.FA' V.licks.oneT.FA'.*V.licks.twoT.FA' V.licks.oneT.FA'.*V.licks.twoT.FA'.*V.licks.threeT.FA'];
         CRx = [CRx' V.touchNum.CR' V.licks.oneT.CR' V.licks.oneT.CR'.*V.licks.twoT.CR' V.licks.oneT.CR'.*V.licks.twoT.CR'.*V.licks.threeT.CR'];
+%         
+%         hx = [hx' V.touchNum.hit'];
+%         %                 mx = [mx' V.touchNum.miss' V.licks.oneT.miss'];
+%         FAx = [FAx' V.touchNum.FA'];
+%         CRx = [CRx' V.touchNum.CR'];
+%         
         
         hy = ones(size(hx,1),1);
         %                 my = ones(size(mx,1),1);
@@ -170,6 +176,8 @@ switch classes
             switch removal
                 case 'yes'
                     notouchidx= find(DmatX(:,2) == 0);
+%                     emptyDmatX = DmatX(notouchidx,:);
+%                     emptyDmatY = DmatY(notouchidx,:);
                     DmatX(notouchidx,:) = [];
                     DmatY(notouchidx,:) = [];
             end

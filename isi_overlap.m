@@ -18,7 +18,7 @@ function isi_overlap(fn, vsfn, varargin)
 % JKim 01/10/2016
 
 %% some variables manually set for now...
-thresh = 0.05;
+thresh = 0.075;
 hsize = 10;
 sigma = 3;
 radius = 10;

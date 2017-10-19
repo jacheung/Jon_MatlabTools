@@ -11,7 +11,7 @@
 %
 %**************************************************************************
 % SM=SM([1 3:10]);
-clearvars -except U D BV SM N KEEP KEEP2
+clearvars -except U D BV SM N 
 %% Parameters
 % selectedMotorT filter to choose which type of trials to use to look at
 % max excursion. Options are:
@@ -160,6 +160,13 @@ for rec = 1:length(U)
     
     peakidx=unique(phases+maxidx'); %this is the idx for max excursion.
     
+    if strcmp(U{1}.meta.layer,'BV')
+        BV{rec}.peakIdx = peakidx;
+    elseif strcmp(U{1}.meta.layer,'SM')
+        SM{rec}.peakIdx = peakidx;
+    elseif strcmp(U{1}.meta.layer,'D')
+        D{rec}.peakIdx = peakidx;
+    end
     %% test a trial to make sure that theta is aligned right
     %     trial = 1; %shifted by 1 (ex. trial=0 ..> trial =1)
     %     figure(trial+1);clf;plot(theta(:,trial+1));
@@ -177,7 +184,8 @@ for rec = 1:length(U)
     
     %% max excursion
     if strcmp(array.meta.layer,'D')
-        dbtheta = mean([gothetamean nogothetamean]);
+        dbtheta = mean([gothetamean nogothetamean]); %theta = angle in b/t farthest go and closest nogo
+%         dbtheta = max(gothetas(goprot));
         tidx = find(array.meta.trialType==0);
     else
         mp=U{rec}.meta.motorPosition;
@@ -188,6 +196,7 @@ for rec = 1:length(U)
             dbthetatmp = max(thetareqDB(U{rec}.meta.trialType==1));
             dbnogotheta = min(thetareqDB(U{rec}.meta.trialType==0));
             dbtheta = mean([dbthetatmp dbnogotheta]);
+%                 dbtheta = max(thetareqDB(U{rec}.meta.trialType==1));
         elseif strcmp(array.meta.layer,'BV')
             dbtheta = max(thetareqDB(U{rec}.meta.trialType==1));
         end

@@ -25,15 +25,13 @@ for rec = 1:length(U)
         RMSE = sqrt(nanmean((realmean-modelmean).^2));
         RMSEdec = sqrt((realmean-modelmean).^2);
         
-        figure(3);subplot(2,5,rec)
+        figure(5);subplot(2,5,rec)
         scatter([-1 1],realmean,'filled','r')
         hold on;errorbar([-1 1],modelmean,modelstd,'ko')
         set(gca,'xlim',[-1.5 1.5],'ylim',[0 1])
         
         if rec ==5
             legend('Mouse Performance','Model Performance','location','southeast')
-        elseif rec == 3
-            title([U{rec}.meta.layer ' ' designvars ' ' classes])
         end
         
         text(.5,.4,['RMSE = ' num2str(RMSE)])
@@ -53,7 +51,7 @@ for rec = 1:length(U)
         RMSE = sqrt(nanmean((reallickmean(:,2)-lickmean(:,2)).^2));
         RMSEdec = sqrt((reallickmean(:,2)-lickmean(:,2)).^2);
         
-        figure(3);subplot(2,5,rec)
+        figure(5);subplot(2,5,rec)
         xranges(isnan(lickmean(:,1)))=[];
         lickmean(isnan(lickmean(:,1)),:)=[];
         lickstd(isnan(lickstd(:,1)),:)=[];
@@ -63,9 +61,10 @@ for rec = 1:length(U)
         scatter(xranges(1),reallickmean(1,2),'ro','linewidth',1)
         plot(xranges(end-(length(lickmean)-2):end),reallickmean(2:end,2),'r','linewidth',2)
         
-        if rec == 3
-            title([U{rec}.meta.layer ' ' designvars ' ' classes])
+        if rec ==5
+            legend('Mouse Performance','Model Performance','location','southeast')
         end
+        
         
         set(gca,'xtick',[xranges(1) xranges(end-(length(lickmean)-2)) xranges(end)],'xticklabel',[-1 0 1],'ylim',[0 1],'xlim',[xranges(1)-5000 xranges(end)+5000])
         xlabel('Motor Position')

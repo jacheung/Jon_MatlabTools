@@ -1,8 +1,10 @@
-function [Gprelixtimes,GprelixtimesGO,GprelixtimesNOGO,Gprelixpcth,Gprelixduration,touchespredecision] = assist_predecisionVar(array)
 %this function will output the times of touches, time of touches
 %for go, time of touches nogo, time in between touches predecision, and the
 %length of each of those touches, #mean number of touches. All outputs are in a cell array with each
 %cell being 1 trial.
+
+
+function [Gprelixtimes,GprelixtimesGO,GprelixtimesNOGO,Gprelixpcth,Gprelixduration,touchespredecision] = assist_predecisionVar(array)
 
 Gprelixpcth=cell(1,array.k);
 Gprelixtimes=cell(1,array.k);

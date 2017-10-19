@@ -35,7 +35,7 @@ realclasses = tmpDmatY(testSet);
 motorClasses = motorX(testSet);
 
 testerror = mean(predclasses(:,1)==realclasses);
-disp(['Test Error = ' num2str(testerror*100)])
+disp(['Single Bagger Test Error = ' num2str(testerror*100)])
 
 oobErrorBaggedEnsemble= oobError(Mdl);
 

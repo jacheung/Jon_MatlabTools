@@ -1,5 +1,5 @@
 for i = 1:length(U)
-var=4; %1 for theta    
+var=1; %1 for theta    
 array=U{i};
 go=find(array.meta.trialType==1);
 nogo=find(array.meta.trialType==0);

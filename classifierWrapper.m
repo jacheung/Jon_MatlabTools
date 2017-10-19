@@ -16,9 +16,7 @@ for rec = 1:length(uberarray)
     [~ ,prelixGo, prelixNoGo, ~ ,~ ,~] = assist_predecisionVar(array);
     varx=[1:6];
     
-    
 
-    
     % TOUCH VARIABLES AND TOUCH COUNT 
     for f=1:length(varx)
         [~, ~,V(rec).var.hit{f}, V(rec).var.miss{f}, V(rec).var.FA{f}, V(rec).var.CR{f},~,~] = assist_vardistribution(array,varx(f),prelixGo,prelixNoGo,[-25:0],[5:25]);

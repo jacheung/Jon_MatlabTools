@@ -33,8 +33,8 @@ trialCutoffs = repmat([1 200],numel(cellNum),1);
 %%
 clear U
 layer = 'BV';
-cellNum = [1:7];
-trialCutoffs = [148 348;190 390;214 414;89 289; 238 438 ; 233 433 ; 62 262] ;
+cellNum = [1:8];
+trialCutoffs = [148 348;190 390;214 414;89 289; 238 438 ; 233 433 ; 62 262 ; 262 462] ;
 
 %%
 clear U
