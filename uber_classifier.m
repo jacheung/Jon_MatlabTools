@@ -19,7 +19,7 @@ sample ='bias';
 % random 70% to train
 
 % Only for 'ubered' or 'pas'
-normalization = 'none';
+normalization = 'whiten';
 % 1) 'whiten' 2) 'none';
 
 % Only for 'ubered'

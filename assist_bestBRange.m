@@ -1,7 +1,8 @@
-function [range]=assist_bestBRange(T,span)
 %insert trial array to output best range of span (# of trials you want
 %calculated). Chooses the first best span of trials as there could be
 %multiple ones. 
+
+function [range]=assist_bestBRange(T,span)
 
 total=zeros(1,length(T.trialCorrects)-span);
 for i = span:length(T.trialCorrects)

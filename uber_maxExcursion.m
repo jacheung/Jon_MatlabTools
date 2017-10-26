@@ -296,15 +296,19 @@ if strcmp(U{rec}.meta.layer,'N')
     hold on; plot([-.5 3.5],[0 0], '-.k')
     set(gca,'ylim',[-20 20],'yaxislocation','right','xtick',[],'xlim',[-.5 3.5])
     ylabel('Search Bias')
+    
 elseif strcmp(U{rec}.meta.layer,'D')
     hold on;scatter(ones(length(U),1).*1,distmed,'k')
     hold on;scatter(1,mean(distmed),100,'rx','linewidth',2)
+
 elseif strcmp(U{rec}.meta.layer,'SM')
     hold on;scatter(ones(length(U),1).*2,distmed,'k')
     hold on;scatter(2,mean(distmed),100,'rx','linewidth',2)
+
 elseif strcmp(U{rec}.meta.layer,'BV')
     hold on;scatter(ones(length(U),1).*3,distmed,'k')
     hold on;scatter(3,mean(distmed),100,'rx','linewidth',2)
+
 end
 
 

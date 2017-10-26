@@ -33,15 +33,15 @@ trialCutoffs = repmat([1 200],numel(cellNum),1);
 %%
 clear U
 layer = 'BV';
-cellNum = [1:8];
-trialCutoffs = [148 348;190 390;214 414;89 289; 238 438 ; 233 433 ; 62 262 ; 262 462] ;
+cellNum = [1:9];
+trialCutoffs = [148 348;190 390;214 414;89 289; 238 438 ; 233 433 ; 62 262 ; 262 462 ; 1 201] ;
 
 %%
 clear U
 layer = 'SM';
 % cellNum = [2 11 16 23 27 34:38]; %used 13 insteda of 11 b/c no touches
 % (same mouse though) 
-cellNum = [2 13 16 23 27 34 36:38]; %removed 35 b/c no CR touches 
+cellNum = [2 13 16 23 27 34 36:39]; %removed 35 b/c no CR touches 
 trialCutoffs = repmat([1 200],numel(cellNum),1);
 %%
 clear U
