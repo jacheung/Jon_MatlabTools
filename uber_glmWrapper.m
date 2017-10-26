@@ -31,11 +31,11 @@ cellNum = [1:7];
 trialCutoffs = repmat([1 200],numel(cellNum),1);
 
 %%
-clear U
+clear 
 layer = 'BV';
-cellNum = [1:9];
-trialCutoffs = [148 348;190 390;214 414;89 289; 238 438 ; 233 433 ; 62 262 ; 262 462 ; 1 201] ;
-
+cellNum = [1:10];
+trialCutoffs = [148 348;190 390;214 414;89 289; 238 438 ; 233 433 ; 62 262 ; 262 462 ; 1 201 ; 55 255] ;
+tossT = [0 ; 0 ;0 ; 0 ; 0 ;0; 0; 0; 0 ;99];
 %%
 clear U
 layer = 'SM';
@@ -70,7 +70,11 @@ for cellStep = 1:length(cellNum)
 %    [~,useTrials] = intersect(T.trialNums,UgoodtrialnumsCrop{cellStep});
    [~,useTrials] = intersect(T.trialNums,T.whiskerTrialNums);
     useTrials = useTrials(useTrials >= trialCutoffs(cellStep,1) & useTrials <= trialCutoffs(cellStep,2));
-
+    
+    if exist('tossT')
+    useTrials(useTrials==tossT(cellStep))=[];
+    end
+    
     d.k = length(useTrials);
     d.u = 1;
     d.c = 16;

@@ -42,17 +42,17 @@ oobErrorBaggedEnsemble= oobError(Mdl);
 
 
 %% plotting functions 
-figure (28);clf;subplot(2,2,[1 2]);plot(1-oobErrorBaggedEnsemble','k','linewidth',2)
+% figure (28);clf;subplot(2,2,[1 2]);plot(1-oobErrorBaggedEnsemble','k','linewidth',2)
 % hold on; plot(mean(1-oobErrorBaggedEnsemble),'k','linewidth',2)
-xlabel 'Number of grown trees';
-ylabel 'OOB classification accuracy';
-
-figure (28);subplot(2,2,3)
-bar(Mdl.OOBPermutedVarDeltaError)
+% xlabel 'Number of grown trees';
+% ylabel 'OOB classification accuracy';
+% 
+% figure (28);subplot(2,2,3)
+% bar(Mdl.OOBPermutedVarDeltaError)
 % xlabel('Feature Index')
-ylabel('OOB Feature Importance')
-set(gca,'xlim',[0+.5 size(DmatX,2)+.5],'xticklabel',{'Theta','Counts','Pre 1 Lick','Pre 2 Lick','Pre 3 Lick'})
-xtickangle(45)
+% ylabel('OOB Feature Importance')
+% set(gca,'xlim',[0+.5 size(DmatX,2)+.5],'xticklabel',{'Theta','Counts','Pre 1 Lick','Pre 2 Lick','Pre 3 Lick'})
+% xtickangle(45)
 % 
 % figure (28);subplot(2,2,4)
 % gPosition = find(strcmp('1',Mdl.ClassNames));

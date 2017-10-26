@@ -7,7 +7,7 @@ clear V F1G RMSEgroup F1Gtree RMSEdecomp
 %% PARAMETERS SETTING
 
 clearvars -except V U BV D SM F1G RMSEgroup RMSEdecomp F1Gtree R PAS POP
-numIterations = 10;
+numIterations = 100;
 
 designvars = 'ubered';
 % 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' $) 'ubered'
@@ -19,7 +19,7 @@ sample ='bias';
 % random 70% to train
 
 % Only for 'ubered' or 'pas'
-normalization = 'whiten';
+normalization = 'none';
 % 1) 'whiten' 2) 'none';
 
 % Only for 'ubered'

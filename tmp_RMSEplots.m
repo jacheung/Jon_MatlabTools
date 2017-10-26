@@ -11,6 +11,13 @@ ylabel('RMSE')
 %build and keep RMSE and optimal feature from uber/counts/theta pred lick
 KEEP = RMSEgroup;
 KEEP2 = optfeat;
+
+
+
+
+
+
+
 %% run uber_maxexcursion to get search bias/mouse
 %build plots with 
 THETASwt = KEEP2(2,:)'; %from uber and weights
