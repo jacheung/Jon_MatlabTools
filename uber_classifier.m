@@ -7,7 +7,7 @@ clear V F1G RMSEgroup F1Gtree RMSEdecomp
 %% PARAMETERS SETTING
 
 clearvars -except V U BV D SM F1G RMSEgroup RMSEdecomp F1Gtree R PAS POP
-numIterations = 100;
+numIterations = 10;
 
 designvars = 'ubered';
 % 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' $) 'ubered'
@@ -198,6 +198,13 @@ if strcmp(designvars,'pas')
             h(d).FaceColor = [colors(4*d,:)];
         end
     end
+%     figuring out significance levels 
+%     alpha = .05; %significance level of .01 
+% [p,tbl,stats] = anova1(PAS{1}'); %anova1 
+% comp = multcompare(stats); %comparison between all groups. 
+% bonfcorr = alpha/10; %post hoc bonferroni correction of pval alpha/n
+% 
+% [comp(:,1:2) comp(:,end)<bonfcorr ]
 end
 % Psychometric Curve Comparison b/t Model and Mouse
 if strcmp(classes,'lick')
@@ -215,23 +222,13 @@ if strcmp(classes,'lick')
         RMSEgroup(:,3) = RMSE;
         
     end
-    
-    if size(RMSEgroup,2)==3
-        
-        if strcmp(U{1}.meta.layer,'BV')
-            R{3} = RMSEgroup;
-        elseif strcmp(U{1}.meta.layer,'SM')
-            R{2} = RMSEgroup;
-        elseif strcmp(U{1}.meta.layer,'D')
-            R{1} = RMSEgroup;
-        end
-    end
+
 end
 
 %% Visualization of the decision boundaries.
-params =1;
+params =3;
 FCratio = [];
-for rec = 1:length(U)
+for rec = 6
     ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
     hx = [V(rec).var.hit{3}(ntmp)' V(rec).var.hit{4}(ntmp)' V(rec).var.hit{5}(ntmp)'];
     hy = ones(size(hx,1),1);
@@ -273,11 +270,11 @@ for rec = 1:length(U)
                     firstvar = histc([hx],x); secondvar = histc([FAx;CRx],x);
             end
             
-            
+            colors = {'b','r'}
             figure(12);subplot(2,5,rec)
             h2a=plot(x,firstvar/sum(firstvar),colors{1});h2a.Color(4)=0.5;
             hold on;h2a=plot(x,secondvar/sum(secondvar),colors{2});h2a.Color(4)=0.5;
-            
+          
             for db = [1:2]
                 ms=cell2mat(Bfeat{rec}.theta);
                 coords=mean(reshape(ms(db,:)',2,numIterations),2);
@@ -328,7 +325,8 @@ for rec = 1:length(U)
             alldat=filex_whiten([hx;FAx;CRx]);
             %             centroid=[mean(alldat(1:length(FAx),:));mean(alldat(length(FAx):end,:))];
             
-            figure(10);hold on;subplot(1,2,rec);
+%             figure(10);hold on;subplot(1,2,rec);
+figure(10);
             scatter3(alldat(1:length(hx),1),alldat(1:length(hx),2),alldat(1:length(hx),3),'b')
             hold on;scatter3(alldat(length(hx):end,1),alldat(length(hx):end,2),alldat(length(hx):end,3),'r')
             %             hold on;scatter3(centroid(1,1),centroid(1,2),centroid(1,3),'k','linewidth',10)
@@ -480,15 +478,8 @@ end
 suptitle([U{1}.meta.layer ' ' designvars ' ' classes])
 print(figure(5),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_TREEPSYCHO'])
 
-if strcmp(designvars,'counts')
-%     RMSEgroup(:,1) = RMSE;
-%     
-% elseif strcmp(designvars,'theta')
-%     RMSEgroup(:,2) = RMSE;
-    
-elseif strcmp(designvars,'ubered')
+if strcmp(designvars,'ubered')
     RMSEgroup(:,3) = RMSE;
-    
 end
 
 % if size(RMSEgroup,2)==3

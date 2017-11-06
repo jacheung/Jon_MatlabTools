@@ -45,7 +45,7 @@ end
 if strcmp(varargin{1},'semi')
     figure(9);clf;%plot(6:11,prob{1}(end-5:end,3),'k')
     for i = 1:length(prob)
-        hold on;plot(6:11,prob{i}(end-5:end,3),'k');
+        hold on;plot(6:11,prob{i}(end-5:end,3),'color',[.8 .8 .8]);
         plot(0,prob{i}(1,3),'ko')
     end
     tmp=cell2mat(prob);
@@ -64,7 +64,7 @@ if strcmp(varargin{1},'semi')
 else
     figure(10);clf;plot(1:10,prob{1}(:,3),'k')
     for i = 1:length(prob)
-        hold on;plot(1:10,prob{i}(:,3),'k');
+        hold on;plot(1:10,prob{i}(:,3),'color',[.8 .8 .8]);
     end
     tmp=cell2mat(prob);
     allavg = mean(tmp(:,3:3:end),2);

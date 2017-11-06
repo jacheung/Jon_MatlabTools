@@ -143,7 +143,7 @@ for mouse = 1:length(mouselist)
         xlabel('Horizontal Motor Position (mm)')
         ylabel('Lateral Motor Position (mm)')
         
-
+        
     end
     figure(53);
     subplot(2,1,1);plot([1:10],mean(gpsycho(:,[1:3:end]),2),'r','linewidth',4);
@@ -159,26 +159,73 @@ for mouse = 1:length(mouselist)
     legend('Horizontal','Arc','Radial','location','southeast');
     set(gca,'xtick',[1 5.5 10],'xticklabel',[-1 0 1],'ytick',[0 .25 .5 .75 1],'ylim', [ 0 1])
     xlabel('Normalized Motor Positions');ylabel('Lick Probability')
-    print(figure(45),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\' mouseNum '_onAxesPsycho'])
+    %     print(figure(45),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\' mouseNum '_onAxesPsycho'])
     
     
+    mouseTotal{mouse} = [mean(gpsycho(:,[3:3:end]),2); mean(gpsycho(:,[1:3:end]),2); mean(gpsycho(:,[2:3:end]),2)];
     
-    
-    
+    ALLgpsycho{mouse} = gpsycho;
 end
 
 popAVG = [];
 figure(10);clf
 for d = 1:length(B)
-hold on; errorbar(1:3,mean(B{d}.acc),std(B{d}.acc),'-o','color',[.5 .5 .5])
-popAVG = [popAVG ; B{d}.acc];
-end   
+    hold on; errorbar(1:3,mean(B{d}.acc),std(B{d}.acc),'-o','color',[.5 .5 .5])
+    popAVG = [popAVG ; B{d}.acc];
+end
 errorbar(1:3,mean(popAVG),std(popAVG),'k-o','linewidth',4)
 set(gca,'xlim',[.5 3.5],'xtick',[1 2 3],'xticklabel',{'Arc','Horizontal','Radial'},...
-    'ylim',[0 1],'ytick',[0:.25:1])
+    'ylim',[0 1],'ytick',[0:.25:1],'yticklabel',[0:25:100])
 xtickangle(45)
-ylabel('% Accuracy')
+ylabel('Percent Accuracy')
 
-set(gcf, 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
+% set(gcf, 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
 print(figure(10),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\' mouseNum '_onAxes_POPaccuracy'])
-   
+
+alpha = .01; %significance level of .01 
+[p,tbl,stats] = anova1(popAVG); %anova1 
+comp = multcompare(stats); %comparison between all groups. 
+bonfcorr = alpha/numel(mouselist); %post hoc bonferroni correction of pval alpha/n
+
+[comp(:,1:2) comp(:,end)<bonfcorr ]
+
+% Plotting group psychometric curves with ALL shaded psychos
+popAll = mean(cell2mat(mouseTotal),2);
+stdAll = std(cell2mat(mouseTotal),0,2);
+contAll = popAll(1:10); contStd = stdAll(1:10);
+arcAll = popAll(11:20); arcStd = stdAll(11:20);
+radAll = popAll(21:30); radStd = stdAll(21:30);
+
+    figure(438);clf
+    plot([1:10],contAll,'k','linewidth',4); %continuous
+    hold on; plot([1:10],arcAll,'b','linewidth',4); %arc
+    plot([1:10],radAll,'c','linewidth',4);%radial
+    
+for i = 1:length(ALLgpsycho)
+   figure(438);
+    h=plot([1:10],ALLgpsycho{i}(:,[3:3:end]),'color',[0 0 0]+alpha,'linewidth',1);  %continuous
+        for d = 1:length(h) 
+            h(d).Color(4)=.2;
+        end
+    hold on; h=plot([1:10],ALLgpsycho{i}(:,[1:3:end]),'color',[0 0 1],'linewidth',1);  %arc
+    for d = 1:length(h) 
+            h(d).Color(4)=.2;
+        end
+    h=plot([1:10],ALLgpsycho{i}(:,[2:3:end]),'color',[0 1 1],'linewidth',1); %radial
+    for d = 1:length(h) 
+            h(d).Color(4)=.2;
+        end
+end
+
+    plot([1:10],contAll,'k','linewidth',4); %continuous
+    hold on; plot([1:10],arcAll,'b','linewidth',4); %arc
+    plot([1:10],radAll,'c','linewidth',4);%radial
+    legend('Horizontal','Arc','Radial','location','southeast');
+    set(gca,'xtick',[1 5.5 10],'xticklabel',[-1 0 1],'ytick',[0 .25 .5 .75 1],'ylim', [ 0 1])
+    xlabel('Normalized Motor Positions');ylabel('Lick Probability')
+    text(8.5,.20,['n = ' num2str(numel(mouselist))],'FontSize',14)
+    print(figure(438),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\' mouseNum '_onAxes_POPpsycho'])
+    
+    
+    
+    

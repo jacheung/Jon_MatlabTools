@@ -34,7 +34,7 @@ inflate_rate = .96;
 
 %% Follicle
 flist = dir('*.mp4');
-v = VideoReader(flist(20).name);
+v = VideoReader(flist(2).name);
 follicle_first = zeros(2,2);
 width = v.Width; height = v.Height; % to save these parameters
 vavg = zeros(height,width);

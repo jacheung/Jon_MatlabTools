@@ -60,12 +60,12 @@ switch designvars
         %         FAx = [V.var.FA{3}(Fntmp)' V.var.FA{4}(Fntmp)' V.var.FA{5}(Fntmp)'];
         FAx = [V.var.FA{3}' V.var.FA{4}' V.var.FA{5}'];
         
-        FAy = ones(size(FAx,1),1)+1;
+        FAy = ones(size(FAx,1),1);
         %         Cntmp=find(V.var.CR{5}<=0);Cptmp=find(V.var.CR{5}>0);
         %         CRx = [V.var.CR{3}(Cntmp)' V.var.CR{4}(Cntmp)' V.var.CR{5}(Cntmp)'];
         CRx = [V.var.CR{3}' V.var.CR{4}' V.var.CR{5}'];
         
-        CRy1 = ones(size(CRx,1),1)+1;
+        CRy1 = ones(size(CRx,1),1);
         
         %Repeating matrix for number of touches 
         hxMotortmp = [];

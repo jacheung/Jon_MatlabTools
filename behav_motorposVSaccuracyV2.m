@@ -1,4 +1,4 @@
-function behav_motorposVSaccuracy(mousel,varargin)
+function behav_motorposVSaccuracyV2(mousel,varargin)
 %function used for building both behavioral accuracy and lick probability
 %based on normalized motor positions 
 

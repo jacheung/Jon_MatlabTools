@@ -1,7 +1,7 @@
 clear all; close all; clc
 %
-groups = [{'ContLearningCurves'} {'SemiLearningCurves'}];
-
+ %groups = [{'ContLearningCurves'} {'SemiLearningCurves'}];
+groups = [{'SemiLearningCurves'}];
 for i=1:length(groups)
 
 %wrap all behavioral data files
@@ -21,7 +21,7 @@ end
 
 gname = strmatch(groups{i},'ContLearningCurves');
 if gname == 1
-        [~, txt, ~] = xlsread('RecordedMice','F14:F20');
+        [~, txt, ~] = xlsread('RecordedMice','F14:F23');
 else
         [~, txt, ~] = xlsread('RecordedMice','G14:G23');
 end
@@ -39,5 +39,6 @@ for j=1:length(txt)
 end
 
  %PLOTS
-behav_learningcurves(mousel,4,100); %plot learning curves for each mouse
+behav_learningcurves(mousel,4,200); %plot learning curves for each mouse
 end
+

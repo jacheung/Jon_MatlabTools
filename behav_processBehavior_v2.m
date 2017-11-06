@@ -21,12 +21,12 @@ function output = behav_processBehavior_v2(info,hist,trim)
     
     tmp = hist.AnalysisSection_PercentCorrect;
     tmp2 = zeros(length(hist.AnalysisSection_PercentCorrect)+1,1);
-    for i = 1:length(tmp);
+    for i = 1:length(tmp)
         tmp2(i+1)=tmp{i};
     end
     rew=zeros(length(hist.AnalysisSection_PercentCorrect),1);
     for i = 2:length(hist.AnalysisSection_PercentCorrect);
-        if tmp2(i)>=tmp2(i-1);
+        if tmp2(i)>=tmp2(i-1)
             rew(i-1) = 1;
         end
     end
@@ -40,7 +40,8 @@ function output = behav_processBehavior_v2(info,hist,trim)
     trialResults(:,6)=dprime(:);
     
     trialResults(trim,7) = 1; %fill with useTrials
-    %trialResults(:,10)=info.MotorsSection_previous_pole_positions(1:length(info.pole_contdiscrim_obj_hit_history)-1); %fill 8 w/ motor positions
+%     trialResults(:,10)=info.MotorsSection_previous_pole_positions(1:length(info.pole_contdiscrim_obj_hit_history)-1); %fill 8 w/ motor positions
+
     trialResults(trim(1),9) = 1; %this is the trial start
     
     trialResults(1:end,11)=info.MotorsSection_yes_pole_position_ant;%most anterior GO pole pos

@@ -1,5 +1,9 @@
-clear g;clear ng
+type = {D};
+for d = 1:length(type) 
+U=type{d} ;
 
+clear g;clear ng
+[V] = classifierWrapper(U);
 for rec = 1:length(U)
     nogotouches = [V(rec).var.FA{1} V(rec).var.CR{1}]; %makes sure there is at least one touch before using array for building distribution
     
@@ -13,7 +17,7 @@ for rec = 1:length(U)
         figure(50);subplot(2,5,rec);
         bar(0:10,goDist./numel(gos),'b');alpha(.35)
         hold on; bar(0:10,nogoDist./numel(nogos),'r');alpha(.35)
-        set(gca,'xlim',[-.5 11],'xtick',0:5:10,'ylim',[0 .5])
+        set(gca,'xlim',[-.5 11],'xtick',0:5:10,'ylim',[0 .5],'ytick',[0 .25 .5])
         
         g{rec}=goDist;
         ng{rec}=nogoDist;
@@ -34,13 +38,13 @@ nogos = [mean(nogotouch) std(nogotouch)]
 
 
 
-figure(51);
+figure(50+d);
 bar(0:10,GgoDist./sum(GgoDist),'b');alpha(.35);
 hold on; bar(0:10,GngDist./sum(GngDist),'r');alpha(.35);
-set(gca,'xlim',[-.5 11],'xtick',0:5:10,'ylim',[0 .5])
+set(gca,'xlim',[-.5 11],'xtick',0:5:10,'ylim',[0 .5],'ytick',[0 .25 .5])
 % print(figure(51),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistribution' ])
 % print(figure(50),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistributionINDIV' ])
-
+% 
 
 %% THETA DIST for one single mouse
 
@@ -53,12 +57,13 @@ set(gca,'xlim',[-.5 11],'xtick',0:5:10,'ylim',[0 .5])
 % set(gca,'xtick',[-50:25:50],'xticklabel',[-50:25:50]);
 % title('Theta Distribution')
 % ylabel('Proportion of Touches')
-clear V
-[V] = classifierWrapper(U);
+
 
 gos = [];
 nogos = [];
-for var = 5
+groupgorange = zeros(length(U),2);
+groupnogorange = zeros(length(U),2);
+for var = 1
     if var == 5
         range = linspace(-3.14,3.14,15);
     else
@@ -70,8 +75,15 @@ for var = 5
         
         tmpgothetas = histc([tmpgos],range);
         tmpnogothetas = histc([tmpnogos],range);
-        figure(32); subplot(2,5,rec); plot(range,tmpgothetas,'b');alpha(.5)
+        figure(32); subplot(2,5,rec); 
+        plot(range,tmpgothetas,'b');alpha(.5)
         hold on; plot(range,tmpnogothetas,'r');alpha(.5)
+        
+        thetagovals = range(tmpgothetas>0);
+        thetanogovals = range(tmpnogothetas>0);
+        groupgorange(rec,1:2) = [min(thetagovals) max(thetagovals)];
+        groupnogorange(rec,1:2) = [min(thetanogovals) max(thetanogovals)];
+        
         
         if var == 5
             set(gca,'xlim',[min(range) max(range)],'xtick',linspace(-3.14,3.14,3),'xticklabel',{'-\pi','0','\pi'})
@@ -82,13 +94,20 @@ for var = 5
     end
     gothetas = histc([gos],range);
     nogothetas = histc([nogos],range);
-    figure(31); clf; bar(range,gothetas,'b');alpha(.5)
+    figure(31+d); clf; 
+    bar(range,gothetas,'b');alpha(.5)
+    hold on;bar(range,nogothetas,'r');alpha(.5)
     if var == 5
         hold on; bar(range,nogothetas,'r');alpha(.5)
         set(gca,'xlim',[min(range) max(range)],'xtick',linspace(-3.14,3.14,5),'xticklabel',{'-\pi','-\pi/2','0','\pi/2','\pi'})
     end
     ylabel('Number of Touches')
-    print(figure(31),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistPOP'])
-    print(figure(32),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistINDIV'])
-    close all
+%     print(figure(31),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistPOP'])
+%     print(figure(32),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistINDIV'])
+% %     close all
+end
+
+
+gowidth = groupgorange(:,2)-groupgorange(:,1);
+nogowidth = groupnogorange(:,2)-groupnogorange(:,1);
 end

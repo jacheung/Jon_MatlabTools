@@ -278,12 +278,12 @@ for rec = 1:length(U)
     end
     
 end
-set(figure(70), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
-print(figure(70),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_thetaXmotor' ])
-set(figure(80), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
-print(figure(80),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_follicleXmotor' ])
-set(figure(17), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
-print(figure(17),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_searchDistribution'])
+% set(figure(70), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
+% print(figure(70),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_thetaXmotor' ])
+% set(figure(80), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
+% print(figure(80),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_follicleXmotor' ])
+% set(figure(17), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
+% print(figure(17),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_searchDistribution'])
 
 %% PLOTTING MEDIANSx
 
@@ -293,8 +293,8 @@ if strcmp(U{rec}.meta.layer,'N')
     hold on;scatter(ones(length(U),1).*0,distmed,40,'k')
     hold on;scatter(0,mean(distmed),100,'rx','linewidth',2)
     camroll(-90)
-    hold on; plot([-.5 3.5],[0 0], '-.k')
-    set(gca,'ylim',[-20 20],'yaxislocation','right','xtick',[],'xlim',[-.5 3.5])
+    hold on; plot([.5 3.5],[0 0], '-.k')
+    set(gca,'ylim',[-20 20],'yaxislocation','right','xtick',[],'xlim',[.5 3.5])
     ylabel('Search Bias')
     
 elseif strcmp(U{rec}.meta.layer,'D')
@@ -332,7 +332,7 @@ hold on; plot([meanPopNogo(1)-.5 meanPopNogo(2)+.5],[.045 .045],'r','linewidth',
 hold on; plot([0 0],[0 1],'-.k','LineWidth',1)
 hold on;scatter(mean(distmed),.04,100,'rx','linewidth',2)
 xlabel('Theta from Discrimination Boundary');ylabel('Proportion of Trial')
-set(gca,'xlim',[-50 50],'ylim',[0 .05],'ytick',linspace(0,.05,6),'yticklabel',linspace(0,.05,6));
+set(gca,'xlim',[-50 50],'ylim',[0 .05],'ytick',linspace(0,.05,3),'yticklabel',linspace(0,.05,3));
 alpha(.8)
 nanmedian(cell2mat(gxplor'));
 nanstd(cell2mat(gxplor'));

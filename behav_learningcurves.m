@@ -14,15 +14,53 @@ else
     swin = 150;
 end
 
-perfthresh=.7;
+perfthresh=.75;
+%%
+
+if param == 4 
+catmat = nan(10,30000);
+for i = 1:length(mousel)
+
+smoothed = smooth(mousel{i}(:,4),200);
+AccThresh = find(smoothed>perfthresh);
+crossIdx = find(AccThresh>1000,1);
+
+
+learnedtrial = AccThresh(crossIdx);
+backwards = fliplr(smoothed(1:learnedtrial)');
+
+% figure(23);hold on; plot(1:length(backwards),fliplr(backwards),'color',[.8 .8 .8])
+% plot([length(backwards) length(backwards)],[0 1],'-.k')
+% set(gca,'xlim',[20000 30000],'xtick',[0:2000:30000],'xticklabel',[0:2000:30000],'ytick',[0:.25:1])
+
+catmat(i,1:length(backwards)) = backwards;
+
+end
+forwards = fliplr(catmat);
+figure(24);clf
+for d = 1:length(mousel)
+    starts = find(~isnan(forwards(d,:)),1);
+    figure(24);hold on;plot([starts starts ],[0 1],'-.k')
+end
+plot(1:length(catmat),forwards,'color',[.8 .8 .8])
+xlabel('Number of Trials To Expert') 
+ylabel('Percent Accuracy') 
+set(gca,'xlim',[20000 30000],'xtick',[0:2000:30000],'xticklabel',fliplr([0:2000:30000]),'ytick',[0:.25:1],'yticklabel',[0:25:100])
+
+hold on; plot(1:length(catmat),fliplr(nanmean(catmat)),'r','linewidth',4)
+end
+
+
+
+
 
 %% Plot first behavioral plot so the for statement will plot the rest on same
 %axis
-figure(randperm(10,1));clf;plot(smooth(mousel{1}(:,param),swin,'moving'),'color',[.5 .5 .5]);
+figure(randperm(10,1));clf;plot(smooth(mousel{1}(:,param),swin,'moving'),'color',[.8 .8 .8]); 
 
 for k=2:length(mousel)
     if k ~=5
-        hold on;plot(smooth(mousel{k}(:,param),swin,'moving'),'color',[.5 .5 .5]); % plot accuracy
+        hold on;plot(smooth(mousel{k}(:,param),swin,'moving'),'color',[.8 .8 .8]);% plot accuracy
         
         if param == 4 
             hold on; plot([0 max(cellfun('size', mousel, 1))],[perfthresh perfthresh],'k:')

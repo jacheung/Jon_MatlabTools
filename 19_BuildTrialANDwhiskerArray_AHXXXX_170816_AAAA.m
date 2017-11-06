@@ -228,6 +228,7 @@ end
 %% combine good and bad arrays 
 %setdif(A, B) returns data in A that isn't in B
 for k=1:length(s.sweeps)
+    
         goodIntersect{k} = intersect(goodArray{1}{k}',goodArray{2}{k}');
         good1diff{k} = setdiff(goodArray{1}{k}', goodArray{2}{k}');
         good2diff{k} = setdiff(goodArray{2}{k}', goodArray{1}{k}');%good spikes that are in 2 but not 1
