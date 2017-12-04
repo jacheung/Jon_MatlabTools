@@ -1,7 +1,7 @@
 clear all; close all; clc
 %
  %groups = [{'ContLearningCurves'} {'SemiLearningCurves'}];
-groups = [{'SemiLearningCurves'}];
+groups = [{'ContLearningCurves'}];
 for i=1:length(groups)
 
 %wrap all behavioral data files

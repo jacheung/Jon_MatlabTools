@@ -28,7 +28,7 @@ plot([-40 40],[0 0],'-.k')
 
 % sbias = cell2mat(POP.taskD');
 % ydata = popfeatdom;
-% 
+
 sbias = cell2mat(POP.SBIAS');
 ydata = popfeatdom;
 [~, orders] = sort(sbias);
@@ -47,3 +47,4 @@ adjrsq = modelvals.Rsquared.Adjusted;
 disp(['Rsquared = ' num2str(adjrsq) ' and pvalue = ' num2str(pval)])
 xlabel('Search Bias')
 ylabel('Counts More Predictive ------ Theta More Predictive')
+set(figure(38), 'Units', 'pixels', 'Position', [0, 0, 600, 750]);

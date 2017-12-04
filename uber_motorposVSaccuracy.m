@@ -1,4 +1,4 @@
-function [prob] = uber_motorposVSaccuracy(U,varargin)
+function [prob,raw] = uber_motorposVSaccuracy(U,varargin)
 %varargin = 'semi' or 'cont'. 
 
 %outputs a cell array. Each array = 1 session. 
@@ -30,6 +30,8 @@ for rec=1:length(U)
     for k=1:length(normpos)
         clust=binslin(normpos(:,1),normpos(:,1:3),'equalE',11,-1,1);
     end
+    
+    raw{rec} = cell2mat(clust);
     
     if strcmp(varargin{1},'semi')
         prob{rec}=cell2mat(cellfun(@(x) mean(x,1),clust([1 5:end]),'uniformoutput',0));

@@ -2,6 +2,7 @@ clear all;close all;
 
 mouselist = {'AH0667','AH0668','AH0712','AH0716','AH0717'};
 
+mouselist = {'AH0716'};
 for mouse = 1:length(mouselist)
     close all
     mouseNum = mouselist{mouse};
@@ -191,36 +192,43 @@ bonfcorr = alpha/numel(mouselist); %post hoc bonferroni correction of pval alpha
 
 % Plotting group psychometric curves with ALL shaded psychos
 popAll = mean(cell2mat(mouseTotal),2);
-stdAll = std(cell2mat(mouseTotal),0,2);
-contAll = popAll(1:10); contStd = stdAll(1:10);
-arcAll = popAll(11:20); arcStd = stdAll(11:20);
-radAll = popAll(21:30); radStd = stdAll(21:30);
+semAll = std(cell2mat(mouseTotal),0,2)./sqrt(numel(mouselist))
+contAll = popAll(1:10); contStd = semAll(1:10);
+arcAll = popAll(11:20); arcStd = semAll(11:20);
+radAll = popAll(21:30); radStd = semAll(21:30);
 
-    figure(438);clf
-    plot([1:10],contAll,'k','linewidth',4); %continuous
-    hold on; plot([1:10],arcAll,'b','linewidth',4); %arc
-    plot([1:10],radAll,'c','linewidth',4);%radial
+%     figure(438);clf
+%     plot([1:10],contAll,'k','linewidth',4); %continuous
+%     hold on; plot([1:10],arcAll,'b','linewidth',4); %arc
+%     plot([1:10],radAll,'c','linewidth',4);%radial
     
-for i = 1:length(ALLgpsycho)
-   figure(438);
-    h=plot([1:10],ALLgpsycho{i}(:,[3:3:end]),'color',[0 0 0]+alpha,'linewidth',1);  %continuous
-        for d = 1:length(h) 
-            h(d).Color(4)=.2;
-        end
-    hold on; h=plot([1:10],ALLgpsycho{i}(:,[1:3:end]),'color',[0 0 1],'linewidth',1);  %arc
-    for d = 1:length(h) 
-            h(d).Color(4)=.2;
-        end
-    h=plot([1:10],ALLgpsycho{i}(:,[2:3:end]),'color',[0 1 1],'linewidth',1); %radial
-    for d = 1:length(h) 
-            h(d).Color(4)=.2;
-        end
-end
+    figure(438);clf
+    errorbar([1:10],radAll,radStd,'-c','linewidth',2)
+    hold on; errorbar([1:10],contAll,contStd,'-k','linewidth',2)
+    errorbar([1:10],arcAll,arcStd,'-b','linewidth',2)
+    
 
-    plot([1:10],contAll,'k','linewidth',4); %continuous
-    hold on; plot([1:10],arcAll,'b','linewidth',4); %arc
-    plot([1:10],radAll,'c','linewidth',4);%radial
-    legend('Horizontal','Arc','Radial','location','southeast');
+    
+% for i = 1:length(ALLgpsycho)
+%    figure(438);
+%     h=plot([1:10],ALLgpsycho{i}(:,[3:3:end]),'color',[0 0 0]+alpha,'linewidth',1);  %continuous
+%         for d = 1:length(h) 
+%             h(d).Color(4)=.2;
+%         end
+%     hold on; h=plot([1:10],ALLgpsycho{i}(:,[1:3:end]),'color',[0 0 1],'linewidth',1);  %arc
+%     for d = 1:length(h) 
+%             h(d).Color(4)=.2;
+%         end
+%     h=plot([1:10],ALLgpsycho{i}(:,[2:3:end]),'color',[0 1 1],'linewidth',1); %radial
+%     for d = 1:length(h) 
+%             h(d).Color(4)=.2;
+%         end
+% end
+
+%     plot([1:10],contAll,'k','linewidth',4); %continuous
+%     hold on; plot([1:10],arcAll,'b','linewidth',4); %arc
+%     plot([1:10],radAll,'c','linewidth',4);%radial
+    legend('Radial','Horizontal','Arc','location','southeast');
     set(gca,'xtick',[1 5.5 10],'xticklabel',[-1 0 1],'ytick',[0 .25 .5 .75 1],'ylim', [ 0 1])
     xlabel('Normalized Motor Positions');ylabel('Lick Probability')
     text(8.5,.20,['n = ' num2str(numel(mouselist))],'FontSize',14)

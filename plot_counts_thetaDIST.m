@@ -1,4 +1,4 @@
-type = {D};
+type = {D,SM,BV};
 for d = 1:length(type) 
 U=type{d} ;
 
@@ -94,7 +94,7 @@ for var = 1
     end
     gothetas = histc([gos],range);
     nogothetas = histc([nogos],range);
-    figure(31+d); clf; 
+    figure(89+d); clf; 
     bar(range,gothetas,'b');alpha(.5)
     hold on;bar(range,nogothetas,'r');alpha(.5)
     if var == 5
