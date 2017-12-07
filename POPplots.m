@@ -22,6 +22,8 @@ for d = 1:3
     h.CData = rgb(colors{d});
     popfeatdom = [popfeatdom ;featureDom];
    
+    
+    
 end
 plot([-40 40],[0 0],'-.k')
 

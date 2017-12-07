@@ -7,7 +7,7 @@ clear V F1G RMSEgroup F1Gtree RMSEdecomp
 %% PARAMETERS SETTING
 
 clearvars -except V U BV D SM F1G RMSEgroup RMSEdecomp F1Gtree R PAS POP
-numIterations = 10;
+numIterations = 100;
 
 designvars = 'ubered';
 % 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' $) 'ubered'
@@ -425,7 +425,7 @@ hold on; scatter(1:length(V),predprop(:,1),'b');
 scatter(1:length(V),predprop(:,2),'r')
 legend('Model Accuracy','Lick Prediction Accuracy','No Lick Prediction Accuracy','location','southeast')
 title(['TreeBag ' U{rec}.meta.layer ' ' designvars ' ' classes])
-print(figure(36),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_0touch_removal_' removal '_TREEBAG'])
+ print(figure(36),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_0touch_removal_' removal '_TREEBAG'])
 
 %Plotting Feature Importance for Trees
 if strcmp(designvars,'ubered') || strcmp(designvars,'pas')
@@ -436,9 +436,10 @@ if strcmp(designvars,'ubered') || strcmp(designvars,'pas')
     if strcmp(designvars,'pas')
         legend('Amplitude at Touch','Midpoint at Touch','Phase at Touch','Location','northeast')
     elseif strcmp(designvars,'ubered')
-        legend('Theta at Touch','Touch Count','Previous Trial Lick','2 Previous T Lick', '3 Previous T Lick','Location','northeast')
+%         legend('Theta at Touch','Touch Count','Previous Trial Lick','2 Previous T Lick', '3 Previous T Lick','Location','northeast')
+         legend('Theta at Touch','Touch Count','Location','northeast')
     end
-    print(figure(323),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_0touch_removal_' removal '_TREEBAG_WEIGHTS'])
+     print(figure(323),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_0touch_removal_' removal '_TREEBAG_WEIGHTS'])
     
     if strcmp(U{rec}.meta.layer,'D')
         POP.feature{1} = treeFeat;

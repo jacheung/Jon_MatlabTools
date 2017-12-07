@@ -1,6 +1,13 @@
 type = {D,SM,BV};
+
+% type = {BV};
+figure(320);clf;
+figure(321);clf;
+collat =[];thetacollat = [];
+iv = POP.SBIAS;
 for d = 1:length(type) 
-U=type{d} ;
+colors = {'DarkGreen','DarkMagenta','DarkTurquoise'};
+    U=type{d} ;
 
 clear g;clear ng
 [V] = classifierWrapper(U);
@@ -21,6 +28,9 @@ for rec = 1:length(U)
         
         g{rec}=goDist;
         ng{rec}=nogoDist;
+        
+        gtrimmed{rec}=goDist(2:end);
+        ngtrimmed{rec}=nogoDist(2:end);
     end
 end
 
@@ -33,10 +43,8 @@ for i = 0:10
     nogotouch = [nogotouch; repmat(i,GngDist(i+1),1)];
 end
 
-gos = [mean(gotouch) std(gotouch)]
-nogos = [mean(nogotouch) std(nogotouch)]
-
-
+gos = [mean(gotouch) std(gotouch)];
+nogos = [mean(nogotouch) std(nogotouch)];
 
 figure(50+d);
 bar(0:10,GgoDist./sum(GgoDist),'b');alpha(.35);
@@ -44,7 +52,14 @@ hold on; bar(0:10,GngDist./sum(GngDist),'r');alpha(.35);
 set(gca,'xlim',[-.5 11],'xtick',0:5:10,'ylim',[0 .5],'ytick',[0 .25 .5])
 % print(figure(51),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistribution' ])
 % print(figure(50),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistributionINDIV' ])
-% 
+%
+
+gngrats=(cellfun(@sum,gtrimmed)-cellfun(@sum,ngtrimmed))./(cellfun(@sum,ngtrimmed)+cellfun(@sum,gtrimmed));
+figure(320);hold on;h=scatter(iv{d},gngrats,'filled');
+h.CData = rgb(colors{d});
+set(gca,'ylim',[-1 1],'ytick',[-1:.5:1])
+
+collat = [collat gngrats];
 
 %% THETA DIST for one single mouse
 
@@ -85,12 +100,18 @@ for var = 1
         groupnogorange(rec,1:2) = [min(thetanogovals) max(thetanogovals)];
         
         
+        
         if var == 5
             set(gca,'xlim',[min(range) max(range)],'xtick',linspace(-3.14,3.14,3),'xticklabel',{'-\pi','0','\pi'})
         end
         
         gos = [gos V(rec).var.hit{var} V(rec).var.miss{var}];
         nogos = [nogos V(rec).var.CR{var} V(rec).var.FA{var}];
+        
+        gthetas{rec}=tmpgos;
+        ngthetas{rec}=tmpnogos;
+        
+
     end
     gothetas = histc([gos],range);
     nogothetas = histc([nogos],range);
@@ -105,9 +126,90 @@ for var = 1
 %     print(figure(31),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistPOP'])
 %     print(figure(32),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistINDIV'])
 % %     close all
+
+
 end
+
+
+thetameandiff = cellfun(@mean,ngthetas)-cellfun(@mean,gthetas);
 
 
 gowidth = groupgorange(:,2)-groupgorange(:,1);
 nogowidth = groupnogorange(:,2)-groupnogorange(:,1);
+
+
+figure(321);hold on;h=scatter(iv{d},thetameandiff,'filled');
+h.CData = rgb(colors{d});
+
+thetacollat = [thetacollat thetameandiff];
+
 end
+
+%Plotting for SBIASxtouch count distribution figure320
+% Plotting for SBIAS x meanof theta distributoin figure 321
+xdata = cell2mat(iv');
+ydata = collat';
+thetaydata = thetacollat';
+[~, orders] = sort(xdata);
+
+[coeff, ~ , mu] = polyfit(xdata(orders),ydata(orders),1);
+f = polyval(coeff,xdata(orders),[],mu);
+
+[tcoeff, ~ , tmu] = polyfit(xdata(orders),thetaydata(orders),1);
+t = polyval(tcoeff,xdata(orders),[],tmu);
+
+
+modelvals = fitlm(xdata,ydata);
+tmodelvals = fitlm(xdata,thetaydata);
+
+pval = modelvals.Coefficients{2,4};
+adjrsq = modelvals.Rsquared.Adjusted;
+
+tpval = tmodelvals.Coefficients{2,4};
+tadjrsq = tmodelvals.Rsquared.Adjusted;
+
+figure(320); plot(xdata(orders),f,'k');
+legend('Discrete','Semi-Continuous','Continuous','location','northwest')
+ set(gca,'ylim',[-1 1],'ytick',[-1:.5:1],'xlim',[-5 25])
+disp(['Rsquared = ' num2str(adjrsq) ' and pvalue = ' num2str(pval)])
+xlabel('Go NoGo Gap (theta)')
+ylabel('More nogo touches ------ More go touches')
+set(figure(320), 'Units', 'pixels', 'Position', [0, 0, 600, 750]);
+
+figure(321); plot(xdata(orders),t,'k');
+legend('Discrete','Semi-Continuous','Continuous','location','northwest')
+ set(gca,'xlim',[-5 30])
+disp(['Rsquared = ' num2str(tadjrsq) ' and pvalue = ' num2str(tpval)])
+xlabel('Gap (theta)')
+ylabel('Difference between mean of go - mean of nogo')
+set(figure(321), 'Units', 'pixels', 'Position', [0, 0, 600, 750]);
+
+
+%% Task D x SBIAS CORRELATIOn 
+ydata =  cell2mat(POP.SBIAS')
+xdata = cell2mat(POP.taskD')
+
+
+[~, orders] = sort(xdata);
+
+[coeff, ~ , mu] = polyfit(xdata(orders),ydata(orders),1);
+g = polyval(coeff,xdata(orders),[],mu);
+
+modelvals = fitlm(xdata,ydata);
+pval = modelvals.Coefficients{2,4};
+adjrsq = modelvals.Rsquared.Adjusted;
+disp(['Rsquared = ' num2str(adjrsq) ' and pvalue = ' num2str(pval)])
+
+colors = {'DarkGreen','DarkMagenta','DarkTurquoise'};
+ranges = [1:10;11:20;21:30]
+figure(23);clf;
+for d = 1:length(colors)
+hold on; h=scatter(xdata(ranges(d,:)),ydata(ranges(d,:)),'filled');
+h.CData = rgb(colors{d});
+end
+hold on; plot(xdata(orders),g,'k')
+xlabel('Gap between go and nogo (theta)');ylabel('Search Bias')
+
+legend('Discrete','Semi-Continuous','Continuous','location','northwest')
+
+

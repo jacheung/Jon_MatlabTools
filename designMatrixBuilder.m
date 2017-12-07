@@ -105,11 +105,14 @@ switch designvars
     case 'ubered'
         
         [hx,mx,FAx,CRx] = meanVarfinder (V,1,U,sampMethod);
-        hx = [hx' V.touchNum.hit' V.licks.oneT.hit' V.licks.oneT.hit'.*V.licks.twoT.hit' V.licks.oneT.hit'.*V.licks.twoT.hit'.*V.licks.threeT.hit'];
-        %                 mx = [mx' V.touchNum.miss' V.licks.oneT.miss'];
-        FAx = [FAx' V.touchNum.FA' V.licks.oneT.FA' V.licks.oneT.FA'.*V.licks.twoT.FA' V.licks.oneT.FA'.*V.licks.twoT.FA'.*V.licks.threeT.FA'];
-        CRx = [CRx' V.touchNum.CR' V.licks.oneT.CR' V.licks.oneT.CR'.*V.licks.twoT.CR' V.licks.oneT.CR'.*V.licks.twoT.CR'.*V.licks.threeT.CR'];
-%         
+%         hx = [hx' V.touchNum.hit' V.licks.oneT.hit' V.licks.oneT.hit'.*V.licks.twoT.hit' V.licks.oneT.hit'.*V.licks.twoT.hit'.*V.licks.threeT.hit'];
+%         mx = [mx' V.touchNum.miss' V.licks.oneT.miss'];
+%         FAx = [FAx' V.touchNum.FA' V.licks.oneT.FA' V.licks.oneT.FA'.*V.licks.twoT.FA' V.licks.oneT.FA'.*V.licks.twoT.FA'.*V.licks.threeT.FA'];
+%         CRx = [CRx' V.touchNum.CR' V.licks.oneT.CR' V.licks.oneT.CR'.*V.licks.twoT.CR' V.licks.oneT.CR'.*V.licks.twoT.CR'.*V.licks.threeT.CR'];
+         hx = [hx' V.touchNum.hit'];
+%          mx = [mx' V.touchNum.miss' V.licks.oneT.miss'];
+         FAx = [FAx' V.touchNum.FA'];
+         CRx = [CRx' V.touchNum.CR'];%         
 %         hx = [hx' V.touchNum.hit'];
 %         %                 mx = [mx' V.touchNum.miss' V.licks.oneT.miss'];
 %         FAx = [FAx' V.touchNum.FA'];
