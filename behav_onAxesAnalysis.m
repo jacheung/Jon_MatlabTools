@@ -2,7 +2,6 @@ clear all;close all;
 
 mouselist = {'AH0667','AH0668','AH0712','AH0716','AH0717'};
 
-mouselist = {'AH0716'};
 for mouse = 1:length(mouselist)
     close all
     mouseNum = mouselist{mouse};
@@ -192,21 +191,26 @@ bonfcorr = alpha/numel(mouselist); %post hoc bonferroni correction of pval alpha
 
 % Plotting group psychometric curves with ALL shaded psychos
 popAll = mean(cell2mat(mouseTotal),2);
-semAll = std(cell2mat(mouseTotal),0,2)./sqrt(numel(mouselist))
-contAll = popAll(1:10); contStd = semAll(1:10);
-arcAll = popAll(11:20); arcStd = semAll(11:20);
-radAll = popAll(21:30); radStd = semAll(21:30);
+semAll = std(cell2mat(mouseTotal),0,2)./sqrt(numel(mouselist));
+tn = tinv([0.025 .975],numel(mouselist)-1);
+% ci = repmat(popAll,1,2)+(tn.*semAll);
+ci = (tn.*semAll);
 
-%     figure(438);clf
-%     plot([1:10],contAll,'k','linewidth',4); %continuous
-%     hold on; plot([1:10],arcAll,'b','linewidth',4); %arc
-%     plot([1:10],radAll,'c','linewidth',4);%radial
+contAll = popAll(1:10); contci = ci(1:10,:); contSEM = semAll(1:10);
+arcAll = popAll(11:20); arcci = ci(11:20,:); arcSEM = semAll(11:20);
+radAll = popAll(21:30); radci = ci(21:30,:); radSEM = semAll(21:30);
+
+
     
     figure(438);clf
-    errorbar([1:10],radAll,radStd,'-c','linewidth',2)
-    hold on; errorbar([1:10],contAll,contStd,'-k','linewidth',2)
-    errorbar([1:10],arcAll,arcStd,'-b','linewidth',2)
+    errorbar([1:10],radAll,radSEM,'-c','linewidth',2)
+    hold on; errorbar([1:10],contAll,contSEM,'-k','linewidth',2)
+    errorbar([1:10],arcAll,arcSEM,'-b','linewidth',2)
     
+    figure(439);clf
+    boundedline([1:10],radAll,radci(:,2),'c');
+    hold on; boundedline([1:10],contAll,contci(:,2),'k')
+    boundedline([1:10],arcAll,arcci(:,2),'b')
 
     
 % for i = 1:length(ALLgpsycho)
@@ -232,7 +236,7 @@ radAll = popAll(21:30); radStd = semAll(21:30);
     set(gca,'xtick',[1 5.5 10],'xticklabel',[-1 0 1],'ytick',[0 .25 .5 .75 1],'ylim', [ 0 1])
     xlabel('Normalized Motor Positions');ylabel('Lick Probability')
     text(8.5,.20,['n = ' num2str(numel(mouselist))],'FontSize',14)
-    print(figure(438),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\' mouseNum '_onAxes_POPpsycho'])
+    print(figure(438),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\onAxes_POPpsycho'])
     
     
     

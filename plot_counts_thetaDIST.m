@@ -3,9 +3,11 @@ type = {D,SM,BV};
 % type = {BV};
 figure(320);clf;
 figure(321);clf;
+figure(809);clf
+figure(430);clf
 collat =[];thetacollat = [];
-iv = POP.SBIAS;
-for d = 1:length(type) 
+% iv = POP.taskD;
+for d = 1:3
 colors = {'DarkGreen','DarkMagenta','DarkTurquoise'};
     U=type{d} ;
 
@@ -31,6 +33,13 @@ for rec = 1:length(U)
         
         gtrimmed{rec}=goDist(2:end);
         ngtrimmed{rec}=nogoDist(2:end);
+        
+    end
+    
+    if rec == 1 || rec ==6
+        ylabel('Proportion of Trials')
+    elseif rec == 3 || rec == 8
+        xlabel('Touch Counts')
     end
 end
 
@@ -51,15 +60,24 @@ bar(0:10,GgoDist./sum(GgoDist),'b');alpha(.35);
 hold on; bar(0:10,GngDist./sum(GngDist),'r');alpha(.35);
 set(gca,'xlim',[-.5 11],'xtick',0:5:10,'ylim',[0 .5],'ytick',[0 .25 .5])
 % print(figure(51),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistribution' ])
-% print(figure(50),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistributionINDIV' ])
+% set(figure(50), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000])
+%  print(figure(50),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_countsDistributionINDIV' ])
 %
 
-gngrats=(cellfun(@sum,gtrimmed)-cellfun(@sum,ngtrimmed))./(cellfun(@sum,ngtrimmed)+cellfun(@sum,gtrimmed));
-figure(320);hold on;h=scatter(iv{d},gngrats,'filled');
-h.CData = rgb(colors{d});
-set(gca,'ylim',[-1 1],'ytick',[-1:.5:1])
 
-collat = [collat gngrats];
+%Plotting go touches : nogotouches ratio
+allgotouches = sum(cell2mat(g').*repmat(0:10,length(g),1),2);
+allnogotouches = sum(cell2mat(ng').*repmat(0:10,length(ng),1),2);
+ratio = ((allgotouches - allnogotouches) ./(allgotouches+allnogotouches))';
+figure(430);hold on;
+h = scatter(ratio,ones(length(ratio),1)*d,'filled');
+h.CData = rgb(colors{d});
+errorbar(mean(ratio),d,std(ratio),'horizontal','ko','markersize',15,'markerfacecolor',rgb(colors{d}))
+plot([0 0],[.5 3.5],'-.k')
+set(gca,'ydir','reverse','xlim',[-1 1],'xtick',[-1 0 1],'ytick',[])
+xlabel('Go touch count to nogo touch count')
+
+gngcountsratios{d} = ratio;
 
 %% THETA DIST for one single mouse
 
@@ -111,6 +129,12 @@ for var = 1
         gthetas{rec}=tmpgos;
         ngthetas{rec}=tmpnogos;
         
+        if rec == 1 || rec ==6
+        ylabel('Number of Touches')
+        elseif rec == 3 || rec == 8
+        xlabel([V(1).varNames{var} ' at Touch'])
+        end
+        
 
     end
     gothetas = histc([gos],range);
@@ -123,25 +147,35 @@ for var = 1
         set(gca,'xlim',[min(range) max(range)],'xtick',linspace(-3.14,3.14,5),'xticklabel',{'-\pi','-\pi/2','0','\pi/2','\pi'})
     end
     ylabel('Number of Touches')
-%     print(figure(31),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistPOP'])
-%     print(figure(32),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistINDIV'])
-% %     close all
+    xlabel([V(1).varNames{var} ' at Touch'])
+%      print(figure(31),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistPOP'])
+% set(figure(32), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000])
+%      print(figure(32),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' V(1).varNames{var} 'DistINDIV'])
+
 
 
 end
 
+%Plotting median of theta values +/- 2*standard deviation for full range of
+%theta values 
+figure(809); hold on
+errorbar(cellfun(@median,ngthetas),(length(ngthetas)*d-length(ngthetas)+1:length(ngthetas)*d),2*cellfun(@std,ngthetas),'horizontal','ro','markersize',10,'markerfacecolor',rgb(colors{d}))
+errorbar(cellfun(@median,gthetas),(length(gthetas)*d-length(gthetas)+1:length(gthetas)*d),2*cellfun(@std,gthetas),'horizontal','bo','markersize',10,'markerfacecolor',rgb(colors{d}))
+set(gca,'ytick',[],'xdir','reverse','ylim',[0 31],'ydir','reverse')
 
-thetameandiff = cellfun(@mean,ngthetas)-cellfun(@mean,gthetas);
-
+%calculating task difficulty: ( median(ng) - 2std(ng)) - (median(g)+2std(g))
+gngtaskease{d} = (cellfun(@median,ngthetas)-(2*cellfun(@std,ngthetas)))   - (cellfun(@median,gthetas)+(2*cellfun(@std,gthetas)));
+%calculating means of theta ranges 
+ gngfullthetaranges{d} = (cellfun(@max,ngthetas)-cellfun(@min,ngthetas)) + (cellfun(@max,gthetas)-cellfun(@min,gthetas));
 
 gowidth = groupgorange(:,2)-groupgorange(:,1);
 nogowidth = groupnogorange(:,2)-groupnogorange(:,1);
 
 
-figure(321);hold on;h=scatter(iv{d},thetameandiff,'filled');
-h.CData = rgb(colors{d});
+% figure(321);hold on;h=scatter(iv{d},thetameandiff,'filled');
+% h.CData = rgb(colors{d});
 
-thetacollat = [thetacollat thetameandiff];
+
 
 end
 
@@ -172,7 +206,7 @@ figure(320); plot(xdata(orders),f,'k');
 legend('Discrete','Semi-Continuous','Continuous','location','northwest')
  set(gca,'ylim',[-1 1],'ytick',[-1:.5:1],'xlim',[-5 25])
 disp(['Rsquared = ' num2str(adjrsq) ' and pvalue = ' num2str(pval)])
-xlabel('Go NoGo Gap (theta)')
+xlabel('Search Bias')
 ylabel('More nogo touches ------ More go touches')
 set(figure(320), 'Units', 'pixels', 'Position', [0, 0, 600, 750]);
 
@@ -186,8 +220,8 @@ set(figure(321), 'Units', 'pixels', 'Position', [0, 0, 600, 750]);
 
 
 %% Task D x SBIAS CORRELATIOn 
-ydata =  cell2mat(POP.SBIAS')
-xdata = cell2mat(POP.taskD')
+ydata =  cell2mat(POP.SBIAS');
+xdata = cell2mat(POP.taskD');
 
 
 [~, orders] = sort(xdata);
@@ -201,7 +235,7 @@ adjrsq = modelvals.Rsquared.Adjusted;
 disp(['Rsquared = ' num2str(adjrsq) ' and pvalue = ' num2str(pval)])
 
 colors = {'DarkGreen','DarkMagenta','DarkTurquoise'};
-ranges = [1:10;11:20;21:30]
+ranges = [1:10;11:20;21:30];
 figure(23);clf;
 for d = 1:length(colors)
 hold on; h=scatter(xdata(ranges(d,:)),ydata(ranges(d,:)),'filled');
@@ -209,7 +243,7 @@ h.CData = rgb(colors{d});
 end
 hold on; plot(xdata(orders),g,'k')
 xlabel('Gap between go and nogo (theta)');ylabel('Search Bias')
-
+set(figure(23), 'Units', 'pixels', 'Position', [0, 0, 600, 750]);
 legend('Discrete','Semi-Continuous','Continuous','location','northwest')
 
 

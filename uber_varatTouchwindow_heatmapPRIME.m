@@ -2,12 +2,11 @@
 [layer, txt] = loadDataNames(U);
 
 %%
-for p=1:length(U)
-    close all;
-    rec=p
-    countThresh = 3; %min touch in each bin to be considered
-    gaussFilt = [3]; %sigma filter for imgaussfilt (can be single value for filtering across rows and columns or two values [x y] for filter of row/column
-    window = [-50:200]; %ms to look around touch
+clear pop
+for rec=1:length(U)
+    countThresh = 10; %min touch in each bin to be considered
+    gaussFilt = [1]; %sigma filter for imgaussfilt (can be single value for filtering across rows and columns or two values [x y] for filter of row/column
+    window = [-15:35]; %ms to look around touch
     
     [varspikes, preDvarspikes,postDvarspikes] = assist_varAtTouch(U{rec},window);
     % First 6 columns will be values for the variables
@@ -19,12 +18,20 @@ for p=1:length(U)
     % 6) MAX KAPPA    
     % Last columns will be the spikes around your given window
     
-    comp={varspikes, preDvarspikes, postDvarspikes};
+    
+    % Run this line below if you want to elim all protraction touches and
+    % just look at ret touches. 
+%     varspikes(varspikes(:,5)<0,:)=[];
+    
+    
+    
+%     comp={varspikes, preDvarspikes, postDvarspikes};
+    comp={varspikes};
     for g = 1:length(comp)
         %%
         %Plot theta at touch
-        fields = [{'theta'} {'velocity'} {'amplitude'} {'setpoint'} {'phase'} {'kappa'}];
-        V.bounds = [{[-99.5:1:99.5]} {[-9750:125:9750]} {[-99.5:1:99.5]} {[-99.5:1:99.5]} {linspace(pi*-1,pi,12)} {[-.95:.05:.95]}];
+        fields = [      {'theta'}       {'velocity'}      {'amplitude'}    {'setpoint'}          {'phase'}           {'kappa'}];
+        V.bounds = [{[-99.5:5:99.5]} {[-9750:125:9750]} {[-99.5:5:99.5]} {[-99.5:5:99.5]} {linspace(pi*-1,pi,12)} {[-.95:.05:.95]}];
         for d = [1 2 3 4 5 6] %for variables 1:6
             
             if d == 2
@@ -58,19 +65,70 @@ for p=1:length(U)
             V.(fields{d}).range(mintouches,:)=[];
             
             %Plotting features
-            figure(30+g);subplot(2,3,d);
-            imagesc(imgaussfilt(V.(fields{d}).spikes,gaussFilt,'padding','replicate'));colormap(gca,parula);
-            set(gca,'Ydir','normal','ytick',(1:length(V.(fields{d}).range)),'yticklabel',[V.(fields{d}).range],...
-                'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
-            for k=1:size(V.(fields{d}).counts,1)
-                text(20,k,num2str(V.(fields{d}).counts(k)),'FontSize',8,'Color','white')
-            end
-            hold on;plot([sum(window<0) sum(window<0)],[length(V.(fields{d}).range) 0],'w:')
-            axis('square')
-            xlabel('time from touch onset (ms)')
-            title([fields{d}])
+%             figure(30+rec);subplot(2,3,d);
+%             
+%             
+%             
+% %             imagesc(imgaussfilt(V.(fields{d}).spikes,gaussFilt,'padding','replicate')); %GAUSS PLOTTING
+%             imagesc(V.(fields{d}).spikes) %OLD PLOTTING 
+%             
+%             colormap(gca,parula);
+%             set(gca,'Ydir','normal','ytick',(1:length(V.(fields{d}).range)),'yticklabel',[V.(fields{d}).range],...
+%                 'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
+%             for k=1:size(V.(fields{d}).counts,1)
+%                 text(20,k,num2str(V.(fields{d}).counts(k)),'FontSize',8,'Color','white')
+%             end
+%             hold on;plot([sum(window<0) sum(window<0)],[length(V.(fields{d}).range) 0],'w:')
+%             axis('square')
+%             xlabel('time from touch onset (ms)')
+%             title([fields{d}])
+%             
+            
+            pop{rec}=V;
+            
+            
         end
       
     end
-    pause
+end
+
+%POPULATION PLOTTING
+
+
+figure(30);clf
+figure(31);clf
+fields = [    {'theta'}  ];
+for d = 1:length(pop)
+    
+    
+    figure(30);subplot(5,4,d);
+%       imagesc(imgaussfilt(pop{d}.(fields{1}).spikes,gaussFilt,'padding','replicate'));
+     imagesc(pop{d}.(fields{1}).spikes) 
+    colormap(gca,parula);
+    set(gca,'Ydir','normal','ytick',(1:length(pop{d}.(fields{1}).range)),'yticklabel',[pop{d}.(fields{1}).range],...
+        'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
+    for k=1:size(pop{d}.(fields{1}).counts,1)
+        text(20,k,num2str(pop{d}.(fields{1}).counts(k)),'FontSize',8,'Color','white')
+    end
+    hold on;plot([sum(window<0) sum(window<0)],[length(pop{d}.(fields{1}).range) 0],'w:')
+%       axis('square')
+    %             xlabel('time from touch onset (ms)')
+    %             title(['theta'])
+    
+    
+    
+        figure(31);subplot(5,4,d);
+       imagesc(imgaussfilt(pop{d}.(fields{1}).spikes,gaussFilt,'padding','replicate'));
+%      imagesc(pop{d}.(fields{1}).spikes) 
+    colormap(gca,parula);
+    set(gca,'Ydir','normal','ytick',(1:length(pop{d}.(fields{1}).range)),'yticklabel',[pop{d}.(fields{1}).range],...
+        'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
+    for k=1:size(pop{d}.(fields{1}).counts,1)
+        text(20,k,num2str(pop{d}.(fields{1}).counts(k)),'FontSize',8,'Color','white')
+    end
+    hold on;plot([sum(window<0) sum(window<0)],[length(pop{d}.(fields{1}).range) 0],'w:')
+%       axis('square')
+    %             xlabel('time from touch onset (ms)')
+    %             title(['theta'])
+    
 end

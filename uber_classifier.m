@@ -6,11 +6,12 @@ clear V F1G RMSEgroup F1Gtree RMSEdecomp
 
 %% PARAMETERS SETTING
 
-clearvars -except V U BV D SM F1G RMSEgroup RMSEdecomp F1Gtree R PAS POP
-numIterations = 100;
+clearvars -except V U BV D SM F1G RMSEgroup RMSEdecomp F1Gtree R PAS POP keeptmp
+numIterations = 10;
 
-designvars = 'ubered';
-% 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' $) 'ubered'
+designvars = 'roll';
+% 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' 4) 'ubered' 
+% 5) 'timing' 6) 'roll'
 classes = 'lick';
 % 1) 'gonogo' 2) 'FAvsCR' 3) 'lick' 4) allBehavTypes
 
@@ -19,7 +20,7 @@ sample ='bias';
 % random 70% to train
 
 % Only for 'ubered' or 'pas'
-normalization = 'none';
+normalization = 'whiten';
 % 1) 'whiten' 2) 'none';
 
 % Only for 'ubered'
@@ -53,28 +54,26 @@ for rec = 1:length(V)
         end
         switch sample
             case 'bias'
-                %             %FOR FA VS CR
-                %             sample evenly from FA and CR for training set
                 g1counts = round(numel(g1)*.7);
                 g2counts = round(numel(g2)*.7);
                 g1s = find(tmpDmatY==unique(g1));
                 g2s = find(tmpDmatY==unique(g2));
                 train=[g2s(1:g2counts);g1s(1:g1counts)];
-                normPAS = [1:length(tmpDmatY)]';
-                normPAS(train)=[];
+                test = [1:length(tmpDmatY)]';
+                test(train)=[];
                 
                 [thetas,cost,~] = ML_oneVsAll(tmpDmatX(train,:),tmpDmatY(train,:),numel(unique(DmatY)),0);
                 Bfeat{rec}.theta{reit}=thetas;
                 
-                [pred,opt_thresh(reit),prob]=ML_predictOneVsAll(thetas,tmpDmatX(normPAS,:)...
-                    ,tmpDmatY(normPAS,:),'Max');
-                Acc(reit)= mean(double(pred == tmpDmatY(normPAS))) * 100;
-                F1s(reit,:) = F1score(pred,tmpDmatY(normPAS),2);
+                [pred,opt_thresh(reit),prob]=ML_predictOneVsAll(thetas,tmpDmatX(test,:)...
+                    ,tmpDmatY(test,:),'Max');
+                Acc(reit)= mean(double(pred == tmpDmatY(test))) * 100;
+                F1s(reit,:) = F1score(pred,tmpDmatY(test),2);
                 
                 if strcmp(classes,'lick')
-                    motorPlick= [motorPlick;tmpMotorX(normPAS) prob];
+                    motorPlick= [motorPlick;tmpMotorX(test) prob];
                 end
-                accprop{rec}=[accprop{rec} ; pred tmpDmatY(normPAS)];
+                accprop{rec}=[accprop{rec} ; pred tmpDmatY(test)];
                 
             case 'random'
                 % use this for GO vs NOGO since it doesnt bias sampling
@@ -96,22 +95,29 @@ for rec = 1:length(V)
     if strcmp(classes,'lick')
         train_motorPlick{rec} = motorPlick;
     end
-    train_F1s(rec,:) = nanmean(nansum(F1s,2));
-    trainF1sstd(rec,:)=nanstd(nansum(F1s,2));
+    train_F1s(rec,:) = nanmean(F1s);
+    train_F1s(isnan(train_F1s))=0;
     train_predOpt(rec)=mean(opt_thresh); %used for dboundaries
     train_Acc(rec) = mean(Acc);
     train_std(rec) = std(Acc);
-    
+
     
 end
 
+figure(56530);clf;scatter(train_F1s(:,1),train_F1s(:,2),'filled');
+   hold on; plot([0 1],[0 1],'-.k')
+   set(gca,'xlim',[0 1],'ylim',[0 1],'ytick',0:.5:1,'xtick',0:.5:1);
+   xlabel('F1 Lick');ylabel('F1 Withhold lick') 
 
 %Plotting F1 score for Log Classifier
 if strcmp(designvars,'theta')
     F1G{1} = train_F1s ;
 elseif strcmp(designvars,'counts')
     F1G{2} = train_F1s ;
-    figure(20);hold on;f=scatter(F1G{1},F1G{2},'filled');
+    figure(20);hold on;f=scatter(F1G{1}(:,1),F1G{2}(:,1),'filled','markerfacecolor','k');
+        set(gca,'xlim',[0 1],'ylim',[0 1],'ytick',0:.5:1,'xtick',0:.5:1);
+    xlabel('F1 Score Go Theta');ylabel('F1 Score Go Touch Count');
+        hold on; plot([0 1],[0 1],'-.k')
     if strcmp(U{rec}.meta.layer,'D')
         f.CData = [rgb('DarkGreen')];
     elseif strcmp(U{rec}.meta.layer,'SM')
@@ -119,16 +125,19 @@ elseif strcmp(designvars,'counts')
     elseif strcmp(U{rec}.meta.layer,'BV')
         f.CData = [rgb('DarkTurquoise')];
     end
-    set(gca,'xlim',[0 2],'ylim',[0 2],'ytick',0:.5:2);
-    xlabel('F1 Score Theta');ylabel('F1 Score Touch Count');
-    %     hold on; plot([0 2],[0 2],'-.k')
-    %     legend('Discrete','Semi Continuous','Continuous','location','northwest')
+figure(25);hold on;scatter(F1G{1}(:,2),F1G{2}(:,2),'filled','markerfacecolor',rgb(colors{d}));
+    set(gca,'xlim',[0 1],'ylim',[0 1],'ytick',0:.5:1,'xtick',0:.5:1);
+    xlabel('F1 Score Nogo Theta');ylabel('F1 Score Nogo Touch Count');
+        hold on; plot([0 1],[0 1],'-.k')
+%         legend('Discrete','Semi Continuous','Continuous','location','northwest')
 end
+
+
 
 % Plotting Model accuracy for Log Classifier
 figure(22);clf;
 hold on; errorbar(1:length(V),train_Acc,train_std,'ko')
-xlabel('Mouse Number');ylabel('% Accuracy of Model')
+xlabel('Mouse number');ylabel('Accuracy (%)')
 set(gca,'ylim',[0 100])
 xlim([.5 length(V)+.5])
 %plotting TRUE POSITIVES (GUESSING class 1 and then it actually being class
@@ -143,9 +152,23 @@ for recs = 1:length(V)
 end
 hold on; scatter(1:length(V),predprop(:,1),'b');
 scatter(1:length(V),predprop(:,2),'r')
-legend('Model Accuracy','Lick Prediction Accuracy','No Lick Prediction Accuracy','location','southeast')
+legend('Model accuracy','Lick prediction Accuracy','No Lick Prediction Accuracy','location','southeast')
 title(['Log' U{rec}.meta.layer ' ' designvars ' ' classes])
-print(figure(22),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_0touch_removal_' removal])
+% print(figure(22),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_0touch_removal_' removal])
+
+if strcmp(designvars,'theta')
+    thetaAcc = train_acc;
+elseif strcmp(designvars,'pas')
+    pamAcc = train_acc;
+    figure(505);clf;
+    errorbar(1:2,[mean(thetaAcc) mean(pamAcc)],[std(thetaAcc) std(pamAcc)],'ko')
+    set(figure(505), 'Units', 'pixels', 'Position', [0, 0, 400,600])
+    set(gca,'xlim',[.5 2.5],'xtick',[1 2],'xticklabel',[{'Theta'},{'Decomposed'}],'ylim',[80 100],'ytick',[0:10:100])
+    ylabel('Model % Accuracy')
+    title([U{rec}.meta.layer ' thetaVSpam'])
+%     print(figure(505),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_pasVStheta'])
+end
+
 
 %Plotting Weights for Log Classifier
 if strcmp(designvars,'ubered') || strcmp(designvars,'pas')
@@ -167,7 +190,7 @@ if strcmp(designvars,'ubered') || strcmp(designvars,'pas')
         legend('Theta at Touch','Touch Count','Previous Trial Lick','2 Previous T Lick', '3 Previous T Lick','Bias','Location','northeast')
     end
     
-    print(figure(92),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_WEIGHTS'])
+%     print(figure(92),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_WEIGHTS'])
 end
 
 
@@ -210,7 +233,7 @@ end
 if strcmp(classes,'lick')
     [RMSE] = rebuildPsycho(U,V,train_motorPlick);
     suptitle([U{rec}.meta.layer ' ' designvars ' ' classes])
-    print(figure(5),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_LOGPSYCHO'])
+%     print(figure(5),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_LOGPSYCHO'])
     
     if strcmp(designvars,'counts')
         RMSEgroup(:,1) = RMSE;
@@ -226,9 +249,9 @@ if strcmp(classes,'lick')
 end
 
 %% Visualization of the decision boundaries.
-params =3;
+params =1;
 FCratio = [];
-for rec = 6
+for rec = 1:length(U)
     ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
     hx = [V(rec).var.hit{3}(ntmp)' V(rec).var.hit{4}(ntmp)' V(rec).var.hit{5}(ntmp)'];
     hy = ones(size(hx,1),1);
@@ -259,6 +282,11 @@ for rec = 6
                     FAx = [V(rec).var.FA{1}'];
                     CRx = [V(rec).var.CR{1}'];
                     x = [min([hx;FAx;CRx])-2:1:max([hx;FAx;CRx])+2];
+                case 'timing'
+                    hx = [V(rec).var.hit{7}(:,1)];
+                    FAx = [V(rec).var.FA{7}(:,1)];
+                    CRx = [V(rec).var.CR{7}(:,1)];
+                    x = [1:5:100];
             end
             
             switch classes
@@ -275,7 +303,7 @@ for rec = 6
             h2a=plot(x,firstvar/sum(firstvar),colors{1});h2a.Color(4)=0.5;
             hold on;h2a=plot(x,secondvar/sum(secondvar),colors{2});h2a.Color(4)=0.5;
           
-            for db = [1:2]
+            for db = 1:2
                 ms=cell2mat(Bfeat{rec}.theta);
                 coords=mean(reshape(ms(db,:)',2,numIterations),2);
                 y= (exp(coords(1)+coords(2)*x)) ./ (1 + exp(coords(1)+coords(2)*x))  ;

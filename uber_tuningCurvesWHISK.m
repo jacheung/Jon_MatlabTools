@@ -1,39 +1,42 @@
-if strcmp(U{1}.meta.layer,'L5b')
-    [ndata, txt, alldata] =xlsread('CellsConversionChart170224','I23:J67');
-    disp(U{1}.meta.layer);
-    layer = 'L5b';
-elseif strcmp(U{1}.meta.layer,'L3')
-    [ndata, txt, alldata] =xlsread('CellsConversionChart170224','B25:C44');
-    disp(U{1}.meta.layer);
-    layer = 'L3';
-elseif strcmp(U{1}.meta.layer,'L4')
-    [ndata, txt, alldata] =xlsread('CellsConversionChart170224','O23:P28');
-    disp(U{1}.meta.layer);
-    layer = 'L4';
-elseif strcmp(U{1}.meta.layer,'L3Out')
-    [ndata, txt, alldata] =xlsread('CellsConversionChart170224','B77:C82');
-    disp(U{1}.meta.layer);
-    layer = 'L3Out';
-elseif strcmp(U{1}.meta.layer,'L5bOut')
-    [ndata, txt, alldata] =xlsread('CellsConversionChart170224','I75:J82');
-    disp(U{1}.meta.layer);
-    layer = 'L5bOut';
-elseif strcmp(U{1}.meta.layer,'L5bInt')
-    [ndata, txt, alldata] =xlsread('CellsConversionChart170224','V75:W81');
-    disp(U{1}.meta.layer);
-    layer = 'L5bInt';
-elseif strcmp(U{1}.meta.layer,'BV')
-    [ndata, txt, alldata] =xlsread('CellsConversionChart170224','W23:X28');
-    disp(U{1}.meta.layer);
-    layer = 'BV';
- end
-txt=txt(~isnan(ndata));
-ndata=ndata(~isnan(ndata));
-baseline=cell(1,length(U));
-touchONN=cell(1,length(U));
+% if strcmp(U{1}.meta.layer,'L5b')
+%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','I23:J67');
+%     disp(U{1}.meta.layer);
+%     layer = 'L5b';
+% elseif strcmp(U{1}.meta.layer,'L3')
+%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','B25:C44');
+%     disp(U{1}.meta.layer);
+%     layer = 'L3';
+% elseif strcmp(U{1}.meta.layer,'L4')
+%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','O23:P28');
+%     disp(U{1}.meta.layer);
+%     layer = 'L4';
+% elseif strcmp(U{1}.meta.layer,'L3Out')
+%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','B77:C82');
+%     disp(U{1}.meta.layer);
+%     layer = 'L3Out';
+% elseif strcmp(U{1}.meta.layer,'L5bOut')
+%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','I75:J82');
+%     disp(U{1}.meta.layer);
+%     layer = 'L5bOut';
+% elseif strcmp(U{1}.meta.layer,'L5bInt')
+%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','V75:W81');
+%     disp(U{1}.meta.layer);
+%     layer = 'L5bInt';
+% elseif strcmp(U{1}.meta.layer,'BV')
+%     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','W23:X28');
+%     disp(U{1}.meta.layer);
+%     layer = 'BV';
+%  end
+% txt=txt(~isnan(ndata));
+% ndata=ndata(~isnan(ndata));
+% baseline=cell(1,length(U));
+% touchONN=cell(1,length(U));
+% 
+% cont.thetaALL = []; cont.phaseALL = []; cont.spALL = []; cont.ampALL = []; 
+% cont.thetaNORM = [];
 
-cont.thetaALL = []; cont.phaseALL = []; cont.spALL = []; cont.ampALL = []; 
-cont.thetaNORM = [];
+
+wndow=[5:10];%because spikes don't occur right when theta happens, we are going to average spikes [wndow] after theta occurs
 
 for p=1:length(U)
 %     cellcode = txt{p};
@@ -44,55 +47,11 @@ for p=1:length(U)
     %use this to choose mask:
     %availtoend_mask, avail_mask, touchEx_mask, firsttouchEx_mask
     mask = objmask.touch;
-    
-%     %% Plot raster
-%     figure(4);clf
-%     subplot(4,2,[1 2]);hold on
-%     
-%     for i = 1:U{rec}.k
-%         if sum(U{rec}.R_ntk(1,:,i))>0
-%             plot(find(U{rec}.R_ntk(1,:,i)==1),i,'k.')
-%         else
-%         end
-%         
-%     end
-%     set(gca,'ylim',[0 U{rec}.k]+1)
-%     
-%     %% ONSET
-%     touchIdx = [find(U{rec}.S_ctk(9,:,:)==1);find(U{rec}.S_ctk(12,:,:)==1)];
-%     spikes = squeeze(U{rec}.R_ntk);
-%     touchIdx = touchIdx(touchIdx<(numel(spikes)-151)); %elim last touches
-%     spikesAligned = zeros(numel(touchIdx),201);
-%     
-%     for i = 1:size(spikesAligned,1)
-%         spikesAligned(i,:) = spikes(touchIdx(i)+[-50:150]);
-%     end
-%     subplot(4,2,3);
-%     bar(-50:150,sum(spikesAligned)/numel(touchIdx),'k');
-%     set(gca,'xlim',[-50 150]);
-%     xlabel('Time from all touch onset (ms)')
-%     ylabel('spks / ms')
-%     touchONN{p}=spikesAligned;
-% 
-%     %% OFFSET
-%     touchIdx = [find(U{rec}.S_ctk(10,:,:)==1);find(U{rec}.S_ctk(13,:,:)==1)];
-%     spikes = squeeze(U{rec}.R_ntk);
-%     touchIdx = touchIdx(touchIdx<(numel(spikes)-151)); %elim offset touches at end of last trial
-%     spikesAligned = zeros(numel(touchIdx),201);
-%     
-%     for i = 1:size(spikesAligned,1)
-%         spikesAligned(i,:) = spikes(touchIdx(i)+[-50:150]);
-%     end
-%     subplot(4,2,4);
-%     bar(-50:150,sum(spikesAligned)/numel(touchIdx),'k')
-%     set(gca,'xlim',[-50 150])
-%     xlabel('Time from all touch offset (ms)')
-%     ylabel('spks / ms')
-% 
-%     
+    mask(U{rec}.t-wndow(end):U{rec}.t,:) = NaN;
+
     %% THETA
 
-    wndow=[5:10]; %because spikes don't occur right when theta happens, we are going to average spikes [wndow] after theta occurs
+     
     theta = squeeze(U{rec}.S_ctk(1,:,:));
     selectedtheta = mask.*theta;
     theta_Idx = find(~isnan(selectedtheta));
@@ -103,7 +62,7 @@ for p=1:length(U)
     thetaSpikes = selectedtheta(theta_Idx);
     %thetaSpikes(:,2)=U{rec}.R_ntk(theta_Idx);
        
-    thetaSpikes(:,2) = nanmean(U{rec}.R_ntk(repmat(theta_Idx,1,numel(wndow))+repmat(wndow,numel(theta_Idx),1)),2);  
+    thetaSpikes(:,2) = nanmean(U{rec}.R_ntk(repmat(theta_Idx,1,length(wndow))+repmat(wndow,numel(theta_Idx),1)),2);  
 
     [Tsorted TsortedBy TbinBounds]=binslin(thetaSpikes(:,1),thetaSpikes(:,2),'equalX',13);
     
@@ -224,74 +183,74 @@ for p=1:length(U)
     
     STune(rec)=max(FR_sp)-min(FR_sp);
  %% Plot Tuning Curves
-% %     figure(42);clf; subplot(2,2,1)
-%     hold on
-%     tymax = max(theta_sp)*1.5;
-%     plot(TbinBounds(1:end-1),theta_sp,'-b')
-%     hold on; plot(TbinBounds(1:end-1),Tcibin(1,:),':k');
-%     hold on; plot(TbinBounds(1:end-1),Tcibin(2,:),':k');
-%     set(gca,'xlim',[TbinBounds(1) TbinBounds(end)],'ylim',[0 tymax])
-%     xlabel('Theta (degrees)')
-%     ylabel('spks / s')
-%     
-% %     subplot(2,2,2);
-%     Atymax = max(amp_sp)*1.5;
-%     plot(AbinBounds(1:end-1),amp_sp,'-b');
-%     hold on; plot(AbinBounds(1:end-1),Acibin(1,:),':k');
-%     hold on; plot(AbinBounds(1:end-1),Acibin(2,:),':k');
-%     ymax = max(amp_sp)*2;
-%     set(gca,'xlim',[ampmin ampmax],'ylim',[0 Atymax])
-%     xlabel('Amplitude (degrees)')
-%     ylabel('spks / s')
-%     
-% %     subplot(2,2,3);
-%     Stymax = max(FR_sp)*1.5;
-%     hold on
-%     plot(SbinBounds(1:end-1),FR_sp,'-b');
-%     hold on; plot(SbinBounds(1:end-1),Scibin(1,:),':k');
-%     hold on; plot(SbinBounds(1:end-1),Scibin(2,:),':k');
-%     set(gca,'xlim',[spmin spmax],'ylim',[0 Stymax])
-%     xlabel('Setpoint (degrees)')
-%     ylabel('spks / s')
-%     
-% %     subplot(2,2,4);
-%     plot(-pi:pi/5.5:pi,FR_phase,'-b');
-%     hold on; plot([-pi:pi/5.5:pi],Pcibin(1,:),':k');
-%     hold on; plot([-pi:pi/5.5:pi],Pcibin(2,:),':k');
-%     Ptymax = (max(FR_phase)*1.5)+.05;
-%     set(gca,'xlim',[-pi pi],'xtick',pi*[-1:.5:1],'xticklabel',{'-pi','-pi/2',0,'pi/2','pi'},'ylim',[0 Ptymax])
-%     xlabel('Phase (radians)')
-%     ylabel('spks / s')
+    figure(42);clf; subplot(2,2,1)
+    hold on
+    tymax = max(theta_sp)*1.5;
+    plot(TbinBounds(1:end-1),theta_sp,'-b')
+    hold on; plot(TbinBounds(1:end-1),Tcibin(1,:),':k');
+    hold on; plot(TbinBounds(1:end-1),Tcibin(2,:),':k');
+    set(gca,'xlim',[TbinBounds(1) TbinBounds(end)],'ylim',[0 tymax])
+    xlabel('Theta (degrees)')
+    ylabel('spks / s')
+    
+    subplot(2,2,2);
+    Atymax = max(amp_sp)*1.5;
+    plot(AbinBounds(1:end-1),amp_sp,'-b');
+    hold on; plot(AbinBounds(1:end-1),Acibin(1,:),':k');
+    hold on; plot(AbinBounds(1:end-1),Acibin(2,:),':k');
+    ymax = max(amp_sp)*2;
+    set(gca,'xlim',[ampmin ampmax],'ylim',[0 Atymax])
+    xlabel('Amplitude (degrees)')
+    ylabel('spks / s')
+    
+    subplot(2,2,3);
+    Stymax = max(FR_sp)*1.5;
+    hold on
+    plot(SbinBounds(1:end-1),FR_sp,'-b');
+    hold on; plot(SbinBounds(1:end-1),Scibin(1,:),':k');
+    hold on; plot(SbinBounds(1:end-1),Scibin(2,:),':k');
+    set(gca,'xlim',[spmin spmax],'ylim',[0 Stymax])
+    xlabel('Setpoint (degrees)')
+    ylabel('spks / s')
+    
+    subplot(2,2,4);
+    plot(-pi:pi/5.5:pi,FR_phase,'-b');
+    hold on; plot([-pi:pi/5.5:pi],Pcibin(1,:),':k');
+    hold on; plot([-pi:pi/5.5:pi],Pcibin(2,:),':k');
+    Ptymax = (max(FR_phase)*1.5)+.05;
+    set(gca,'xlim',[-pi pi],'xtick',pi*[-1:.5:1],'xticklabel',{'-pi','-pi/2',0,'pi/2','pi'},'ylim',[0 Ptymax])
+    xlabel('Phase (radians)')
+    ylabel('spks / s')
     %print(gcf,'-dpng',['Z:\Users\Jon\Projects\Characterization\' layer '\Figures\' cellcode '_' 'Raster_and_Tuning'])
     %print(gcf,'-dpng',['Z:\Users\Jon\Projects\Characterization\' layer '\Figures\' cellcode '_' 'TuningSquare'])
     %% Plot CFD (Cumulative Frequency Distribution) CFDPLOT matlab
     % LOLZ no need to write function ^.^
     
-%     figure(43);hold on;subplot(2,2,1)
-%     cdfplot(thetaSpikes(:,1))
-%     set(gca,'xlim',[TbinBounds(1) TbinBounds(end)],'ytick',[0:.25:1])
-%     xlabel('Theta');ylabel('Percentile');title('');grid off
-%     subplot(2,2,2)
-%     cdfplot(ampSpikes(:,1))
-%     set(gca,'xlim',[AbinBounds(1) AbinBounds(end)],'ytick',[0:.25:1])
-%         xlabel('Amplitude');ylabel('Percentile');title('');grid off
-%     subplot(2,2,3)
-%     cdfplot(SPSpikes(:,1));  
-%     set(gca,'xlim',[SbinBounds(1) SbinBounds(end)],'ytick',[0:.25:1])
-%     xlabel('Setpoint');ylabel('Percentile');title('');grid off
-%     subplot(2,2,4)
-%     cdfplot(sPhaseSpikes(:,1));
-%     set(gca,'xlim',[-pi pi],'xtick',pi*[-1:.5:1],'xticklabel',{'-pi','-pi/2',0,'pi/2','pi'},'ytick',[0:.25:1])
-%      xlabel('Phase');ylabel('Percentile');title('');grid off
+    figure(43);hold on;subplot(2,2,1)
+    cdfplot(thetaSpikes(:,1))
+    set(gca,'xlim',[TbinBounds(1) TbinBounds(end)],'ytick',[0:.25:1])
+    xlabel('Theta');ylabel('Percentile');title('');grid off
+    subplot(2,2,2)
+    cdfplot(ampSpikes(:,1))
+    set(gca,'xlim',[AbinBounds(1) AbinBounds(end)],'ytick',[0:.25:1])
+        xlabel('Amplitude');ylabel('Percentile');title('');grid off
+    subplot(2,2,3)
+    cdfplot(SPSpikes(:,1));  
+    set(gca,'xlim',[SbinBounds(1) SbinBounds(end)],'ytick',[0:.25:1])
+    xlabel('Setpoint');ylabel('Percentile');title('');grid off
+    subplot(2,2,4)
+    cdfplot(sPhaseSpikes(:,1));
+    set(gca,'xlim',[-pi pi],'xtick',pi*[-1:.5:1],'xticklabel',{'-pi','-pi/2',0,'pi/2','pi'},'ytick',[0:.25:1])
+     xlabel('Phase');ylabel('Percentile');title('');grid off
      
-     cont.thetaALL = [cont.thetaALL ; thetaSpikes(:,1)];
-     cont.ampALL = [cont.ampALL ; ampSpikes(:,1)];
-     cont.phaseALL = [cont.phaseALL; sPhaseSpikes(:,1)];
-     cont.spALL = [cont.spALL;SPSpikes(:,1)];
-        rest=thetaSpikes(ampSpikes(:,1)<=0.05);
-        thetaNORM=thetaSpikes(:,1)-mean(rest);
-        cont.rest=rest;
-     cont.thetaNORM = [cont.thetaNORM ; thetaNORM];
+%      cont.thetaALL = [cont.thetaALL ; thetaSpikes(:,1)];
+%      cont.ampALL = [cont.ampALL ; ampSpikes(:,1)];
+%      cont.phaseALL = [cont.phaseALL; sPhaseSpikes(:,1)];
+%      cont.spALL = [cont.spALL;SPSpikes(:,1)];
+%         rest=thetaSpikes(ampSpikes(:,1)<=0.05);
+%         thetaNORM=thetaSpikes(:,1)-mean(rest);
+%         cont.rest=rest;
+%      cont.thetaNORM = [cont.thetaNORM ; thetaNORM];
 end
 
     %% Plot CFD (Cumulative Frequency Distribution) CFDPLOT matlab

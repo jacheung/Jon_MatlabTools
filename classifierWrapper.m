@@ -1,6 +1,6 @@
 % Function for wrapping necessary variables for the logistic classifier.
 % Takes the uber array and a couple other functions to output a struct with
-% all desired predecision touch variables 
+% all desired predecision touch variables
 
 %INPUT: uber array
 %OUTPUT: V array which is a struct for all predecision touch variables
@@ -11,13 +11,13 @@ for rec = 1:length(uberarray)
     
     array=uberarray{rec};
     
-    V(rec).varNames = {'theta','velocity','amplitude','setpoint','phase','deltaKappa'};
+    V(rec).varNames = {'theta','velocity','amplitude','setpoint','phase','deltaKappa','timetotouch','torsionBytheta'};
     
     [~ ,prelixGo, prelixNoGo, ~ ,~ ,~] = assist_predecisionVar(array);
     varx=[1:6];
     
-
-    % TOUCH VARIABLES AND TOUCH COUNT 
+    
+    % TOUCH VARIABLES AND TOUCH COUNT
     for f=1:length(varx)
         [~, ~,V(rec).var.hit{f}, V(rec).var.miss{f}, V(rec).var.FA{f}, V(rec).var.CR{f},~,~] = assist_vardistribution(array,varx(f),prelixGo,prelixNoGo,[-25:0],[5:25]);
         if f == 1
@@ -26,12 +26,27 @@ for rec = 1:length(uberarray)
             V(rec).touchNum.FA=cellfun(@numel,V(rec).var.FA{1});
             V(rec).touchNum.CR=cellfun(@numel,V(rec).var.CR{1});
         end
+        
         V(rec).var.hit{f}   =      cell2mat(V(rec).var.hit{f}); %predecision variables for hit trials
         V(rec).var.miss{f}  =      cell2mat(V(rec).var.miss{f});
         V(rec).var.FA{f}    =      cell2mat(V(rec).var.FA{f});
-        V(rec).var.CR{f}    =      cell2mat(V(rec).var.CR{f});     
+        V(rec).var.CR{f}    =      cell2mat(V(rec).var.CR{f});
+        
     end
-    
+        % FINDING TIMES FROM WHISK ONSET TO TOUCH FOR TOUCHES
+        [timetotouch,trialnums] = uber_touchTiming(array);
+        V(rec).var.hit{7} = [timetotouch{1} trialnums{1}];
+        V(rec).var.FA{7} = [timetotouch{2} trialnums{2}];
+        V(rec).var.CR{7} = [timetotouch{3} trialnums{3}];
+        V(rec).var.miss{7} = [timetotouch{4} trialnums{4}];
+
+        % FINDING KAPPA DURING FREE WHISK FOR TTYPES 
+        [kappaattheta,tnumskt] = uber_rollmodel(array);
+        V(rec).var.hit{8} = [kappaattheta{1} tnumskt{1}];
+        V(rec).var.FA{8} = [kappaattheta{2} tnumskt{2}];
+        V(rec).var.CR{8} = [kappaattheta{3} tnumskt{3}];
+        V(rec).var.miss{8} = [kappaattheta{4} tnumskt{4}];
+        
     % TRIAL TYPE ORGANIZATION
     V(rec).trialNums.matNames = {'hit','miss','FA','CR','licks','lick and hit'};
     V(rec).trialNums.matrix = zeros(5,array.k);
@@ -49,7 +64,7 @@ for rec = 1:length(uberarray)
     lix{1} = [0 V(rec).trialNums.matrix(6,:)]; %padded with 0 to account for indexing
     lix{2} = [0 0 V(rec).trialNums.matrix(6,:)];
     lix{3} = [0 0 0 V(rec).trialNums.matrix(6,:)];
-        
+    
     hx_prevT = find(V(rec).trialNums.matrix(1,:)==1); % using current T num b/c licks shifted by padded 0
     mx_prevT = find(V(rec).trialNums.matrix(2,:)==1);
     FAx_prevT = find(V(rec).trialNums.matrix(3,:)==1); % using current T num b/c licks shifted by padded 0
@@ -59,32 +74,33 @@ for rec = 1:length(uberarray)
     Ttypemat={hx_prevT,mx_prevT,FAx_prevT,CRx_prevT};
     
     for d = 1:length(Ttype)
-    V(rec).licks.oneT.(Ttype{d}) = lix{1}(Ttypemat{d});
-    V(rec).licks.twoT.(Ttype{d}) = lix{2}(Ttypemat{d});
-    V(rec).licks.threeT.(Ttype{d}) = lix{3}(Ttypemat{d});
+        V(rec).licks.oneT.(Ttype{d}) = lix{1}(Ttypemat{d});
+        V(rec).licks.twoT.(Ttype{d}) = lix{2}(Ttypemat{d});
+        V(rec).licks.threeT.(Ttype{d}) = lix{3}(Ttypemat{d});
     end
-
+    
     
     V(rec).name = array.meta.layer;
+    
     % MAX PROTRACTION POLE AVAIL:LICK... UNFINISHED. NOT SURE IF ITLL BE
-    % USEFUL 
-%     [P] = findMaxProtraction(array,'avail2lick');
-% tmp = {'hit','miss','FA','CR'};
-%     inputs = {hx_prevT,mx_prevT,FAx_prevT,CRx_prevT};
-%     for g = 1:length(tmp) %for trial types...
-%     V(rec).maxProt.(tmp{g}){1} = []; V(rec).maxProt.(tmp{g}){3} = [];
-%     V(rec).maxProt.(tmp{g}){4} = []; V(rec).maxProt.(tmp{g}){5} = [];
-% 
-%         for k = 1:length(inputs{g}) %for number of T within trial types...
-%         d = inputs{g}(k); %for specific trial number...
-%     V(rec).maxProt.(tmp{g}){1}(k) = min([max(P.theta(P.trialNums==d)) array.t]);%max theta protraction in each cycle 
-%     test(k) = median(P.theta(P.trialNums==d));
-%     
-% %     V(rec).maxProt.(tmp{g}){3} = [V(rec).maxProt.(tmp{g}){3} ;P.amp(P.trialNums==d)];
-% %     V(rec).maxProt.(tmp{g}){4} = [V(rec).maxProt.(tmp{g}){4}; P.setpoint(P.trialNums==d)];
-% %     V(rec).maxProt.(tmp{g}){5} = [V(rec).maxProt.(tmp{g}){5}; P.phase(P.trialNums==d)];
-%          end
-%     end
+    % USEFUL
+    %     [P] = findMaxProtraction(array,'avail2lick');
+    % tmp = {'hit','miss','FA','CR'};
+    %     inputs = {hx_prevT,mx_prevT,FAx_prevT,CRx_prevT};
+    %     for g = 1:length(tmp) %for trial types...
+    %     V(rec).maxProt.(tmp{g}){1} = []; V(rec).maxProt.(tmp{g}){3} = [];
+    %     V(rec).maxProt.(tmp{g}){4} = []; V(rec).maxProt.(tmp{g}){5} = [];
+    %
+    %         for k = 1:length(inputs{g}) %for number of T within trial types...
+    %         d = inputs{g}(k); %for specific trial number...
+    %     V(rec).maxProt.(tmp{g}){1}(k) = min([max(P.theta(P.trialNums==d)) array.t]);%max theta protraction in each cycle
+    %     test(k) = median(P.theta(P.trialNums==d));
+    %
+    % %     V(rec).maxProt.(tmp{g}){3} = [V(rec).maxProt.(tmp{g}){3} ;P.amp(P.trialNums==d)];
+    % %     V(rec).maxProt.(tmp{g}){4} = [V(rec).maxProt.(tmp{g}){4}; P.setpoint(P.trialNums==d)];
+    % %     V(rec).maxProt.(tmp{g}){5} = [V(rec).maxProt.(tmp{g}){5}; P.phase(P.trialNums==d)];
+    %          end
+    %     end
     
     
     

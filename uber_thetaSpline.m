@@ -4,8 +4,10 @@ modidx=cell(1,6);
 [modidx{:}]=deal(zeros(1,length(U)));
 values = cell(1,length(U));
 
+window= [8 20]; %spike sum from 25ms after touch idx 
+
+figure(50);clf;
 for rec = 1:length(U) 
-    tptouch=b2b(rec)-50;
 touchIdx = [find(U{rec}.S_ctk(9,:,:)==1);find(U{rec}.S_ctk(12,:,:)==1)];
 % spikesAligned = zeros(numel(touchIdx),75);
 spikes = squeeze(U{rec}.R_ntk);
@@ -14,18 +16,32 @@ spikes = squeeze(U{rec}.R_ntk);
         thetaAtTouch = theta(touchIdx);
         thetaAtTouch = thetaAtTouch(~isnan(thetaAtTouch));
         touchIdx = touchIdx(~isnan(thetaAtTouch)); 
-        %spikesAtTouch = sum(spikes(repmat(touchIdx,1,11)+repmat([1:11],numel(thetaAtTouch),1)),2);
-        spikesAtTouch = sum(spikes(repmat(touchIdx,1,tptouch)+repmat([1:tptouch],numel(thetaAtTouch),1)),2);
+
+        spikesAtTouch = sum(spikes(repmat(touchIdx,1,numel(window(1):window(2)))+repmat([window(1):window(2)],numel(thetaAtTouch),1)),2);
+        
         [fo,g o] = fit(thetaAtTouch,spikesAtTouch,'smoothingspline','smoothingparam',.1);
-        figure(50);plot(fo,thetaAtTouch,spikesAtTouch)
+        figure(50);hold on; subplot(5,4,rec);
+        plot(fo,thetaAtTouch,spikesAtTouch)
         fowind=fo(linspace(min(thetaAtTouch),max(thetaAtTouch),numel(thetaAtTouch)));
         [~,indmax]=max(abs(fowind));[~,indmin]=min(abs(fowind));
         modidx{var}(rec) = (fowind(indmax)-fowind(indmin))/((fowind(indmax)+fowind(indmin)));
+        
+        text(max(thetaAtTouch)*.8,max(spikesAtTouch)*.8,num2str(modidx{var}(rec)),'fontsize',20)
+        legend('off')
+        xlabel([]);ylabel([])
+        set(gca,'xlim',[min(thetaAtTouch)-5 max(thetaAtTouch)+5])
+       
         if var == 1
         values{rec}(1:length(fowind),1)=fowind;values{rec}(1:length(fowind),2)=sort(thetaAtTouch);
         end
     end
 end
+
+a = axes;
+t1 = title(['Spike count in ' num2str(window(1)) ' to ' num2str(window(2)) ' ms post touch']);
+a.Visible = 'off'; % set(a,'Visible','off');
+t1.Visible = 'on'; % set(t1,'Visible','on');
+
 % touchNames = {'theta','phase','amp','setpoint'};
 % tmp = vertcat(modidx{1},modidx{5},modidx{3},modidx{4});
 % figure(5);imagesc(sortrows(tmp')');colormap(parula);hCBar=colorbar;
@@ -104,7 +120,7 @@ surface([x;x],[y;y],[z;z],[col;col],...
     end
     
 for k=1:length(weight)
-    text(-29,k,num2str(max(weight{k})),'FontSize',8,'Color','black')
+    text(-8,k,num2str(max(weight{k})),'FontSize',8,'Color','black')
 end
 
 set(gca,'ytick',[])

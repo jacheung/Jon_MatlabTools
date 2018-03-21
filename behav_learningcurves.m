@@ -46,17 +46,25 @@ if param == 4
         allends(d)=starts;
         figure(24);hold on;plot([starts starts ],[0 1],'-.k')
     end
-    plot(1:length(catmat),forwards,'color',[.8 .8 .8])
-    xlabel('Number of Trials To Expert')
-    ylabel('Percent Accuracy')
-    set(gca,'xlim',[20000 30000],'xtick',[0:2000:30000],'xticklabel',fliplr([0:2000:30000]),'ytick',[0:.25:1],'yticklabel',[0:25:100])
     
-    hold on; plot(1:length(catmat),fliplr(nanmean(catmat)),'r','linewidth',4)
+    plot(1:length(catmat),forwards,'color',[.8 .8 .8])
+    xlabel('Trials to expert (thousands)')
+    ylabel('Accuracy (%)')
+     set(gca,'xlim',[27000 30000],'xtick',[0:1000:30000],'xticklabel',fliplr([0:1:30]),'ytick',[0:.25:1],'yticklabel',[0:25:100])
+    hold on; plot([0 30000],[.75 .75],'-.k') %plotting expert line threshold
+    hold on; plot([0 30000],[.5 .5],'-.k') %plotting chance line threshold
+    
+    hold on; plot(1:length(catmat),fliplr(nanmean(catmat)),'k','linewidth',4)
 end
 
 
 % to find number of trials to reach accuracy do 30000-allends
-
+allends(2) = []; %removing one outlier of 23000 trials
+figure(580);clf
+scatter(30000-allends,ones(1,length(allends)),150,'filled','MarkerFaceColor',[.8 .8 .8]);
+hold on; errorbar(mean(30000-allends),1,std(30000-allends),'horizontal','ko','markersize',15,'markerfacecolor','k')
+set(gca,'xlim',[0 10000],'xtick',0:2000:10000,'xticklabel',0:2:10,'yticklabel',[],'ytick',[],'xdir','reverse')
+xlabel('Trials to expert (thousands)')
 
 %% Plot first behavioral plot so the for statement will plot the rest on same
 %axis

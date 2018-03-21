@@ -1,9 +1,26 @@
+%%
 clear U
-layer = 'L5b';
+layer = 'L5b'; %SM and CONTINUOUS Combined
 cellNum = [1:9 11:13 15 17:20 23:24 26 28:38 41:45];
 trialCutoffs = repmat([1 200],numel(cellNum),1);
 trialCutoffs(30,:)=[1 95];
-
+%%
+clear U
+layer = 'BVL5b';
+cellNum = [1 29:38 41:45];
+trialCutoffs = repmat([1 200],numel(cellNum),1);
+trialCutoffs(10,:)=[1 95];
+%%
+clear U
+layer = 'SML5b';
+cellNum = [2:9 11:13 15 17:20 23:24 26 28];
+trialCutoffs = repmat([1 200],numel(cellNum),1);
+trialCutoffs(30,:)=[1 95];
+%%
+clear U
+layer = 'NL5b';
+cellNum = [1:6 12:13 17:27];
+trialCutoffs = repmat([1 500],numel(cellNum),1);
 %%
 clear U
 layer = 'L3';
@@ -53,14 +70,15 @@ trialCutoffs = repmat([1 800],numel(cellNum),1);
 for cellStep = 1:length(cellNum)
     
     %loadSUDataFinalizedJC(cellNum(cellStep), SU)
-     cd(['Z:\Users\Jon\Projects\Characterization\' layer '\TArrays'])
+     cd(['C:\Users\jacheung\Dropbox\HLabBackup\Jon\Projects\Characterization\' layer '\TArrays'])
      load(['trial_array_' num2str(cellNum(cellStep)) '.mat'])
-     cd(['Z:\Users\Jon\Projects\Characterization\' layer '\Contacts'])
+     cd(['C:\Users\jacheung\Dropbox\HLabBackup\Jon\Projects\Characterization\' layer '\Contacts'])
      load(['ConTA_' num2str(cellNum(cellStep)) '.mat'])
         
     d.varNames = {'thetaAtBase', 'velocity', 'amplitude', 'setpoint', 'phase', ...
         'deltaKappa','M0Adj','FaxialAdj', 'firstTouchOnset', 'firstTouchOffset', ...
-        'firstTouchAll', 'lateTouchOnset','lateTouchOffset','lateTouchAll','PoleAvailable','beamBreakTimes'}
+        'firstTouchAll', 'lateTouchOnset','lateTouchOffset','lateTouchAll','PoleAvailable','beamBreakTimes',...
+        }
     d.cellNum = cellNum(cellStep)
     
     d.t = max(cellfun(@(x)round(x.whiskerTrial.time{1}(end)*1000)+1,T.trials(T.whiskerTrialInds))); 
@@ -157,6 +175,7 @@ traj = 1;
         d.S_ctk(15,:,i) = 0;
         d.S_ctk(15,pinIn:pinOut,i) = 1;
         d.S_ctk(16, ceil(1000*T.trials{useTrials(i)}.beamBreakTimes(T.trials{useTrials(i)}.beamBreakTimes > 0 & T.trials{useTrials(i)}.beamBreakTimes < d.t/1000)),i) = 1;
+        d.S_ctk(17,timeIdx,i) = T.trials{useTrials(i)}.whiskerTrial.meanKappa{traj};
 
         d.S_ctk(6,setdiff(1:d.t,contacts{useTrials(i)}.contactInds{traj}),i) = 0;
         d.S_ctk(7,setdiff(1:d.t,contacts{useTrials(i)}.contactInds{traj}),i) = 0;
@@ -196,6 +215,7 @@ traj = 1;
     U{cellStep}.meta.poleOnset         = cellfun(@(x)x.behavTrial.pinDescentOnsetTime,T.trials(useTrials));
     U{cellStep}.meta.poleOffset        = cellfun(@(x)x.behavTrial.pinAscentOnsetTime,T.trials(useTrials));
     U{cellStep}.meta.layer             = layer;
+    U{cellStep}.meta.depth             = T.depth;
     U{cellStep}.meta.ranges            = unique([cellfun(@(x)x.behavTrial.nogoPosition,T.trials(useTrials)),cellfun(@(x)x.behavTrial.goPosition,T.trials(useTrials))]);
     U{cellStep}.meta.sweepArrayName    = {};%SU.sweepArrayName{cellNum(cellStep)};
     U{cellStep}.meta.harddrive         = {};

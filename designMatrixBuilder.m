@@ -101,7 +101,30 @@ switch designvars
         FAx = [FAx FAxMotor];
         CRx = [CRx CRxMotor] ;
         
+    case 'timing'
+        hxmotoridx = V.var.hit{7}(:,2);
+        FAxmotoridx = V.var.FA{7}(:,2);
+        CRxmotoridx = V.var.CR{7}(:,2);
         
+        hx = [V.var.hit{7}(:,1)  motorPos(hxmotoridx)'];
+          hy = ones(size(hx,1),1);
+        FAx = [V.var.FA{7}(:,1) motorPos(FAxmotoridx)'];
+         FAy = ones(size(FAx,1),1);
+        CRx = [V.var.CR{7}(:,1) motorPos(CRxmotoridx)'];
+         CRy1 = ones(size(CRx,1),1);
+
+    case 'roll'
+        hxmotoridx = V.var.hit{8}(:,2);
+        FAxmotoridx = V.var.FA{8}(:,2);
+        CRxmotoridx = V.var.CR{8}(:,2);
+        
+        hx = [V.var.hit{8}(:,1)  motorPos(hxmotoridx)'];
+          hy = ones(size(hx,1),1);
+        FAx = [V.var.FA{8}(:,1) motorPos(FAxmotoridx)'];
+         FAy = ones(size(FAx,1),1);
+        CRx = [V.var.CR{8}(:,1) motorPos(CRxmotoridx)'];
+         CRy1 = ones(size(CRx,1),1);
+         
     case 'ubered'
         
         [hx,mx,FAx,CRx] = meanVarfinder (V,1,U,sampMethod);

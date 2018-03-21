@@ -2,6 +2,10 @@ if strcmp(U{1}.meta.layer,'L5b')
     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','I23:J65');
     disp(U{1}.meta.layer);
     layer = 'L5b';
+elseif strcmp(U{1}.meta.layer,'NL5b')
+    [ndata, txt, alldata] =xlsread('CellsConversionChart170224','AB75:AC78');
+    disp(U{1}.meta.layer);
+    layer = 'NL5b';
 elseif strcmp(U{1}.meta.layer,'L3')
     [ndata, txt, alldata] =xlsread('CellsConversionChart170224','B25:C44');
     disp(U{1}.meta.layer);
@@ -29,7 +33,7 @@ phaseall=cell(1,length(U));
 ampall=cell(1,length(U));
 spall=cell(1,length(U));
 
-for p=34
+for p=1:length(U)
     rec = p;
     normbinmin=10; %min in each bin to use for normalizing
     normbinwin=30; %window for normalizing from 0ms:binwin

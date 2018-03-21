@@ -10,12 +10,13 @@
 %
 %
 %**************************************************************************
-% SM=SM([1 3:10]);
-type = {D,SM,BV};
 
-clearvars -except U D BV SM N type 
+% type = {D,SM,BV};
+type = {BV};
+clearvars -except U D BV SM N type
 close all
 for p=1:length(type)
+    close all
     U = type{p};
     %% Parameters
     % selectedMotorT filter to choose which type of trials to use to look at
@@ -26,6 +27,11 @@ for p=1:length(type)
     distmed=[];
     popGo = [];
     popNogo = [];
+    mmdiff = zeros(1,length(U));
+    totalFol_length = zeros(1,length(U));
+    xyMaxChange = zeros(length(U),2);
+    thetadiff = zeros(1,length(U));
+    
     for rec = 1:length(U)
         array=U{rec};
         % Find Theta Required to Contact Pole
@@ -87,6 +93,10 @@ for p=1:length(type)
             motorFollicleMean(isnan(motorFollicleMean(:,2)),:)=[];
             motorthetamean=sortrows(motorthetamean);
             motorFollicleMean=sortrows(motorFollicleMean);
+            motorFollicleMean = [motorFollicleMean(:,1) motorFollicleMean(:,2:3)./33]; %conversion from pixels to mm  
+            motorFollicleMean = [motorFollicleMean(:,1)    abs(motorFollicleMean(:,2)-max(motorFollicleMean(:,2)))      motorFollicleMean(:,3)-min(motorFollicleMean(:,3))]; %placing top right view of video as 0,0 
+            
+            
             
             %         if rec ==2 %error in SM2
             %             motorthetamean(1,:)=[];
@@ -98,19 +108,15 @@ for p=1:length(type)
             
             if ~isempty(nogoMotors)
                 
-                [E{rec}.coeff, ~ , E{rec}.mu] = polyfit(motorthetamean(:,1),motorthetamean(:,2),2);
-                f = polyval(E{rec}.coeff,motorthetamean(:,1),[],E{rec}.mu);
-                [E{rec}.FolXCoeff, ~ , E{rec}.FolXMu] = polyfit(motorFollicleMean(:,1),motorFollicleMean(:,2),2);
-                g = polyval(E{rec}.FolXCoeff,motorFollicleMean(:,1),[],E{rec}.FolXMu);
-                [E{rec}.FolYCoeff, ~ , E{rec}.FolYMu] = polyfit(motorFollicleMean(:,1),motorFollicleMean(:,3),2);
-                h = polyval(E{rec}.FolYCoeff,motorFollicleMean(:,1),[],E{rec}.FolYMu);
-                
+                %THETAxMOTOR PLOTS 
                 
                 figure(70); subplot(2,5,rec);
                 scatter(motorthetamean(:,1),motorthetamean(:,2),'k');
                 hold on; plot(motorthetamean(:,1),f,'k')
                 xlabel('Normalized Motor Positions'); ylabel('Theta at base')
-                
+                [E{rec}.coeff, ~ , E{rec}.mu] = polyfit(motorthetamean(:,1),motorthetamean(:,2),2);
+                f = polyval(E{rec}.coeff,motorthetamean(:,1),[],E{rec}.mu);
+               
                 mp=U{rec}.meta.motorPosition;
                 thetareqDB=polyval(E{rec}.coeff,mp,[],E{rec}.mu);
                 dbtheta = max(thetareqDB(U{rec}.meta.trialType==1));
@@ -118,21 +124,41 @@ for p=1:length(type)
                 %             set(gca,'xlim',[U{rec}.meta.ranges],'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(2)],'xticklabel',[-1 0 1])
                 set(gca,'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(end)],'xticklabel',[-1 0 1])
                 
+                %this bit here used to calculate the theta diff between
+                %DB+/-.5mm
+%                 tmp=[find(motorthetamean(:,1)>=mean(U{rec}.meta.ranges)+5000,1) find(motorthetamean(:,1)>=mean(U{rec}.meta.ranges)-5000,1)];
+%                 thetadiff(rec)=diff(f(tmp));
                 
-                
+                %FOLLICLExMOTOR PLOTS
+               
                 figure(80);subplot(2,5,rec)
+                colormap(fliplr(redbluecmap))
+                goFols = motorFollicleMean(:,1)>=mean(U{rec}.meta.ranges);
+                nogoFols = motorFollicleMean(:,1)<mean(U{rec}.meta.ranges);
+%                 scatter(motorFollicleMean(:,2),motorFollicleMean(:,3),[],motorFollicleMean(:,1)) %plot xy follicle coordinates, colors = motorPosition
+                scatter(motorFollicleMean(goFols,2),motorFollicleMean(goFols,3),'b','filled') 
+                hold on; scatter(motorFollicleMean(nogoFols,2),motorFollicleMean(nogoFols,3),'r','filled') 
+                xlabel('AP Translation (mm)');ylabel('ML Translation(mm)');
+                set(gca, 'YDir','reverse','XDir','reverse','ytick',0:1:2,'ylim',[0 2],'xlim',[0 2],'xtick',0:1:2)
+                legend('Go','NoGo')
                 
-                scatter(motorFollicleMean(:,1),motorFollicleMean(:,2)./33,'k');
-                %         hold on; plot(motorFollicleMean(:,1),g,'k'); %plot poly fit for follicle X
-                ylabel('Follicle X')
-                yyaxis right
-                scatter(motorFollicleMean(:,1),motorFollicleMean(:,3)./33,'r');
-                %         plot(motorFollicleMean(:,1),h,'r-'); %plot poly fit for follicle Y
-                ylabel('Follicle Y')
-                xlabel('Normalized Motor Positions');
-                %             set(gca,'xlim',[U{rec}.meta.ranges],'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(end)],'xticklabel',[-1 0 1])
-                set(gca,'xtick',[U{rec}.meta.ranges(1) mean(U{rec}.meta.ranges) U{rec}.meta.ranges(end)],'xticklabel',[-1 0 1])
                 
+               
+                if strcmp(U{1}.meta.layer,'BV')
+                     %find angle difference between 1mmgo and 1mmnogo
+                    gomm=find(motorthetamean(:,1)>=mean(U{rec}.meta.ranges)+10000,1);
+                    nogomm=find(motorthetamean(:,1)<=mean(U{rec}.meta.ranges)-10000);
+                    nogomm = nogomm(end);
+                    mmdiff(rec) = motorthetamean(nogomm,2)-motorthetamean(gomm,2);
+                    
+                    %find follicle travel and xy change across distances
+                    xyFollicle = sortrows(motorFollicleMean(:,2:3));
+                    [FolCoeff, ~ , FolMu] = polyfit(xyFollicle(:,1),xyFollicle(:,2),2);
+                    g = polyval(FolCoeff,xyFollicle(:,1),[],FolMu);
+                    d = diff([xyFollicle(:,1) g(:)]);
+                    totalFol_length(rec) = sum(sqrt(sum(d.*d,2)));
+                    xyMaxChange(rec,:) = max(xyFollicle);
+                end
             end
         end
         
@@ -284,33 +310,34 @@ for p=1:length(type)
         
         
         
-
-    end
-
-        %% PLOTTING UBER HISTO
-        ranges = [-50:50];
-        ghisto= histc(cell2mat(gxplor'),ranges);
-        figure(58+p);
-        bar(ranges,ghisto/(sum(ghisto)),'k');
-        meanPopGo = mean(popGo);
-        meanPopNogo = mean(popNogo);
-        hold on; plot([meanPopGo(1)-.5 meanPopGo(2)+.5],[.045 .045],'b','linewidth',5)
-        hold on; plot([meanPopNogo(1)-.5 meanPopNogo(2)+.5],[.045 .045],'r','linewidth',5)
         
-        hold on; plot([0 0],[0 1],'-.k','LineWidth',1)
-        hold on;scatter(mean(distmed),.04,100,'rx','linewidth',2)
-        xlabel('Theta from Discrimination Boundary');ylabel('Proportion of Trial')
-        set(gca,'xlim',[-50 50],'ylim',[0 .05],'ytick',linspace(0,.05,3),'yticklabel',linspace(0,.05,3));
-        alpha(.8)
-        nanmedian(cell2mat(gxplor'));
-        nanstd(cell2mat(gxplor'));
-        % print(figure(58),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_POPsearchDistribution'])
-% set(figure(70), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
-% print(figure(70),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_thetaXmotor' ])
-% set(figure(80), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
-% print(figure(80),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_follicleXmotor' ])
-% set(figure(17), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
-% print(figure(17),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_searchDistribution'])
+    end
+    
+    %% PLOTTING UBER HISTO
+    ranges = [-50:50];
+    ghisto= histc(cell2mat(gxplor'),ranges);
+%     ghisto= histc(ganovacomparison{1},ranges);
+    figure(58+p);
+    bar(ranges,ghisto/(sum(ghisto)),'k');
+    meanPopGo = mean(popGo);
+    meanPopNogo = mean(popNogo);
+    hold on; plot([meanPopGo(1)-.5 meanPopGo(2)+.5],[.045 .045],'b','linewidth',5)
+    hold on; plot([meanPopNogo(1)-.5 meanPopNogo(2)+.5],[.045 .045],'r','linewidth',5)
+    
+    hold on; plot([0 0],[0 1],'-.k','LineWidth',1)
+    hold on;scatter(mean(distmed),.04,100,'rx','linewidth',2)
+    xlabel('Theta from Discrimination Boundary');ylabel('Proportion of Trial')
+    set(gca,'xlim',[-50 50],'ylim',[0 .05],'ytick',linspace(0,.05,3),'yticklabel',linspace(0,.05,3));
+    alpha(.8)
+    
+    % print(figure(58),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_POPsearchDistribution'])
+    % set(figure(70), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
+    % print(figure(70),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_thetaXmotor' ])
+%     set(figure(80), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
+%     print(figure(80),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\' U{rec}.meta.layer '_follicleXmotor' ])
+%     set(figure(17), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
+%     print(figure(17),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_searchDistribution'])
+    ganovacomparison{p} = cell2mat(gxplor') ;
 end
 %% PLOTTING MEDIANSx
 
@@ -346,6 +373,34 @@ end
 % end
 
 
+%% ANOVA FOR DISTRIBUTION COMPARISON
+% alpha = .01; %significance level of .01
+% [p,tbl,stats] = anovan(group); %anova1
+% comp = multcompare(stats); %comparison between all groups.
+% bonfcorr = alpha/10; %post hoc bonferroni correction of pval alpha/n
+%
+% [comp(:,1:2) comp(:,end)<bonfcorr ]
+
+% OR USE KSTEST2
+colors = {'DarkGreen','DarkMagenta','DarkTurquoise'};
+figure(56);clf
+for d = 1:length(colors)
+    [f,x_values] = ecdf(ganovacomparison{d});
+    hold on;
+    F = plot(x_values,f,'color',rgb(colors{d}));
+    set(F,'LineWidth',2);
+end
+xlabel('Theta from Discrimination Boundary');ylabel('Cumulative Distribution');
+% title('Exploration Strategy Empirical CDF')
+set(gca,'ytick',[0 .5 1],'xtick',[-50 0 50])
+set(figure(56), 'Units', 'pixels', 'Position', [0, 0, 600, 750]);
+legend('Discrete','Semi-Continuous','Continuous','location','northwest')
+
+[h,p] = kstest2(ganovacomparison{1},ganovacomparison{2});
+[h2,p2] = kstest2(ganovacomparison{1},ganovacomparison{3});
+[h3,p3] = kstest2(ganovacomparison{2},ganovacomparison{3});
+ksnums.names = {'g1', 'g2' ,'reject?', 'pval'};
+ksnums.vals = [1 2 h p; 1 3 h2 p2 ; 2 3 h3 p3];
 
 
 %% K means clustering to identify number of search strategies

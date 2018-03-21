@@ -1,6 +1,6 @@
 
 %wrap all behavioral data files
-[hist, info, trim] = behav_bdatawrapper('Z:\Users\Jon\DATA\Behavior\ContactDoneCont');
+[hist, info, trim] = behav_bdatawrapper('Z:\Users\Jon\DATA\Behavior\ContLearningCurves');
 info{2}.MotorsSection_no_pole_position_ant=60000;
 load('Z:\Users\Jon\Projects\Characterization\BV.mat')
 clear O
