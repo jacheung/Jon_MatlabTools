@@ -3,9 +3,9 @@ ranges = -75:1:75;
 % sbiasthree = nan(length(U),1);
 % sbiasfour = nan(length(U),1);
 
-type = {D,SM,BV};
-% type = {BV};
-clearvars -except U D BV SM N type ranges POP
+% type = {D,SM,BV};
+type = {BVex};
+clearvars -except U D BV SM BVex N type ranges POP
 close all
 for p=1:length(type)   
 U = type{p};
@@ -25,10 +25,12 @@ U = type{p};
         thetasnan(:,farthestnogoT) = 1;
         thetas = thetasall.*thetasnan;
         
-        selectedT=thetas(U{rec}.peakIdx);
+        [whisks] = findMaxMinProtraction(U{rec},'sampling');
+        
+        selectedT=thetas(whisks.peakidx);
         selectedT(isnan(selectedT))=[];
         selectedT=sort(selectedT);
-        v=ecdf(thetas(U{rec}.peakIdx));
+        [v,selectedT] = ecdf(selectedT);
         
         %moments of exploration distribution 
         means{p}(rec) = mean(selectedT);
@@ -183,7 +185,7 @@ colors = {'DarkGreen','DarkMagenta','DarkTurquoise'};
 popfeatdom = [];
 figure(38);clf
 %SBIAS testing
-feature = sbiasequal;
+feature = sbiasfour;
 for d = 1:3
     
     

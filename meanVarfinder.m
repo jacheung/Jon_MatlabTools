@@ -60,11 +60,13 @@ if strcmp(samp,'random')
     %Filling all NaN values with randomly sampled theta vals
     thetas = [thetatmps{1} thetatmps{2} thetatmps{3} thetatmps{4}];
     disp(['Filling in ' num2str(sum(isnan(thetas))) ' values out of ' num2str(numel(thetas))])
+    uniformthetas = min(thetas):.5:max(thetas);   
     thetas(isnan(thetas))=[];
     for d = 1:4
         nansamps = find(isnan(thetatmps{d}));
         for i = 1:sum(isnan(thetatmps{d}))
-            thetatmps{d}(nansamps(i)) = datasample(thetas,1);
+            thetatmps{d}(nansamps(i)) = datasample(thetas,1); %sampling from distribution of all touches and their data (skewed towrads go)  
+%             thetatmps{d}(nansamps(i)) = datasample(uniformthetas,1); %sampling from uniform distribution of obtained theta values 
         end
     end
     

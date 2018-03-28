@@ -6,8 +6,8 @@
 
 %% (1) TRACE: Uses Janelia Farm's whisker tracking software to track all whiskers in a directory 
 
-mainDir = 'Z:\Data\Video\JON\AH0716\170817\';                 
-folderNums = {'test'};
+mainDir = 'Z:\Data\Video\JON\AH0717\';                 
+folderNums = {'170809'};
 for k= 1:length(folderNums)
    newDir = [mainDir folderNums{k}];
 cd(newDir)                                         
@@ -18,11 +18,11 @@ parpool('local',numCores); %parallel pool using max number of cores available
 
 traces = dir('*.mp4'); %Searches only for .mp4 files, change if using other type (e.g. SEQ)
 
-parfor n=1:length(traces)
-    [~, outputFileName] = fileparts(traces(n).name);
-    system(['trace ' traces(n).name ' ' outputFileName])
-    display([traces(n).name ' has been traced'])
-end
+% parfor n=1:length(traces)
+%     [~, outputFileName] = fileparts(traces(n).name);
+%     system(['trace ' traces(n).name ' ' outputFileName])
+%     display([traces(n).name ' has been traced'])
+% end
 
 % (2) MEASURE: Generates measurements of traced shapes for later evaluation
 measures = dir('*.whiskers');

@@ -11,7 +11,7 @@ for rec = 1:length(uberarray)
     
     array=uberarray{rec};
     
-    V(rec).varNames = {'theta','velocity','amplitude','setpoint','phase','deltaKappa','timetotouch','torsionBytheta'};
+    V(rec).varNames = {'theta','velocity','amplitude','setpoint','phase','deltaKappa','timing.timetotouch/whiskcycleVelocity/startTheta','torsionBytheta'};
     
     [~ ,prelixGo, prelixNoGo, ~ ,~ ,~] = assist_predecisionVar(array);
     varx=[1:6];
@@ -34,19 +34,19 @@ for rec = 1:length(uberarray)
         
     end
         % FINDING TIMES FROM WHISK ONSET TO TOUCH FOR TOUCHES
-        [timetotouch,trialnums] = uber_touchTiming(array);
-        V(rec).var.hit{7} = [timetotouch{1} trialnums{1}];
-        V(rec).var.FA{7} = [timetotouch{2} trialnums{2}];
-        V(rec).var.CR{7} = [timetotouch{3} trialnums{3}];
-        V(rec).var.miss{7} = [timetotouch{4} trialnums{4}];
+        [timetotouch,trialnums,velocity,startTheta] = uber_touchTiming(array);
+        V(rec).var.hit{7} = [timetotouch{1} velocity{1} startTheta{1} trialnums{1}];
+        V(rec).var.FA{7} = [timetotouch{2} velocity{2} startTheta{2} trialnums{2}];
+        V(rec).var.CR{7} = [timetotouch{3} velocity{3} startTheta{3} trialnums{3}];
+        V(rec).var.miss{7} = [timetotouch{4} velocity{4} startTheta{4} trialnums{4}];
 
         % FINDING KAPPA DURING FREE WHISK FOR TTYPES 
-        [kappaattheta,tnumskt] = uber_rollmodel(array);
-        V(rec).var.hit{8} = [kappaattheta{1} tnumskt{1}];
-        V(rec).var.FA{8} = [kappaattheta{2} tnumskt{2}];
-        V(rec).var.CR{8} = [kappaattheta{3} tnumskt{3}];
-        V(rec).var.miss{8} = [kappaattheta{4} tnumskt{4}];
-        
+%         [kappaattheta,tnumskt] = uber_rollmodel(array);
+%         V(rec).var.hit{8} = [kappaattheta{1} tnumskt{1}];
+%         V(rec).var.FA{8} = [kappaattheta{2} tnumskt{2}];
+%         V(rec).var.CR{8} = [kappaattheta{3} tnumskt{3}];
+%         V(rec).var.miss{8} = [kappaattheta{4} tnumskt{4}];
+%         
     % TRIAL TYPE ORGANIZATION
     V(rec).trialNums.matNames = {'hit','miss','FA','CR','licks','lick and hit'};
     V(rec).trialNums.matrix = zeros(5,array.k);
@@ -56,7 +56,7 @@ for rec = 1:length(uberarray)
     V(rec).trialNums.matrix(4,find(array.meta.trialType == 0 & array.meta.trialCorrect ==1))= 1; %CR trials
     V(rec).trialNums.matrix(5,:) = sum(V(rec).trialNums.matrix([1 3],:));
     V(rec).trialNums.matrix(6,:) = sum(V(rec).trialNums.matrix([1 5],:))==2;
-    
+
     
     
     

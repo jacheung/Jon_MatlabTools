@@ -102,17 +102,17 @@ switch designvars
         CRx = [CRx CRxMotor] ;
         
     case 'timing'
-        hxmotoridx = V.var.hit{7}(:,2);
-        FAxmotoridx = V.var.FA{7}(:,2);
-        CRxmotoridx = V.var.CR{7}(:,2);
+        hxmotoridx = V.var.hit{7}(:,4);
+        FAxmotoridx = V.var.FA{7}(:,4);
+        CRxmotoridx = V.var.CR{7}(:,4);
         
-        hx = [V.var.hit{7}(:,1)  motorPos(hxmotoridx)'];
+        hx = [V.var.hit{7}(:,1) V.var.hit{7}(:,2) V.var.hit{7}(:,3) motorPos(hxmotoridx)'];
           hy = ones(size(hx,1),1);
-        FAx = [V.var.FA{7}(:,1) motorPos(FAxmotoridx)'];
+        FAx = [V.var.FA{7}(:,1) V.var.FA{7}(:,2) V.var.FA{7}(:,3) motorPos(FAxmotoridx)'];
          FAy = ones(size(FAx,1),1);
-        CRx = [V.var.CR{7}(:,1) motorPos(CRxmotoridx)'];
+        CRx = [V.var.CR{7}(:,1) V.var.CR{7}(:,2) V.var.CR{7}(:,3) motorPos(CRxmotoridx)'];
          CRy1 = ones(size(CRx,1),1);
-
+         
     case 'roll'
         hxmotoridx = V.var.hit{8}(:,2);
         FAxmotoridx = V.var.FA{8}(:,2);
@@ -160,7 +160,7 @@ switch classes
             DmatY = [hy;FAy.*2;CRy1.*2];
             motorX = [hx(:,size(hx,2));FAx(:,size(FAx,2));CRx(:,size(CRx,2))];
         
-        if strcmp(designvars,'ubered') || strcmp(designvars,'pas')
+        if strcmp(designvars,'ubered') || strcmp(designvars,'pas') || strcmp(designvars,'timing')
             
             switch removal
                 case 'yes'
@@ -197,7 +197,7 @@ switch classes
         end
         
         
-        if strcmp(designvars,'ubered') || strcmp(designvars,'pas')
+        if strcmp(designvars,'ubered') || strcmp(designvars,'pas')|| strcmp(designvars,'timing')
             
             switch removal
                 case 'yes'

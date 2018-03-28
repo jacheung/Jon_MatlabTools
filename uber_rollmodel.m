@@ -55,7 +55,7 @@ type = {hits,FA,CR,miss};
 for b=1:length(type)
     filttouchIdx = [find(array.S_ctk(9,:,type{b})==1);find(array.S_ctk(12,:,type{b})==1)];
     filtthetas = array.S_ctk(1,:,type{b});
-    tmp = [ceil(filttouchIdx/4000) filtthetas(filttouchIdx)];
+    tmp = [ceil(filttouchIdx/array.t) filtthetas(filttouchIdx)];
     [sorted, ~ ,~]=binslin(tmp(:,1),tmp(:,2),'equalE',100,.5,100.5);
     thetatypes{b} = cellfun(@nanmean,sorted);
 end

@@ -53,6 +53,13 @@ layer = 'BV';
 cellNum = [1:10];
 trialCutoffs = [148 348;190 390;214 414;89 289; 238 438 ; 233 433 ; 62 262 ; 262 462 ; 1 201 ; 55 255] ;
 tossT = [0 ; 0 ;0 ; 0 ; 0 ;0; 0; 0; 0 ;99];
+
+%%
+clear 
+layer = 'BVex';
+cellNum = [1:10];
+trialCutoffs = [1 99; 1 99;  1 99; 89 289; 238 438; 1 99; 1 99; 1 99; 1 99; 1 99; 1 99] ;
+tossT = [0 ; 0 ;0 ; 0 ; 0 ;0; 0; 0; 0 ;0];
 %%
 clear U
 layer = 'SM';
@@ -70,9 +77,9 @@ trialCutoffs = repmat([1 800],numel(cellNum),1);
 for cellStep = 1:length(cellNum)
     
     %loadSUDataFinalizedJC(cellNum(cellStep), SU)
-     cd(['C:\Users\jacheung\Dropbox\HLabBackup\Jon\Projects\Characterization\' layer '\TArrays'])
+     cd(['Z:\Users\Jon\Projects\Characterization\' layer '\TArrays'])
      load(['trial_array_' num2str(cellNum(cellStep)) '.mat'])
-     cd(['C:\Users\jacheung\Dropbox\HLabBackup\Jon\Projects\Characterization\' layer '\Contacts'])
+     cd(['Z:\Users\Jon\Projects\Characterization\' layer '\Contacts'])
      load(['ConTA_' num2str(cellNum(cellStep)) '.mat'])
         
     d.varNames = {'thetaAtBase', 'velocity', 'amplitude', 'setpoint', 'phase', ...

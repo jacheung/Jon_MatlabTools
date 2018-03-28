@@ -5,6 +5,13 @@ hold on; plot([3.5 6.5; 3.5 6.5],[0 0; 0.5 .5],'-.k')
 set(gca,'ylim',[0 .4],'ytick',[0:.1:.4])
 ylabel('RMSE')
 
+
+figure(650);clf
+for i = 1:length(POP.RMSE{1})
+    hold on;scatter([1 2 3],POP.RMSE{1}(i,:),'k')
+hold on;plot([1 2 3],POP.RMSE{1}(i,:),'-k')
+end
+
 %% SBIAS vs TREE FEATURE IMPORTANCE
 colors = {'DarkGreen','DarkMagenta','DarkTurquoise'};
 popfeatdom = [];
@@ -25,13 +32,14 @@ for d = 1:3
     
     
 end
-plot([-40 40],[0 0],'-.k')
+plot([0 1],[0 0],'-.k')
 
 
 % sbias = cell2mat(POP.taskD');
 % ydata = popfeatdom;
 
-sbias = cell2mat(POP.SBIAS');
+sbias = cell2mat(POP.SBIAS)';
+% sbias = [sbias(21:30)];
 ydata = popfeatdom;
 [~, orders] = sort(sbias);
 
@@ -45,7 +53,7 @@ legend('Discrete','Semi-Continuous','Continuous')
 pval = modelvals.Coefficients{2,4};
 adjrsq = modelvals.Rsquared.Adjusted;
 
- set(gca,'ylim',[-1 1],'ytick',[-1:.5:1],'xlim',[-20 20])
+ set(gca,'ylim',[-1 1],'ytick',[-1:.5:1],'xlim',[0 1])
 disp(['Rsquared = ' num2str(adjrsq) ' and pvalue = ' num2str(pval)])
 xlabel('Search Bias')
 ylabel('Counts More Predictive ------ Theta More Predictive')

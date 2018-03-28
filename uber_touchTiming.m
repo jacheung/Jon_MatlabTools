@@ -7,7 +7,7 @@
 
 
 
-function [timetotouch,trialnums] = uber_touchTiming(array)
+function [timetotouch,trialnums,velocity,trough] = uber_touchTiming(array)
 
 %P struct for finding peak and trough protraction values
 % [P] = findMaxMinProtraction(array,'avail2lick');
@@ -31,6 +31,7 @@ colors = {'b','g','r','k'};
 for b = 1:length(type)
     if ~isempty(type{b}) %check to make sure there are trials
         tmpmask=mask(:,type{b});
+        thetas = squeeze(array.S_ctk(1,:,type{b}));
         phases = squeeze(array.S_ctk(5,:,type{b}));
         touchIdx = [find(array.S_ctk(9,:,type{b})==1);find(array.S_ctk(12,:,type{b})==1)];
         %finding only touches within masked window (avail2lick)
@@ -42,6 +43,8 @@ for b = 1:length(type)
         if isempty(touchIdx)
             timetotouch{b} = [];
             trialnums{b} = [];
+            velocity{b} = [];
+            trough{b} = [];
         else
             toss=[]; %tossing out touches where we cant find trough
             neartrough = zeros(length(touchIdx),0);
@@ -62,20 +65,27 @@ for b = 1:length(type)
             
             TTidx=TTidx(keep,:);
             touchtimes = TTidx(:,2)-TTidx(:,1);
+            velotmp = thetas(TTidx(:,2))-thetas(TTidx(:,1))./touchtimes;
+            troughtmp = thetas(TTidx(:,1));
             
             %eliminate any touches > 2 std from the median values
 %           oob = find(touchtimes>median(touchtimes) + 2*std(touchtimes));
             oob = find(touchtimes>100);
             touchtimes(oob) = []; 
-            tnumIdx = ceil(TTidx(:,2)/4000);
+            tnumIdx = ceil(TTidx(:,2)/array.t);
             tnumIdx(oob) = [];
+            velotmp(oob) = [];
+            troughtmp(oob) = [];
             
-            
+            trough{b} = troughtmp; 
+            velocity{b} = velotmp;
             timetotouch{b} = touchtimes;
             trialnums{b} = type{b}(tnumIdx)';
         end
 %                  figure(50);hold on;histogram(touchtimes,'binedges',[0:2: 100],'facecolor',colors{b},'normalization','probability')
     else
+        velocity{b} = [];
+        trough{b} = [];
         timetotouch{b} = [];
         trialnums{b} = [];
     end
@@ -91,7 +101,7 @@ end
 % trial=round(xmin+rand(1,n)*(xmax-xmin))
 % 
 % % trial = 75
-% ranges = (trial*4000)+1:(trial*4000)+4000;
+% ranges = (trial*array.t))+1:(trial*array.t))+array.t);
 % 
 % figure(58);clf;
 % plot(thetas(ranges(1):ranges(end)));

@@ -34,7 +34,7 @@ for rec = 1:length(U)
     for b=1:length(type)
         filttouchIdx = [find(array.S_ctk(9,:,type{b})==1);find(array.S_ctk(12,:,type{b})==1)];
         filtthetas = array.S_ctk(1,:,type{b});
-        tmp = [ceil(filttouchIdx/4000) filtthetas(filttouchIdx)];
+        tmp = [ceil(filttouchIdx/array.t) filtthetas(filttouchIdx)];
         [sorted4, sortedby4 ,~]=binslin(tmp(:,1),tmp(:,2),'equalE',100,.5,100.5);%plotting p(pole go)
         thetatypes{b} = cellfun(@mean,sorted4);
     end

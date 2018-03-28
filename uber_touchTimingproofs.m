@@ -19,20 +19,23 @@ match = match(keep,:);
 ttopeak= match(:,2)-match(:,1);
 ttopeakthetas = thetas(match(:,2)) - thetas(match(:,1));
 
+% Set at 100 because slowest whisking is 5Hz = 200ms/cycle. Since we're
+% only looking at protraction, we cut that in half to 100ms Knutsen et al.
+% 2006, Mitchinson et al. 2007. From Knutsen and Ahissar 2009 
 tosstrials = find(ttopeak>100);
 
 ttopeak(tosstrials)=[];
 ttopeakthetas(tosstrials)=[];
 
-cutoffs = median(ttopeak)+2*std(ttopeak);
-tossagain = find(ttopeak>cutoffs);
-ttopeak(tossagain)=[];
-ttopeakthetas(tossagain)=[];
+% cutoffs = median(ttopeak)+2*std(ttopeak);
+% tossagain = find(ttopeak>cutoffs);
+% ttopeak(tossagain)=[];
+% ttopeakthetas(tossagain)=[];
 
 troughwhisks = thetas(match(:,1));
 figure(5420);clf;histogram(troughwhisks,'binedges',-20:1:20,'normalization','probability')
 xlabel('Trough of whisk (theta)')
-figure(234);clf;histogram(ttopeak,'binedges',0:1:cutoffs,'normalization','probability')
+figure(234);clf;histogram(ttopeak,'binedges',0:1:100,'normalization','probability')
 xlabel('Time from trough to peak whisk (ms)')
 
 tperms= ttopeakthetas./ttopeak;
@@ -46,7 +49,7 @@ xmax=array.k;
 n=1;
 trial=round(xmin+rand(1,n)*(xmax-xmin));
 trial =150
-ranges = (trial*4000)+1:(trial*4000)+4000;
+ranges = (trial*array.t)+1:(trial*array.t)+array.t;
 
 figure(58);clf;
 plot(thetas(ranges(1):ranges(end)));
