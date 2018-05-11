@@ -18,6 +18,7 @@ for i = 1:length(filelist)
     save([d mouseName sessionName '-WTLIA.mat'],'wl');
     
     tid = 0; % Set trajectory ID to view
+    cd ('Z:\Users\Jon\DATA\WhiskerArrayBuilders\ToBuild')
     Whisker.view_WhiskerTrialLiteArray(wl,tid)
     delete(filelist(i).name)
 end

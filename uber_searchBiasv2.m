@@ -4,8 +4,8 @@ ranges = -75:1:75;
 % sbiasfour = nan(length(U),1);
 
 % type = {D,SM,BV};
-type = {BVex};
-clearvars -except U D BV SM BVex N type ranges POP
+type = {Nx,BVx};
+clearvars -except U D BV SM BVx Nx type ranges POP
 close all
 for p=1:length(type)   
 U = type{p};
@@ -67,7 +67,7 @@ U = type{p};
             touchIdx = [find(U{rec}.S_ctk(9,:,b)==1) find(U{rec}.S_ctk(12,:,b)==1)];
             if ~isempty(touchIdx)
                 tmpThetas = U{rec}.S_ctk(1,touchIdx,b);
-                ppoles(b,:) = [mean(tmpThetas) std(tmpThetas)];
+                ppoles(b,:) = [median(tmpThetas) std(tmpThetas)];
             end
         end
         
@@ -85,7 +85,7 @@ U = type{p};
             ppoles(missedNogoIdx,1) = repmat(nogoavgtheta,sum(missedNogoIdx),1);
             ppoles(missedGoIdx,1) = repmat(goavgtheta,sum(missedGoIdx),1);
             
-        elseif strcmp(U{rec}.meta.layer,'BV') || strcmp(U{rec}.meta.layer,'SM')
+        elseif strcmp(U{rec}.meta.layer,'BV') || strcmp(U{rec}.meta.layer,'SM') || strcmp(U{rec}.meta.layer,'BVx')
             
             % FOR CONTINUOUS/SEMI
             polyinputs = sortrows([U{rec}.meta.motorPosition'  ppoles(:,1)]);
@@ -105,8 +105,16 @@ U = type{p};
         [sorted2, sortedBy ,binBounds]=binslin(ppoles(:,1),ppoles(:,1),'equalE',numel(ranges),ranges(1),ranges(end));
         ppoletheta = cellfun(@numel,sorted2)./sum(cellfun(@numel,sorted2));
         
-        gos = round([min(ppoles(find(U{rec}.meta.trialType==1),1)) max(ppoles(find(U{rec}.meta.trialType==1),1))]);
-        nogos = round([min(ppoles(find(U{rec}.meta.trialType==0),1)) max(ppoles(find(U{rec}.meta.trialType==0),1))]);
+        gopoles = ppoles(U{rec}.meta.trialType==1,1);
+        nogopoles = ppoles(U{rec}.meta.trialType==0,1);
+        gos = round([nanmedian(gopoles)-1.5*nanstd(gopoles)  nanmedian(gopoles)+1.5*nanstd(gopoles) ])
+        nogos = round([nanmedian(nogopoles)-1.5*nanstd(nogopoles)  nanmedian(nogopoles)+1.5*nanstd(nogopoles) ])
+        
+%         gos = round([min(gopoles) max(gopoles)])
+%         nogos = round([min(nogopoles) max(nogopoles)])
+
+        gos = positions{rec}(1,:);
+        nogos = positions{rec}(2,:);
         
         goidx = gos(1):1:gos(end);
         nogoidx = nogos(1):1:nogos(end);

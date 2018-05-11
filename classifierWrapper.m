@@ -10,7 +10,7 @@ function [V] = classifierWrapper(uberarray)
 for rec = 1:length(uberarray)
     
     array=uberarray{rec};
-    
+
     V(rec).varNames = {'theta','velocity','amplitude','setpoint','phase','deltaKappa','timing.timetotouch/whiskcycleVelocity/startTheta','torsionBytheta'};
     
     [~ ,prelixGo, prelixNoGo, ~ ,~ ,~] = assist_predecisionVar(array);

@@ -1,6 +1,4 @@
 
-
-
 clear V F1G RMSEgroup F1Gtree RMSEdecomp
 [V] = classifierWrapper(U);
 
@@ -9,7 +7,7 @@ clear V F1G RMSEgroup F1Gtree RMSEdecomp
 clearvars -except V U BV D SM F1G RMSEgroup RMSEdecomp F1Gtree R PAS POP keeptmp
 numIterations = 10;
 
-designvars = 'ubered';
+designvars = 'theta';
 % 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' 4) 'ubered'
 % 5) 'timing' 6) 'roll'
 classes = 'lick';
@@ -108,7 +106,7 @@ figure(56530);clf;scatter(train_F1s(:,1),train_F1s(:,2),'filled');
 hold on; plot([0 1],[0 1],'-.k')
 set(gca,'xlim',[0 1],'ylim',[0 1],'ytick',0:.5:1,'xtick',0:.5:1);
 %    xlabel('F1 Lick');ylabel('F1 Withhold lick')
-xlabel('F1 Go');ylabel('F1 Nogo')
+xlabel('F1 lick');ylabel('F1 no lick')
 
 
 %Plotting F1 score for Log Classifier
@@ -159,9 +157,9 @@ title(['Log' U{rec}.meta.layer ' ' designvars ' ' classes])
 % print(figure(22),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_0touch_removal_' removal])
 
 if strcmp(designvars,'theta')
-    thetaAcc = train_acc;
+    thetaAcc = train_Acc;
 elseif strcmp(designvars,'pas')
-    pamAcc = train_acc;
+    pamAcc = train_Acc;
     figure(505);clf;
     errorbar(1:2,[mean(thetaAcc) mean(pamAcc)],[std(thetaAcc) std(pamAcc)],'ko')
     set(figure(505), 'Units', 'pixels', 'Position', [0, 0, 400,600])
@@ -173,7 +171,7 @@ end
 
 
 %Plotting Weights for Log Classifier
-if strcmp(designvars,'ubered') || strcmp(designvars,'pas')
+if strcmp(designvars,'ubered') || strcmp(designvars,'pas') || strcmp(designvars,'timing')
     for rec = 1:length(V)
         ms=cell2mat(Bfeat{rec}.theta);
         optfeat(:,rec)=mean(reshape(ms(1,:)',size(DmatX,2)+1,numIterations),2);
@@ -187,6 +185,9 @@ if strcmp(designvars,'ubered') || strcmp(designvars,'pas')
     if strcmp(designvars,'pas')
         h(4).FaceColor = [.8 .8 .8]; %make bias weight color gray
         legend('Amplitude at Touch','Midpoint at Touch','Phase at Touch','Bias','Location','northeast')
+    elseif strcmp(designvars,'timing')
+        h(4).FaceColor = [.8 .8 .8]; %make bias weight color gray
+        legend('Onset whisk to touch time','Velocity','Start theta','Bias','Location','northeast')
     elseif strcmp(designvars,'ubered')
         h(6).FaceColor = [.8 .8 .8]; %make bias weight color gray
         legend('Theta at Touch','Touch Count','Previous Trial Lick','2 Previous T Lick', '3 Previous T Lick','Bias','Location','northeast')
@@ -254,7 +255,7 @@ end
 %% Visualization of the decision boundaries.
 params =3;
 FCratio = [];
-for rec = 1
+for rec = 3
     %     ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
     %     hx = [V(rec).var.hit{3}(ntmp)' V(rec).var.hit{4}(ntmp)' V(rec).var.hit{5}(ntmp)'];
     %     hy = ones(size(hx,1),1);
@@ -375,9 +376,9 @@ for rec = 1
             plot_y = (-1/coords(3)) .* (coords(1) + (coords(2).*plot_x) + (coords(4).*plot_z) - log(train_predOpt(rec)/(1-train_predOpt(rec)))); % log p(go trial) to calculate decision boundary
             
             hold on; fill3(plot_x, plot_y, plot_z,'k'); alpha (.4)
-            %             xlabel('Amplitude');ylabel('Midpoint');zlabel('Phase')
-            xlabel('Onset to touch (ms)');ylabel('Velocity (theta/ms)');zlabel('Start whisk theta')
-            %             legend('Go','Nogo')
+                        xlabel('Amplitude');ylabel('Midpoint');zlabel('Phase')
+%             xlabel('Onset to touch (ms)');ylabel('Velocity (theta/ms)');zlabel('Start whisk theta')
+%                         legend('lick','no lick')
             
             ms=cell2mat(Bfeat{rec}.theta);
             optfeat(:,rec)=mean(reshape(ms(1,:)',4,numIterations),2);

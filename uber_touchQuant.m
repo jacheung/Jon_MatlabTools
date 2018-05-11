@@ -32,8 +32,8 @@ for d = 1:length(baselineFR)
     baselineFR(d)=baselineFRtmp+stdFR(d); %baselineFR+std of FR
     
     Rpeak=50+find(cellmean{d}(51:150)==max(cellmean{d}(51:150)),1); %max response peak  after touch onset
-    APstart(d)=50+find(cellmean{d}(51:Rpeak)>(max(cellmean{d}(51:150))/3),1);
-    HRpeak(d)=Rpeak+find(cellmean{d}(Rpeak:150)<(max(cellmean{d}(51:150))/3),1);
+    APstart(d)=50+find(cellmean{d}(51:Rpeak)>(max(cellmean{d}(51:150))/2),1);
+    HRpeak(d)=Rpeak+find(cellmean{d}(Rpeak:150)<(max(cellmean{d}(51:150))/2),1);
     b2b(d)=Rpeak+(find(cellmean{d}(Rpeak:end)<=baselineFR(d),1)); %time point from -50 of when FR returns back to baseline
         
 end
@@ -136,12 +136,12 @@ for rec=1:length(U)
     
     pmodidx=(max(modIdxEQ(selected))-min(modIdxEQ(selected)))/(max(modIdxEQ(selected))+min(modIdxEQ(selected)));
     
-    figure(10);subplot(6,7,rec)
+    figure(10);subplot(8,8,rec)
     plot(modIdx{rec}(selected,6),modIdx{rec}(selected,1))
     %text(.7,modIdx{rec}(selected(end-3),1),num2str(pmodidx));
     set(gca,'ylim',[min(modIdx{rec}(selected,1)) max(modIdx{rec}(selected,1))],'xlim',[-1 1]);
     
-    figure(12);subplot(6,7,rec)
+    figure(12);subplot(8,8,rec)
     %plot(modIdx{rec}(selected,2),modIdx{rec}(selected,1))
      plot(modIdx{rec}(selected,4),modIdx{rec}(selected,1),'r');
     %text(.7,modIdx{rec}(selected(end-3),1),num2str(pmodidx));
@@ -167,7 +167,7 @@ end
 ton = find(abs(tmod)>.1);
 
 figure(39);clf;
-plotrow=6;
+plotrow=8;
 plotcol=7;
 
 for k = 1:length(touchONN)

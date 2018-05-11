@@ -4,7 +4,7 @@ modidx=cell(1,6);
 [modidx{:}]=deal(zeros(1,length(U)));
 values = cell(1,length(U));
 
-window= [8 20]; %spike sum from 25ms after touch idx 
+window= [8 50]; %spike sum from 25ms after touch idx 
 
 figure(50);clf;
 for rec = 1:length(U) 
@@ -20,8 +20,8 @@ spikes = squeeze(U{rec}.R_ntk);
         spikesAtTouch = sum(spikes(repmat(touchIdx,1,numel(window(1):window(2)))+repmat([window(1):window(2)],numel(thetaAtTouch),1)),2);
         
         [fo,g o] = fit(thetaAtTouch,spikesAtTouch,'smoothingspline','smoothingparam',.1);
-        figure(50);hold on; subplot(5,4,rec);
-        plot(fo,thetaAtTouch,spikesAtTouch)
+%         figure(50);hold on; subplot(5,4,rec);
+%         plot(fo,thetaAtTouch,spikesAtTouch)
         fowind=fo(linspace(min(thetaAtTouch),max(thetaAtTouch),numel(thetaAtTouch)));
         [~,indmax]=max(abs(fowind));[~,indmin]=min(abs(fowind));
         modidx{var}(rec) = (fowind(indmax)-fowind(indmin))/((fowind(indmax)+fowind(indmin)));
@@ -119,11 +119,13 @@ surface([x;x],[y;y],[z;z],[col;col],...
         hold on; surface([x;x],[y;y],[z;z],[col;col],'facecol','no','edgecol','interp','linew',2);
     end
     
-for k=1:length(weight)
-    text(-8,k,num2str(max(weight{k})),'FontSize',8,'Color','black')
-end
+% for k=1:length(weight)
+%     text(-8,k,num2str(max(weight{k})),'FontSize',8,'Color','black')
+% end
 
 set(gca,'ytick',[])
 bonemap = bone;
 bonemap = bonemap(end:-1:1,:);
 colormap(bonemap);
+set(gca,'xlim',[-20 60],'xtick',-20:20:60,'visible','off')
+box off

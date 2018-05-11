@@ -16,8 +16,13 @@
 
 % printdir = '\NoiseProject\NoiseManuscript\Fig5\Materials\'
 
-for rec = 1
-    L{rec}.onsetLatency=8;
+
+touchCells = touchCell(U,.75);
+selectedCells = find(touchCells==1);
+
+for rec = 1:length(selectedCells)
+    array=U{selectedCells(rec)}
+    array.onsetLatency=8;
     trange=1:25;
     k_range = [1:20];
     % Adaptation across touches
@@ -27,30 +32,30 @@ for rec = 1
     % Peak force at touch
     % Direction of touch
     
-    v(rec).spikes = squeeze(L{rec}.R_ntk);
-    v(rec).allTouchIdx = find(nansum([L{rec}.S_ctk(9,:,:);L{rec}.S_ctk(12,:,:)]));
-    v(rec).firstTouchIdx = find(L{rec}.S_ctk(9,:,:)==1);
-    v(rec).lateTouchIdx = find(L{rec}.S_ctk(12,:,:)==1);
+    v(rec).spikes = squeeze(array.R_ntk);
+    v(rec).allTouchIdx = find(nansum([array.S_ctk(9,:,:);array.S_ctk(12,:,:)]));
+    v(rec).firstTouchIdx = find(array.S_ctk(9,:,:)==1);
+    v(rec).lateTouchIdx = find(array.S_ctk(12,:,:)==1);
     v(rec).allTouchITI = diff([0; v(rec).allTouchIdx]);
     
-    vel = [zeros(1,L{rec}.k); squeeze(diff( L{rec}.S_ctk(1,:,:)))];
-    theta=squeeze(L{rec}.S_ctk(1,:,:));
-    amp = squeeze(L{rec}.S_ctk(3,:,:));
-    setp = squeeze(L{rec}.S_ctk(4,:,:));
-    phase = squeeze(L{rec}.S_ctk(5,:,:));
-    dk = squeeze(L{rec}.S_ctk(6,:,:));
-    M0Adj = squeeze(L{rec}.S_ctk(7,:,:));
-    Fax = squeeze(L{rec}.S_ctk(8,:,:));
+    vel = [zeros(1,array.k); squeeze(diff( array.S_ctk(1,:,:)))];
+    theta=squeeze(array.S_ctk(1,:,:));
+    amp = squeeze(array.S_ctk(3,:,:));
+    setp = squeeze(array.S_ctk(4,:,:));
+    phase = squeeze(array.S_ctk(5,:,:));
+    dk = squeeze(array.S_ctk(6,:,:));
+    M0Adj = squeeze(array.S_ctk(7,:,:));
+    Fax = squeeze(array.S_ctk(8,:,:));
     
     %trange = [1:resL45(rec).idxT];
-    tspikesIdx = repmat(v(rec).allTouchIdx,1,length(trange))+repmat(trange+L{rec}.onsetLatency-1,length(v(rec).allTouchIdx),1); %index for touch + trange
+    tspikesIdx = repmat(v(rec).allTouchIdx,1,length(trange))+repmat(trange+array.onsetLatency-1,length(v(rec).allTouchIdx),1); %index for touch + trange
     
     if isnan(tspikesIdx)
         v(rec).sc = 0;
         v(rec).lsc = 0;
     else
         v(rec).sc = sum(v(rec).spikes(tspikesIdx),2);  
-        lspikesIdx = repmat(v(rec).lateTouchIdx,1,length(trange))+repmat(trange+L{rec}.onsetLatency-1,length(v(rec).lateTouchIdx),1);
+        lspikesIdx = repmat(v(rec).lateTouchIdx,1,length(trange))+repmat(trange+array.onsetLatency-1,length(v(rec).lateTouchIdx),1);
         v(rec).lsc = sum(v(rec).spikes(lspikesIdx),2);
     end
     
@@ -139,7 +144,7 @@ for rec = 1
     xlabel('Theta at Touch','color','r')
     
     subplot(3,4,8)
-    thetax=linspace(mean(v(rec).theta.binBounds(1:2)),mean(v(rec).theta.binBounds(end-1:end)),length(binBounds)-1);
+    thetax=linspace(mean(v(rec).theta.binBounds(1:2)),mean(v(rec).theta.binBounds(end-1:end)),length(v(rec).theta.binBounds)-1);
     plot(v(rec).theta.lh, thetax,'k')
     hold on
     box off
@@ -279,52 +284,52 @@ for rec = 1
     %     print(gcf,'-depsc2',[printdir 'Raster_Combo_Cell_' num2str(rec)])
     
     %% PHASE  Optional section
-    %     v(rec).allTouchPhase = phase(v(rec).allTouchIdx)
-    %     [sort_phase,idx_phase] = sortrows ([v(rec).allTouchIdx, v(rec).allTouchPhase],2);
-    %     phase_raster = zeros(length(idx_phase),151);
-    %     phase_raster = v(rec).spikes(repmat(v(rec).allTouchIdx(idx_phase),1,151)+repmat([-50:100],length(idx_phase),1));
-    %
-    %     figure(52);subplot(4,4,[9 11])
-    %     plot([51 51],[1 size(adapt_raster,1)],'--','color',[.5 .5 .5])
-    %     hold on
-    %     plot(mod(find(phase_raster'),151), ceil(find(phase_raster')/151) ,'k.','markersize',4)
-    %     axis([1 151 1 size(adapt_raster,1)]);
-    %     xlabel('Time from touch (ms)')
-    %     ylabel('Touches sorted by phase')
-    %     colormap([1 1 1;0 0 0])
-    %     box off
-    %     set(gca,'xlim',[26 101],'xtick',[26 51 101],'xticklabel',[-25 0 50],'ytick',[])
-    %     ax1 = gca;
-    %     ax1;hold on
-    %     ax1_pos = get(ax1,'Position');
-    %     axes('Position',ax1_pos,...
-    %         'XAxisLocation','top',...
-    %         'yaxislocation','right','Color','none');hold on
-    %     plot(sort_phase(:,2),1:length(sort_phase),'r')
-    %     axis tight
-    %     set(gca,'xlim',[-pi pi],'xcolor','r','xtick',[-pi 0 pi],'xticklabel',{'-pi', 0, 'pi'},'ytick',[])
-    %     norm_phase_range = mat2gray([sort_phase(1,2) 0 sort_phase(end,2)]);
-    %     plot([0 0],[1 size(sort_phase,1)],'--','color',[1 .5 .5])
-    %     [v(rec).phase.sorted v(rec).phase.sortedBy v(rec).phase.binBounds]=binslin(v(rec).allTouchPhase, v(rec).sc, 'equalN',12)
-    %     v(rec).phase.means = cellfun(@nanmean, v(rec).phase.sorted);
-    %
-    %     v(rec).phase.lh = [];
-    %     v(rec).phase.lci = [];
-    %     for num = 1:length(v(rec).phase.sorted)
-    %         [lh, lci] = poissfit(v(rec).phase.sorted{num})
-    %         v(rec).phase.lh(num) = lh;
-    %         v(rec).phase.lci(num,:) = lci;
-    %     end
-    %     xlabel('Phase at touch','color','r')
-    %     subplot(4,4,12)
-    %     plot(v(rec).phase.lh, 1:12,'k')
-    %     hold on
-    %     box off
-    %     set(gca,'ylim',[0.5 12.5],'ytick',[])
-    %     plot(v(rec).phase.lci,1:12, 'color',[.5 .5 .5])
-    %     xlabel('spks/touch')
-    %     axes(ax1)
-    %     set(gca,'color','none')
+        v(rec).allTouchPhase = phase(v(rec).allTouchIdx)
+        [sort_phase,idx_phase] = sortrows ([v(rec).allTouchIdx, v(rec).allTouchPhase],2);
+        phase_raster = zeros(length(idx_phase),151);
+        phase_raster = v(rec).spikes(repmat(v(rec).allTouchIdx(idx_phase),1,151)+repmat([-50:100],length(idx_phase),1));
+    
+        figure(52);subplot(4,4,[9 11])
+        plot([51 51],[1 size(adapt_raster,1)],'--','color',[.5 .5 .5])
+        hold on
+        plot(mod(find(phase_raster'),151), ceil(find(phase_raster')/151) ,'k.','markersize',4)
+        axis([1 151 1 size(adapt_raster,1)]);
+        xlabel('Time from touch (ms)')
+        ylabel('Touches sorted by phase')
+        colormap([1 1 1;0 0 0])
+        box off
+        set(gca,'xlim',[26 101],'xtick',[26 51 101],'xticklabel',[-25 0 50],'ytick',[])
+        ax1 = gca;
+        ax1;hold on
+        ax1_pos = get(ax1,'Position');
+        axes('Position',ax1_pos,...
+            'XAxisLocation','top',...
+            'yaxislocation','right','Color','none');hold on
+        plot(sort_phase(:,2),1:length(sort_phase),'r')
+        axis tight
+        set(gca,'xlim',[-pi pi],'xcolor','r','xtick',[-pi 0 pi],'xticklabel',{'-pi', 0, 'pi'},'ytick',[])
+        norm_phase_range = mat2gray([sort_phase(1,2) 0 sort_phase(end,2)]);
+        plot([0 0],[1 size(sort_phase,1)],'--','color',[1 .5 .5])
+        [v(rec).phase.sorted v(rec).phase.sortedBy v(rec).phase.binBounds]=binslin(v(rec).allTouchPhase, v(rec).sc, 'equalN',12)
+        v(rec).phase.means = cellfun(@nanmean, v(rec).phase.sorted);
+    
+        v(rec).phase.lh = [];
+        v(rec).phase.lci = [];
+        for num = 1:length(v(rec).phase.sorted)
+            [lh, lci] = poissfit(v(rec).phase.sorted{num})
+            v(rec).phase.lh(num) = lh;
+            v(rec).phase.lci(num,:) = lci;
+        end
+        xlabel('Phase at touch','color','r')
+        subplot(4,4,12)
+        plot(v(rec).phase.lh, 1:12,'k')
+        hold on
+        box off
+        set(gca,'ylim',[0.5 12.5],'ytick',[])
+        plot(v(rec).phase.lci,1:12, 'color',[.5 .5 .5])
+        xlabel('spks/touch')
+        axes(ax1)
+        set(gca,'color','none')
     %  print(gcf,'-depsc2',[printdir 'Raster_Phase_Cell_' num2str(rec)])
     
     %%  Modulation depth
@@ -333,7 +338,7 @@ for rec = 1
     w(rec).adapt  = (max(v(rec).adaptation.lh(1:10))-min(v(rec).adaptation.lh(1:10)))/(max(v(rec).adaptation.lh(1:10))+min(v(rec).adaptation.lh(1:10)));
     w(rec).M0     = (max(v(rec).k.lh)-min(v(rec).k.lh))/(max(v(rec).k.lh)+min(v(rec).k.lh));
 %     w(rec).phase  = (max(v(rec).phase.lh)-min(v(rec).phase.lh))/(max(v(rec).phase.lh)+min(v(rec).phase.lh));
-    
+    pause
 end
 
 

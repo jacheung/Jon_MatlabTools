@@ -7,8 +7,8 @@ trialCutoffs(30,:)=[1 95];
 %%
 clear U
 layer = 'BVL5b';
-cellNum = [1 29:38 41:45];
-trialCutoffs = repmat([1 200],numel(cellNum),1);
+cellNum = [1 29:38 41:50];
+trialCutoffs = repmat([1 250],numel(cellNum),1);
 trialCutoffs(10,:)=[1 95];
 %%
 clear U
@@ -56,10 +56,11 @@ tossT = [0 ; 0 ;0 ; 0 ; 0 ;0; 0; 0; 0 ;99];
 
 %%
 clear 
-layer = 'BVex';
-cellNum = [1:10];
-trialCutoffs = [1 99; 1 99;  1 99; 89 289; 238 438; 1 99; 1 99; 1 99; 1 99; 1 99; 1 99] ;
-tossT = [0 ; 0 ;0 ; 0 ; 0 ;0; 0; 0; 0 ;0];
+layer = 'BVx';
+cellNum = [1:12];
+trialCutoffs = repmat([1 800],numel(cellNum),1);
+% trialCutoffs = [1 99; 1 99;  1 99; 89 289; 238 438; 1 99; 1 99; 1 99; 1 99; 1 99; 1 99] ;
+% tossT = [0 ; 0 ;0 ; 0 ; 0 ;0; 0; 0; 0 ;0];
 %%
 clear U
 layer = 'SM';
@@ -69,8 +70,8 @@ cellNum = [2 13 16 23 27 34 36:39]; %removed 35 b/c no CR touches
 trialCutoffs = repmat([1 200],numel(cellNum),1);
 %%
 clear U
-layer = 'N';
-cellNum = [1:6];
+layer = 'Nx';
+cellNum = [1:12];
 trialCutoffs = repmat([1 800],numel(cellNum),1);
 %% 
 

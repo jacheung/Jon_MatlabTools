@@ -16,6 +16,10 @@
 
 % printdir = '\NoiseProject\NoiseManuscript\Fig5\Materials\'
 
+
+touchCells = touchCell(U,.75);
+find(touchCe
+
 for rec = 1
     L{rec}.onsetLatency=8;
     trange=1:25;
@@ -139,11 +143,11 @@ for rec = 1
     xlabel('Theta at Touch','color','r')
     
     subplot(3,4,8)
-    thetax=linspace(mean(v(rec).theta.binBounds(1:2)),mean(v(rec).theta.binBounds(end-1:end)),length(binBounds)-1);
+    thetax=linspace(mean(v(rec).theta.binBounds(1:2)),mean(v(rec).theta.binBounds(end-1:end)),length(v(rec).theta.binBounds)-1);
     plot(v(rec).theta.lh, thetax,'k')
     hold on
     box off
-    set(gca,'ylim',[round([sort_theta(1,2) (sort_theta(end,2))])],'xlim',[0 max(v(rec).theta.lh)])
+    set(gca,'ylim',[round([sort_theta(1,2) (sort_theta(end,2))])],'ytick',[],'xlim',[0 max(v(rec).theta.lh)])
    
     plot(v(rec).theta.lci,thetax, 'color',[.5 .5 .5])
     
