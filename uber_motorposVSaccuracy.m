@@ -64,20 +64,19 @@ if strcmp(varargin{1},'semi')
     set(a2,'color','none');set(a2,'XTick',[]);set(a2,'YLim',[0 2],'ytick',[0:.1:.4],'yticklabel',[0:2.5:10]);ylabel('# Pre Decision Touches/Trial')
 
 else
-    figure(10);clf;plot(1:10,prob{1}(:,3),'k')
+    figure(10);clf;plot(1:10,flipud(prob{1}(:,3)),'k')
     for i = 1:length(prob)
-        hold on;plot(1:10,prob{i}(:,3),'color',[.8 .8 .8]);
+        hold on;plot(1:10,flipud(prob{i}(:,3)),'color',[.8 .8 .8]);
     end
     tmp=cell2mat(prob);
     allavg = mean(tmp(:,3:3:end),2);
     numavg = mean(tmp(:,2:3:end),2);
-    plot(1:10,allavg,'r','linewidth',4);
-    hold on; bar(1:10,numavg/50,1,'FaceColor',[.7 .7 .7]);%mean number of touches per trial
-    xlabel('Decision Boundary');ylabel('Lick Probability')
-    title(['Expert Session Full Continuous n = ' num2str(length(U))])
-    set(gca,'xlim',[1 10],'xtick',[1 5.5 10],'xticklabel',{-1 0 1},'ytick',[0:.25:1],'ylim',[0 1])
+    plot(1:10,flipud(allavg),'k','linewidth',4);
+    hold on; bar(1:10,flipud(numavg/50),1,'FaceColor',[.7 .7 .7]);%mean number of touches per trial
+    ylabel('Probability of licking')
+    set(gca,'xlim',[0 11],'xtick',[1 5.5 10],'xticklabel',{-1 0 1},'ytick',[0:.25:1],'ylim',[0 1])
     a2 = axes('YAxisLocation', 'Right');
-    set(a2,'color','none');set(a2,'XTick',[]);set(a2,'YLim',[0 2],'ytick',[0:.1:.4],'yticklabel',[0:2.5:10]);ylabel('# Pre Decision Touches/Trial')
+    set(a2,'color','none');set(a2,'XTick',[]);set(a2,'YLim',[0 2],'ytick',[0:.1:.4],'yticklabel',[0:2.5:10]);ylabel('# Pre-decision touches/trial')
 
 end
 

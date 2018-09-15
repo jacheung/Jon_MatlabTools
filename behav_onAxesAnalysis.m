@@ -95,10 +95,10 @@ for mouse = 1:length(mouselist)
             
             
             if j == 3
-                figure(54);hold on; plot(1:10,psycho,'k','linewidth',.1);
+                figure(54);hold on; plot(1:10,flipud(psycho),'k','linewidth',.1);
                 set(gca,'xtick',[1 5.5 10],'xticklabel',[-1 0 1],'ytick',[0 .25 .5 .75 1],'ylim', [ 0 1])
             else
-                figure(53);subplot(2,1,j);hold on; plot(1:10,psycho,'k','linewidth',.1);
+                figure(53);subplot(2,1,j);hold on; plot(1:10,flipud(psycho),'k','linewidth',.1);
                 set(gca,'xtick',[1 5.5 10],'xticklabel',[-1 0 1],'ytick',[0 .25 .5 .75 1],'ylim', [ 0 1])
                 if j == 1
                     title('Arc (TOP) , Radial (BOTTOM) Psychometric Curves')
@@ -180,7 +180,7 @@ xtickangle(45)
 ylabel('Percent Accuracy')
 
 % set(gcf, 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);
-print(figure(10),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\' mouseNum '_onAxes_POPaccuracy'])
+% print(figure(10),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\' mouseNum '_onAxes_POPaccuracy'])
 
 alpha = .01; %significance level of .01 
 [p,tbl,stats] = anova1(popAVG); %anova1 
@@ -203,9 +203,9 @@ radAll = popAll(21:30); radci = ci(21:30,:); radSEM = semAll(21:30);
 
     
     figure(438);clf
-    errorbar([1:10],radAll,radSEM,'-c','linewidth',2)
-    hold on; errorbar([1:10],contAll,contSEM,'-k','linewidth',2)
-    errorbar([1:10],arcAll,arcSEM,'-b','linewidth',2)
+    errorbar([1:10],flipud(radAll),flipud(radSEM),'-c','linewidth',2)
+    hold on; errorbar([1:10],flipud(contAll),flipud(contSEM),'-k','linewidth',2)
+    errorbar([1:10],flipud(arcAll),flipud(arcSEM),'-b','linewidth',2)
     
     figure(439);clf
     boundedline([1:10],radAll,radci(:,2),'c');
@@ -232,10 +232,10 @@ radAll = popAll(21:30); radci = ci(21:30,:); radSEM = semAll(21:30);
 %     plot([1:10],contAll,'k','linewidth',4); %continuous
 %     hold on; plot([1:10],arcAll,'b','linewidth',4); %arc
 %     plot([1:10],radAll,'c','linewidth',4);%radial
-    legend('Radial','Horizontal','Arc','location','southeast');
+    legend('Radial','Horizontal','Arc','location','southwest');
     set(gca,'xtick',[1 5.5 10],'xticklabel',[-1 0 1],'ytick',[0 .25 .5 .75 1],'ylim', [ 0 1])
     xlabel('Normalized Motor Positions');ylabel('Lick Probability')
-    text(8.5,.20,['n = ' num2str(numel(mouselist))],'FontSize',14)
+    text(1.5,.20,['n = ' num2str(numel(mouselist))],'FontSize',14)
     print(figure(438),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\onAxes_POPpsycho'])
     
     

@@ -11,7 +11,7 @@ for rec = 1:length(uberarray)
     
     array=uberarray{rec};
 
-    V(rec).varNames = {'theta','velocity','amplitude','setpoint','phase','deltaKappa','timing.timetotouch/whiskcycleVelocity/startTheta','torsionBytheta'};
+    V(rec).varNames = {'theta','velocity','amplitude','setpoint','phase','deltaKappa','timing.timetotouch/startTheta/whiskcycleVelocity','torsionBytheta','maxProtraction'};
     
     [~ ,prelixGo, prelixNoGo, ~ ,~ ,~] = assist_predecisionVar(array);
     varx=[1:6];
@@ -33,12 +33,20 @@ for rec = 1:length(uberarray)
         V(rec).var.CR{f}    =      cell2mat(V(rec).var.CR{f});
         
     end
+    
+    % FINDING TIMES FROM POLE ONSET TO FIRST TOUCH
+    [ttimes] = onsetTotouch(array);
+    V(rec).var.hit{10} = [ttimes{1}];
+    V(rec).var.FA{10} = [ttimes{2}];
+    V(rec).var.CR{10} = [ttimes{3}];
+    V(rec).var.miss{10} = [ttimes{4}];
+    
         % FINDING TIMES FROM WHISK ONSET TO TOUCH FOR TOUCHES
-        [timetotouch,trialnums,velocity,startTheta] = uber_touchTiming(array);
-        V(rec).var.hit{7} = [timetotouch{1} velocity{1} startTheta{1} trialnums{1}];
-        V(rec).var.FA{7} = [timetotouch{2} velocity{2} startTheta{2} trialnums{2}];
-        V(rec).var.CR{7} = [timetotouch{3} velocity{3} startTheta{3} trialnums{3}];
-        V(rec).var.miss{7} = [timetotouch{4} velocity{4} startTheta{4} trialnums{4}];
+        [hx,FAx,CRx,mx] = uber_touchTimeDecompV2(array);
+        V(rec).var.hit{7} = [hx];
+        V(rec).var.FA{7} = [FAx];
+        V(rec).var.CR{7} = [CRx];
+        V(rec).var.miss{7} = [mx];
 
         % FINDING KAPPA DURING FREE WHISK FOR TTYPES 
 %         [kappaattheta,tnumskt] = uber_rollmodel(array);
@@ -46,6 +54,13 @@ for rec = 1:length(uberarray)
 %         V(rec).var.FA{8} = [kappaattheta{2} tnumskt{2}];
 %         V(rec).var.CR{8} = [kappaattheta{3} tnumskt{3}];
 %         V(rec).var.miss{8} = [kappaattheta{4} tnumskt{4}];
+
+    %MAX PROTRACTION PRE DECISION
+    [hitmaxp,missmaxp,FAmaxp,CRmaxp] = maxProtractionPreD(array);
+    V(rec).var.hit{9} = hitmaxp;
+        V(rec).var.FA{9} = FAmaxp;
+        V(rec).var.CR{9} = CRmaxp;
+        V(rec).var.miss{9} = missmaxp;
 %         
     % TRIAL TYPE ORGANIZATION
     V(rec).trialNums.matNames = {'hit','miss','FA','CR','licks','lick and hit'};
@@ -59,26 +74,26 @@ for rec = 1:length(uberarray)
 
     
     
-    
-    %figuring out previous TT and whether it was lick or not
-    lix{1} = [0 V(rec).trialNums.matrix(6,:)]; %padded with 0 to account for indexing
-    lix{2} = [0 0 V(rec).trialNums.matrix(6,:)];
-    lix{3} = [0 0 0 V(rec).trialNums.matrix(6,:)];
-    
-    hx_prevT = find(V(rec).trialNums.matrix(1,:)==1); % using current T num b/c licks shifted by padded 0
-    mx_prevT = find(V(rec).trialNums.matrix(2,:)==1);
-    FAx_prevT = find(V(rec).trialNums.matrix(3,:)==1); % using current T num b/c licks shifted by padded 0
-    CRx_prevT = find(V(rec).trialNums.matrix(4,:)==1); % using current T num b/c licks shifted by padded 0
-    
-    Ttype = {'hit','miss','FA','CR'};
-    Ttypemat={hx_prevT,mx_prevT,FAx_prevT,CRx_prevT};
-    
-    for d = 1:length(Ttype)
-        V(rec).licks.oneT.(Ttype{d}) = lix{1}(Ttypemat{d});
-        V(rec).licks.twoT.(Ttype{d}) = lix{2}(Ttypemat{d});
-        V(rec).licks.threeT.(Ttype{d}) = lix{3}(Ttypemat{d});
-    end
-    
+%     
+%     %figuring out previous TT and whether it was lick or not
+%     lix{1} = [0 V(rec).trialNums.matrix(6,:)]; %padded with 0 to account for indexing
+%     lix{2} = [0 0 V(rec).trialNums.matrix(6,:)];
+%     lix{3} = [0 0 0 V(rec).trialNums.matrix(6,:)];
+%     
+%     hx_prevT = find(V(rec).trialNums.matrix(1,:)==1); % using current T num b/c licks shifted by padded 0
+%     mx_prevT = find(V(rec).trialNums.matrix(2,:)==1);
+%     FAx_prevT = find(V(rec).trialNums.matrix(3,:)==1); % using current T num b/c licks shifted by padded 0
+%     CRx_prevT = find(V(rec).trialNums.matrix(4,:)==1); % using current T num b/c licks shifted by padded 0
+%     
+%     Ttype = {'hit','miss','FA','CR'};
+%     Ttypemat={hx_prevT,mx_prevT,FAx_prevT,CRx_prevT};
+%     
+%     for d = 1:length(Ttype)
+%         V(rec).licks.oneT.(Ttype{d}) = lix{1}(Ttypemat{d});
+%         V(rec).licks.twoT.(Ttype{d}) = lix{2}(Ttypemat{d});
+%         V(rec).licks.threeT.(Ttype{d}) = lix{3}(Ttypemat{d});
+%     end
+%     
     
     V(rec).name = array.meta.layer;
     

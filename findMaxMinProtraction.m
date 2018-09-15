@@ -10,13 +10,13 @@
 %
 %
 
-function [P] = findMaxMinProtraction(array,varargin)
+function [P] = findMaxMinProtraction(array,ampthresh,varargin)
 
 %% Find max theta excursion on each whisk cycle
     
     [objmask]= assist_touchmasks(array);
     
-    if nargin<2
+    if nargin<3
         mask = ones(size(squeeze(array.S_ctk(1,:,:))));
     else
         maskString = varargin;
@@ -24,12 +24,14 @@ function [P] = findMaxMinProtraction(array,varargin)
             mask = objmask.availtolick;
         elseif strcmp(maskString,'sampling')
             mask = objmask.samplingp;
+        elseif strcmp(maskString,'avail2end')
+            mask = objmask.availend;
         end
     end
     
     
     amp_mask = ones(size(squeeze(array.S_ctk(3,:,:))));
-    amp_mask(array.S_ctk(3,:,:)<2.5) = NaN; %amplitude mask used to filter out only periods of high whisking
+    amp_mask(array.S_ctk(3,:,:)<ampthresh) = NaN; %amplitude mask used to filter out only periods of high whisking
     phase = squeeze(array.S_ctk(5,:,:));
     amp = squeeze(array.S_ctk(3,:,:));
     setpoint = squeeze(array.S_ctk(4,:,:));
@@ -74,7 +76,7 @@ function [P] = findMaxMinProtraction(array,varargin)
     end
     
     P.peakidx=unique(peakphases+maxidx'); %this is the idx for peak protraction 
-    P.troughIdx = unique(troughphases+minidx'); %this is the idx for trough of protraction
+    P.troughidx = unique(troughphases+minidx'); %this is the idx for trough of protraction
     
     P.trialNums = floor(P.peakidx/array.t)+1;
     P.theta = [theta(P.peakidx)];
@@ -86,15 +88,25 @@ function [P] = findMaxMinProtraction(array,varargin)
     
     
 %         %%
-%          %% test a trial to make sure that theta is aligned right
-%             trial = 50; %shifted by 1 (ex. trial=0 ..> trial =1)
+         %% test a trial to make sure that theta is aligned right
+%             touchIdx = [find(array.S_ctk(9,:,:)==1);find(array.S_ctk(12,:,:)==1)];
+%             
+%             trial = 54; %shifted by 1 (ex. trial=0 ..> trial =1)
 %             figure(trial+1);clf;plot(theta(:,trial+1));
 %             xlabel('Time from Trial Start (ms)');ylabel('Whisker Position')
 %         
-%             validx=troughidx(floor(troughidx/array.t)==trial);
-%             excurx=round(((validx/U{rec}.t)-trial)*array.t);
+%             validx=P.peakidx(floor(P.peakidx/array.t)==trial);
+%             validtouchx = touchIdx(floor(touchIdx/array.t)==trial);
+%             
+%             excurx=round(((validx/array.t)-trial)*array.t);
+%             touchexcurx=round(((validtouchx/array.t)-trial)*array.t);
+%             
 %             for i = 1:length(excurx)
 %                 hold on; scatter(excurx(i),theta(excurx(i),trial+1),'ro')
+%                
 %             end
-    
+%             
+%             for i = 1:length(touchexcurx)
+%              hold on; scatter(touchexcurx(i),theta(touchexcurx(i),trial+1),'go','filled')
+%             end
     %%

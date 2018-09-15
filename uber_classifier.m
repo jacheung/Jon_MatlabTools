@@ -7,7 +7,7 @@ clear V F1G RMSEgroup F1Gtree RMSEdecomp
 clearvars -except V U BV D SM F1G RMSEgroup RMSEdecomp F1Gtree R PAS POP keeptmp
 numIterations = 10;
 
-designvars = 'theta';
+designvars = 'ubered';
 % 1) 'theta' 2) 'pas' (phase amp midpoint) 3) 'counts' 4) 'ubered'
 % 5) 'timing' 6) 'roll'
 classes = 'lick';
@@ -235,7 +235,7 @@ end
 
 % Psychometric Curve Comparison b/t Model and Mouse
 if strcmp(classes,'lick')
-    [RMSE] = rebuildPsycho(U,V,train_motorPlick);
+    [RMSE] = rebuildPsychoflip(U,V,train_motorPlick);
     suptitle([U{rec}.meta.layer ' ' designvars ' ' classes])
     %     print(figure(5),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_LOGPSYCHO'])
     
@@ -530,9 +530,9 @@ elseif strcmp(designvars,'counts')
 end
 
 % Psychometric Curve Comparison b/t Model and Mouse
-[RMSE] = rebuildPsycho(U,V,reitMotor);
+[RMSE] = rebuildPsychoflip(U,V,reitMotor);
 suptitle([U{1}.meta.layer ' ' designvars ' ' classes])
-print(figure(5),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_TREEPSYCHO'])
+% print(figure(5),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.layer '\Figures\'  U{rec}.meta.layer '_' classes '_' designvars '_TREEPSYCHO'])
 
 if strcmp(designvars,'ubered')
     RMSEgroup(:,3) = RMSE;

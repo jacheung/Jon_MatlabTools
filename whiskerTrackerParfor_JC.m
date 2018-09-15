@@ -6,8 +6,8 @@
 
 %% (1) TRACE: Uses Janelia Farm's whisker tracking software to track all whiskers in a directory 
 
-mainDir = 'Z:\Data\Video\JON\AH0761\';                 
-folderNums = {'171106'};
+mainDir = 'Z:\Data\Video\JON\AH0716\';                 
+folderNums = {'170906'};
 for k= 1:length(folderNums)
    newDir = [mainDir folderNums{k}];
 cd(newDir)                                         

@@ -24,6 +24,10 @@ wndow = numel(range);
 %set touch ranges
 touchOnIdx = [find(array.S_ctk(9,:,:)==1); find(array.S_ctk(12,:,:)==1)];
 touchOffIdx = [find(array.S_ctk(10,:,:)==1); find(array.S_ctk(13,:,:)==1)];
+
+% touchOnIdx = [find(array.S_ctk(9,:,:)==1)];
+% touchOffIdx = [find(array.S_ctk(10,:,:)==1)];
+
 spikes = squeeze(array.R_ntk);
 touchOnIdx = touchOnIdx(touchOnIdx<(numel(spikes)-range(end)));
 touchOffIdx = touchOffIdx(1:length(touchOnIdx));

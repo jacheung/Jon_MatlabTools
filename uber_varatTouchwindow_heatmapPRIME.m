@@ -1,6 +1,4 @@
 
-[layer, txt] = loadDataNames(U);
-
 %%
 clear pop
 for rec=1:length(U)
@@ -15,17 +13,17 @@ for rec=1:length(U)
     % 3) AMP
     % 4) SETPOINT
     % 5) PHASE
-    % 6) MAX KAPPA    
+    % 6) MAX KAPPA
     % Last columns will be the spikes around your given window
     
     
     % Run this line below if you want to elim all protraction touches and
-    % just look at ret touches. 
-%     varspikes(varspikes(:,5)<0,:)=[];
+    % just look at ret touches.
+    %     varspikes(varspikes(:,5)<0,:)=[];
     
     
     
-%     comp={varspikes, preDvarspikes, postDvarspikes};
+    %     comp={varspikes, preDvarspikes, postDvarspikes};
     comp={varspikes};
     for g = 1:length(comp)
         %%
@@ -67,70 +65,169 @@ for rec=1:length(U)
             V.(fields{d}).raw(mintouches,:) = [];
             
             %Plotting features
-%             figure(30+rec);subplot(2,3,d);
-%             
-%             
-%             
-% %             imagesc(imgaussfilt(V.(fields{d}).spikes,gaussFilt,'padding','replicate')); %GAUSS PLOTTING
-%             imagesc(V.(fields{d}).spikes) %OLD PLOTTING 
-%             
-%             colormap(gca,parula);
-%             set(gca,'Ydir','normal','ytick',(1:length(V.(fields{d}).range)),'yticklabel',[V.(fields{d}).range],...
-%                 'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
-%             for k=1:size(V.(fields{d}).counts,1)
-%                 text(20,k,num2str(V.(fields{d}).counts(k)),'FontSize',8,'Color','white')
-%             end
-%             hold on;plot([sum(window<0) sum(window<0)],[length(V.(fields{d}).range) 0],'w:')
-%             axis('square')
-%             xlabel('time from touch onset (ms)')
-%             title([fields{d}])
-%             
+            %             figure(30+rec);subplot(2,3,d);
+            %
+            %
+            %
+            % %             imagesc(imgaussfilt(V.(fields{d}).spikes,gaussFilt,'padding','replicate')); %GAUSS PLOTTING
+            %             imagesc(V.(fields{d}).spikes) %OLD PLOTTING
+            %
+            %             colormap(gca,parula);
+            %             set(gca,'Ydir','normal','ytick',(1:length(V.(fields{d}).range)),'yticklabel',[V.(fields{d}).range],...
+            %                 'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
+            %             for k=1:size(V.(fields{d}).counts,1)
+            %                 text(20,k,num2str(V.(fields{d}).counts(k)),'FontSize',8,'Color','white')
+            %             end
+            %             hold on;plot([sum(window<0) sum(window<0)],[length(V.(fields{d}).range) 0],'w:')
+            %             axis('square')
+            %             xlabel('time from touch onset (ms)')
+            %             title([fields{d}])
+            %
             
             pop{rec}=V;
             
             
         end
-      
+        
     end
 end
 
 %% POPULATION PLOTTING
 
-% 
-% figure(30);clf
-% figure(31);clf
-% fields = [    {'theta'}  ];
-% % for d = 1:length(pop)
-%     
-%    
-%     figure(30);subplot(8,8,d);
-% %       imagesc(imgaussfilt(pop{d}.(fields{1}).spikes,gaussFilt,'padding','replicate'));
-%      imagesc(pop{d}.(fields{1}).spikes) 
-%     colormap(gca,parula);
-%     set(gca,'Ydir','normal','ytick',(1:length(pop{d}.(fields{1}).range)),'yticklabel',[pop{d}.(fields{1}).range],...
-%         'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
-%     for k=1:size(pop{d}.(fields{1}).counts,1)
-%         text(20,k,num2str(pop{d}.(fields{1}).counts(k)),'FontSize',8,'Color','white')
-%     end
-%     hold on;plot([sum(window<0) sum(window<0)],[length(pop{d}.(fields{1}).range) 0],'w:')
-% %       axis('square')
-%     %             xlabel('time from touch onset (ms)')
-%     %             title(['theta'])
-%     
-%     
-%     
-%         figure(31);subplot(8,8,d);
-%        imagesc(imgaussfilt(pop{d}.(fields{1}).spikes,gaussFilt,'padding','replicate'));
-% %      imagesc(pop{d}.(fields{1}).spikes) 
-%     colormap(gca,parula);
-%     set(gca,'Ydir','normal','ytick',(1:length(pop{d}.(fields{1}).range)),'yticklabel',[pop{d}.(fields{1}).range],...
-%         'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
-%     for k=1:size(pop{d}.(fields{1}).counts,1)
-%         text(20,k,num2str(pop{d}.(fields{1}).counts(k)),'FontSize',8,'Color','white')
-%     end
-%     hold on;plot([sum(window<0) sum(window<0)],[length(pop{d}.(fields{1}).range) 0],'w:')
-% %       axis('square')
-%     %             xlabel('time from touch onset (ms)')
-%     %             title(['theta'])
-%     
-% end
+% PLOT TOUCH CELLS+
+
+fields = [    {'theta'}  ];
+
+% touchCells = touchCell(U,1.5);
+touchCells = touchCell(U,2,.5);
+selectedCells = find(touchCells==1);
+
+[rc] = numSubplots(length(selectedCells));
+figure(333);clf
+figure(322);clf
+clear popzscore
+
+plotrow = rc(1);
+plotcolumn = rc(2);
+for d = 1:length(selectedCells)
+    
+    currCell = selectedCells(d);
+    figure(333);subplot(plotrow,plotcolumn,d);
+    imagesc(pop{currCell}.(fields{1}).spikes)
+    colormap(gca,parula);
+    set(gca,'Ydir','normal','ytick',(1:length(pop{currCell}.(fields{1}).range)),'yticklabel',[pop{currCell}.(fields{1}).range],...
+        'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
+    for k=1:size(pop{currCell}.(fields{1}).counts,1)
+        text(20,k,num2str(pop{currCell}.(fields{1}).counts(k)),'FontSize',8,'Color','white')
+    end
+    hold on;plot([sum(window<0) sum(window<0)],[length(pop{currCell}.(fields{1}).range) 0],'w:')
+    
+    
+    figure(322);subplot(plotrow,plotcolumn,d);
+    imagesc(imgaussfilt(pop{currCell}.(fields{1}).spikes,gaussFilt,'padding','replicate'));
+    colormap(gca,parula);
+    set(gca,'Ydir','normal','ytick',(1:length(pop{currCell}.(fields{1}).range)),'yticklabel',[pop{currCell}.(fields{1}).range],...
+        'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
+    for k=1:size(pop{currCell}.(fields{1}).counts,1)
+        text(20,k,num2str(pop{currCell}.(fields{1}).counts(k)),'FontSize',8,'Color','white')
+    end
+    hold on;plot([sum(window<0) sum(window<0)],[length(pop{currCell}.(fields{1}).range) 0],'w:')
+    
+    %ZSCORREEEEE
+    thetabounds = [-100:5:100]; 
+    counts = pop{currCell}.theta.counts;
+    ranges = pop{currCell}.theta.range ;
+    thetavect = [];
+    for k = 1:length(ranges)
+        thetavect = [thetavect ;ones(counts(k),1).*ranges(k)];
+    end
+    
+    allspikes = cell2mat(pop{currCell}.theta.raw);
+    meanbase = mean(mean(allspikes(:,1:51),2));
+    stdbase = std(mean(allspikes(:,1:51),2));
+    postresponses = allspikes(:,55:80);
+    xresp = mean(postresponses,2);
+    zscore = (xresp - meanbase) ./ stdbase;
+    
+    uniquethetas = unique(thetavect);
+    
+    [sorted,sortedBy,~] = binslin(thetavect,zscore,'equalE',numel(thetabounds),thetabounds(1),thetabounds(end));
+    
+    zraw = nan(length(sorted),1000);
+    for b = 1:length(sorted)
+        currvals = sorted{b};
+        if ~isempty(sorted{b})
+            zraw(b,1:length(currvals)) = currvals';
+        end
+    end
+    
+
+    [p,~,stats]=anova1(zraw',[],'off');
+    vals =multcompare(stats);
+    
+    popzscore{d} = cellfun(@mean,sorted);
+    otune(d)=p;
+    
+    
+   tmp =  vals(vals(:,end)<.01,:);
+    figure;scatter(tmp(:,1),tmp(:,2))
+    set(gca,'xlim',[0 15],'ylim',[0 15])
+end
+%Plotting Zscore
+
+ocells = find(otune<.01);
+
+zs = cell2mat(popzscore(ocells))';
+xticks = thetabounds(:,~nansum(zs)==0);
+zs(:,nansum(zs)==0)=[];
+[~,idx] = max(zs,[],2);
+
+[~,peakidx] = sort(idx);
+
+
+ figure(480);clf;imagesc(zs(peakidx,:)) %sorted by peak idx
+% figure(480);clf;imagesc(zs) %unsorted
+h=colorbar;
+colormap(redbluecmap)
+caxis([-3 3])
+set(gca,'xtick',[1:2:size(zs,2)],'xticklabel',xticks(1:2:end),'ytick',[])
+xlabel('Whisker angle at touch') 
+    
+    
+
+%% PLOT ALL
+[rc] = numSubplots(length(pop));
+
+plotrow = rc(1);
+plotcolumn = rc(2);
+
+for d = 1:length(pop)
+    
+    
+    figure(30);subplot(plotrow,plotcolumn,d);
+    %       imagesc(imgaussfilt(pop{d}.(fields{1}).spikes,gaussFilt,'padding','replicate'));
+    imagesc(pop{d}.(fields{1}).spikes)
+    colormap(gca,parula);
+    set(gca,'Ydir','normal','ytick',(1:length(pop{d}.(fields{1}).range)),'yticklabel',[pop{d}.(fields{1}).range],...
+        'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
+    for k=1:size(pop{d}.(fields{1}).counts,1)
+        text(20,k,num2str(pop{d}.(fields{1}).counts(k)),'FontSize',8,'Color','white')
+    end
+    hold on;plot([sum(window<0) sum(window<0)],[length(pop{d}.(fields{1}).range) 0],'w:')
+    
+    
+    figure(31);subplot(plotrow,plotcolumn,d);
+    imagesc(imgaussfilt(pop{d}.(fields{1}).spikes,gaussFilt,'padding','replicate'));
+    %      imagesc(pop{d}.(fields{1}).spikes)
+    colormap(gca,parula);
+    set(gca,'Ydir','normal','ytick',(1:length(pop{d}.(fields{1}).range)),'yticklabel',[pop{d}.(fields{1}).range],...
+        'xtick',(0:25:length(window)),'xticklabel',[min(window):25:max(window)],'xlim',[0 length(window)]);
+    for k=1:size(pop{d}.(fields{1}).counts,1)
+        text(20,k,num2str(pop{d}.(fields{1}).counts(k)),'FontSize',8,'Color','white')
+    end
+    hold on;plot([sum(window<0) sum(window<0)],[length(pop{d}.(fields{1}).range) 0],'w:')
+    %       axis('square')
+    %             xlabel('time from touch onset (ms)')
+    %             title(['theta'])
+    
+end

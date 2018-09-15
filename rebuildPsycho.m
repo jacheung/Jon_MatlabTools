@@ -88,7 +88,7 @@ for rec = 1:length(U)
         figure(5);subplot(2,5,rec)
         plot(xranges',reallickmean(:,2),'r','linewidth',1)
         hold on;filex_shadedErrorBar(xranges,lickmean(:,2),lickstd(:,2),'k');
-        hold on; plot(xranges',reallickmean(:,2),'r','linewidth',5)
+        hold on; plot(xranges',reallickmean(:,2),'r','linewidth',1)
         set(gca,'xtick',[xranges(1) xranges(6) xranges(11)],'xticklabel',[-1 0 1],'ylim',[0 1],'xlim',[xranges(1)-5000 xranges(end)+5000])
         if rec ==5
             legend('Mouse Performance','Model Performance','location','southeast')

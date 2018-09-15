@@ -15,12 +15,18 @@ Ttype = {'hit','miss','FA','CR'};
 % BUILDING AVG THETA AT TOUCH
 for d = 1:length(Ttype)
     meanTtheta =[];
-    thetas = array.var.(Ttype{d}){var};
+    
+    selvar = array.var.(Ttype{d}){var};
+    
+    %used to toss out retraction touches
+    phasevar = array.var.(Ttype{d}){5};
+    keepPro = phasevar<0;
+
     Ttmp=[array.touchNum.(Ttype{d})];
     yesTouches = find(Ttmp>0);
     meanTtheta = NaN(1,length(Ttmp)); %NaN matrix size = numTrials of trial type
     
-    if ~isempty(thetas)
+    if ~isempty(selvar)
         %finding index of last touches within each trial
         tmp2 = [Ttmp zeros(1,length(Ttmp))];
         for i = 1:length(Ttmp)
@@ -38,7 +44,9 @@ for d = 1:length(Ttype)
          
         %find mean of all touches within those trials
         for i = 1:length(tIdx)-1
-            meanTtheta(yesTouches(i)) = mean(thetas(tIdx(i):tIdx(i+1)));
+            rawVals = selvar(tIdx(i):tIdx(i+1));
+            keepVals = keepPro(tIdx(i):tIdx(i+1));
+            meanTtheta(yesTouches(i)) = mean(rawVals(keepVals));
         end
        
                    
@@ -58,57 +66,44 @@ end
 
 if strcmp(samp,'random')
     %Filling all NaN values with randomly sampled theta vals
-    thetas = [thetatmps{1} thetatmps{2} thetatmps{3} thetatmps{4}];
-    disp(['Filling in ' num2str(sum(isnan(thetas))) ' values out of ' num2str(numel(thetas))])
-    uniformthetas = min(thetas):.5:max(thetas);   
-    thetas(isnan(thetas))=[];
+    selvar = [thetatmps{1} thetatmps{2} thetatmps{3} thetatmps{4}];
+    disp(['Filling in ' num2str(sum(isnan(selvar))) ' values out of ' num2str(numel(selvar))])
+    uniformthetas= unique(round(selvar));
+    uniformthetas(isnan(uniformthetas))=[];
+    selvar(isnan(selvar))=[];
     for d = 1:4
         nansamps = find(isnan(thetatmps{d}));
         for i = 1:sum(isnan(thetatmps{d}))
-            thetatmps{d}(nansamps(i)) = datasample(thetas,1); %sampling from distribution of all touches and their data (skewed towrads go)  
-%             thetatmps{d}(nansamps(i)) = datasample(uniformthetas,1); %sampling from uniform distribution of obtained theta values 
+%             thetatmps{d}(nansamps(i)) = datasample(thetas,1); %sampling from distribution of all touches and their data (skewed towrads go)  
+            thetatmps{d}(nansamps(i)) = datasample(uniformthetas,1); %sampling from uniform distribution of obtained theta values 
         end
     end
     
 elseif strcmp(samp,'resampSameD')
     for d = 1:2 %resample FA/CR from nogo distribution
-        thetas = [thetatmps{1} thetatmps{2}];
-        thetas(isnan(thetas))=[];
+        selvar = [thetatmps{1} thetatmps{2}];
+        selvar(isnan(selvar))=[];
         
         nansamps = find(isnan(thetatmps{d}));
         for i = 1:sum(isnan(thetatmps{d}))
-            thetatmps{d}(nansamps(i)) = datasample(thetas,1);
+            thetatmps{d}(nansamps(i)) = datasample(selvar,1);
         end
     end
     
     for d = 3:4 %resample FA/CR from nogo distribution
-        thetas = [thetatmps{3} thetatmps{4}];
-        thetas(isnan(thetas))=[];
+        selvar = [thetatmps{3} thetatmps{4}];
+        selvar(isnan(selvar))=[];
         
         nansamps = find(isnan(thetatmps{d}));
         for i = 1:sum(isnan(thetatmps{d}))
-            thetatmps{d}(nansamps(i)) = datasample(thetas,1);
+            thetatmps{d}(nansamps(i)) = datasample(selvar,1);
         end
     end
         
 elseif strcmp(samp,'peakPro')
+    [hitmaxp,missmaxp,FAmaxp,CRmaxp] = maxProtractionPreD(Uarray);
     
-    peakIDX = Uarray.peakIdx;
-    thetas = squeeze(Uarray.S_ctk(1,:,:));
-    
-    trialNums =floor((peakIDX/4000)+1);
-    tNums = unique(trialNums) ;
-    for i = 1:length(tNums) 
-        trialIdx = find(trialNums==tNums(i));
-        peakPro(tNums(i)) = max(thetas(trialIdx));
-    end
-    
-    hits = peakPro(find(array.trialNums.matrix(1,:)==1));
-    miss = peakPro(find(array.trialNums.matrix(2,:)==1));
-    FA = peakPro(find(array.trialNums.matrix(3,:)==1));
-    CR = peakPro(find(array.trialNums.matrix(4,:)==1));
-    
-    peakProMat = {hits,miss,FA,CR};
+    peakProMat = {hitmaxp,missmaxp,FAmaxp,CRmaxp};
     
     for d = 1:4
         nansamps = find(isnan(thetatmps{d}));

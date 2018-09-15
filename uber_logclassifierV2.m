@@ -20,7 +20,7 @@ sample ='bias';
 % random 70% to train
 
 % Only for 'ubered' or 'pas'
-normalization = 'none';
+normalization = 'whiten';
 % 1) 'whiten' 2) 'none';
 
 % Only for 'ubered'
@@ -28,6 +28,11 @@ removal = 'no';
 % 1) 'yes' to remove 0 touch trials and auto classify as CR
 
 balance = 'off';
+
+nanMethod = 'random';
+% 1) random (resample NaN vars from all touches) 
+% 2) peakPro (replace NaN using var from max protraction) 
+% 3) resampSameD (replace NaN using vas from touches in same trial type) 
 
 %% LOG CLASSIFIER
 clear Acc
@@ -224,23 +229,11 @@ print(figure(5),'-dtiff',['Z:\Users\Jon\Projects\Characterization\' U{rec}.meta.
 end
 %% Visualization of the decision boundaries.
 params =1;
-FCratio = [];
+[V] = classifierWrapper(U);
+colors = {'b','r'}
+
 for rec = 1:length(U)
-    ntmp=find(V(rec).var.hit{5}<=0);ptmp=find(V(rec).var.hit{5}>0);
-    hx = [V(rec).var.hit{3}(ntmp)' V(rec).var.hit{4}(ntmp)' V(rec).var.hit{5}(ntmp)'];
-    hy = ones(size(hx,1),1);
-    Fntmp=find(V(rec).var.FA{5}<=0);Fptmp=find(V(rec).var.FA{5}>0);
-    FAx = [V(rec).var.FA{3}(Fntmp)' V(rec).var.FA{4}(Fntmp)' V(rec).var.FA{5}(Fntmp)'];
-    FAy = ones(size(FAx,1),1)+1;
-    Cntmp=find(V(rec).var.CR{5}<=0);Cptmp=find(V(rec).var.CR{5}>0);
-    CRx = [V(rec).var.CR{3}(Cntmp)' V(rec).var.CR{4}(Cntmp)' V(rec).var.CR{5}(Cntmp)'];
-    CRy1 = ones(size(CRx,1),1)+1;
-    
-    %FOR FA VS CR
-    %     [FAx,FAy,CRx,CRy1] = FACRBalance(FAx,CRx);
-    %     FCratio(rec,1) = size([FAx],1)/size([FAx; CRx],1);
-    %     FCratio(rec,2) = 1-FCratio(rec,1);
-    %
+ 
     
     switch params
         case 1
@@ -273,7 +266,7 @@ for rec = 1:length(U)
             hold on;h2a=plot(x,secondvar/sum(secondvar),colors{2});h2a.Color(4)=0.5;
             
             for db = [1:2]
-                ms=cell2mat(Bfeat{rec}.theta);
+                    ms=cell2mat(Bfeat{rec}.theta);
                 coords=mean(reshape(ms(db,:)',2,numIterations),2);
                 y= (exp(coords(1)+coords(2)*x)) ./ (1 + exp(coords(1)+coords(2)*x))  ;
                 y1=train_predOpt(rec);
@@ -373,16 +366,19 @@ for rec = 1:length(U)
 end
 
 %% TREE BAG CLASSIFIER 
+reitAcc = cell(1,length(U));
 reitPred = cell(1,length(U));
 reitReal = cell(1,length(U));
 reitMotor = cell(1,length(U));
 reitBFeat = cell(1,length(U));
+groupF1 = nan(length(U),2); 
 for rec = 1:length(U)
     
    for reit = 1:numIterations
-    [DmatX, DmatY , motorX] = designMatrixBuilder(V(rec),U{rec},designvars,classes,normalization,removal,balance);
+    [DmatX, DmatY , motorX] = designMatrixBuilder(V(rec),U{rec},designvars,classes,normalization,removal,balance,nanMethod);
     
     [bagPred ,bagReal, motorPos, treeMdl] = uber_baggingClassifier(DmatX,DmatY,motorX);
+    
     
     reitAcc{rec}(reit) = mean(bagPred(:,1)==bagReal);
     reitPred{rec}=[reitPred{rec} ; bagPred(:,1)];
@@ -390,7 +386,9 @@ for rec = 1:length(U)
     reitMotor{rec} = [reitMotor{rec} ; motorPos bagPred(:,2)];
     reitBFeat{rec} = [reitBFeat{rec} ; treeMdl.OOBPermutedVarDeltaError];
     
+    
    end
+   groupF1(rec,:) = F1score(reitPred{rec},reitReal{rec},2);
 end
 
 %Plotting average test accuracy 

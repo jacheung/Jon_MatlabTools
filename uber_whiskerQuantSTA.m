@@ -10,6 +10,7 @@ for d = 1:length(U)
     responseIdx = find(responses==1);
     figure(380);clf
     stimVals = [1 2 3 4 5 6];
+    
     for g = 1:length(stimVals)
         
         stimuli = squeeze(U{d}.S_ctk(stimVals(g),:,:));

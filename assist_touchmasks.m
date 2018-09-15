@@ -15,6 +15,8 @@ function [mask] = assist_touchmasks(array)
     offset=round(array.meta.poleOffset*1000);
     offmax=find(offset>array.t);
     offset(offmax)=array.t;
+   
+    
     spikes = squeeze(array.R_ntk);
     
     licks = squeeze(array.S_ctk(16,:,:))';
@@ -48,9 +50,9 @@ function [mask] = assist_touchmasks(array)
     end
     touchEx_mask(1:100,:) = 1; %since bleedover from end of trials before, tihs ensure we keep end
     
-    availtotrialend_mask=ones(size(squeeze(array.S_ctk(1,:,:))));
-    availtotrialend_mask(avail:size(availtotrialend_mask,1),:) = NaN; %block out all periods after pole availability
-    
+%     availtotrialend_mask=ones(size(squeeze(array.S_ctk(1,:,:))));
+%     availtotrialend_mask(avail:size(availtotrialend_mask,1),:) = NaN; %block out all periods after pole availability
+%     
     avail_mask=ones(size(squeeze(array.S_ctk(1,:,:))));
     for j=1:array.k
         avail_mask(avail:offset(j),j)=NaN; %block out all periods between pole availability
@@ -58,13 +60,15 @@ function [mask] = assist_touchmasks(array)
     
     sampling_mask=NaN(size(squeeze(array.S_ctk(1,:,:))));
     for f = 1:array.k
-        sampling_mask(round(array.meta.poleOnset(f)*1000):round((array.meta.poleOnset(f)+.75)*1000),f)=1;
+        sampling_mask(round(((array.meta.poleOnset(1))*1000),0):round(((array.meta.poleOnset(1))*1000),0)+750,f)=1;
+%            sampling_mask(round(450):round((.45+.75)*1000),f)=1; %set custom value of 450ms because poleOnset vals are off. 
     end
    
     availToFirstlick = NaN(size(squeeze(array.S_ctk(1,:,:))));
-        
+    availToEnd = availToFirstlick  ;
     for d = 1:array.k
-            availToFirstlick(600:fl(d),d)=1;
+       availToFirstlick(round(((array.meta.poleOnset(1))*1000),0):fl(d),d)=1;
+       availToEnd(round(((array.meta.poleOnset(1))*1000),0):end,d)=1;
     end
     
     
@@ -74,7 +78,7 @@ function [mask] = assist_touchmasks(array)
     mask.availtolick = availToFirstlick;
     mask.touch = touchEx_mask;
     mask.first = firsttouchEx_mask;
-    mask.availend = availtotrialend_mask;
+    mask.availend = availToEnd;
     mask.avail = avail_mask;
     mask.samplingp = sampling_mask;
     mask.samp_notouch = (touchEx_mask.*sampling_mask);

@@ -1,4 +1,4 @@
-function [touchcounts, gosorted, nogosorted, godurfinal, nogodurfinal] = assist_countsNduration(array,prelixGo,prelixNoGo,duration);
+function [touchcounts, gosorted, nogosorted, godurfinal, nogodurfinal] = assist_countsNduration(array,prelixGo,prelixNoGo,duration)
 go=find(array.meta.trialType==1);
 nogo=find(array.meta.trialType==0);
 

@@ -73,6 +73,11 @@ if (abs(sum(pVect1) - 1) > .001) || (abs(sum(pVect2) - 1) > .001),
     error('Probablities don''t sum to 1.')
 end
 
+%JC EDIT replacing zeros with very very small values to prevent infinitys
+pVect1((pVect1==0))=.000001;
+pVect2((pVect2==0))=.000001;
+
+
 if ~isempty(varargin),
     switch varargin{1},
         case 'js',
@@ -89,7 +94,7 @@ if ~isempty(varargin),
             error(['Last argument' ' "' varargin{1} '" ' 'not recognized.'])
     end
 else
-    KL = sum(pVect1 .* (log2(pVect1)-log2(pVect2)));
+    KL = nansum(pVect1 .* (log2(pVect1)-log2(pVect2)));
 end
 
 

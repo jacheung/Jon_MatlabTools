@@ -38,7 +38,7 @@
 
 wndow=[5:10];%because spikes don't occur right when theta happens, we are going to average spikes [wndow] after theta occurs
 
-for p=1:length(U)
+for p=1
 %     cellcode = txt{p};
     rec = p;
     %% this is used to mask out touches and allow analysis for phase, setpoint, and amplitude

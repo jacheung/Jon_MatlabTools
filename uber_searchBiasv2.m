@@ -3,8 +3,8 @@ ranges = -75:1:75;
 % sbiasthree = nan(length(U),1);
 % sbiasfour = nan(length(U),1);
 
-% type = {D,SM,BV};
-type = {Nx,BVx};
+type = {SM,BV};
+% type = {Nx,BVx};
 clearvars -except U D BV SM BVx Nx type ranges POP
 close all
 for p=1:length(type)   

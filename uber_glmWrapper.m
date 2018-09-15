@@ -7,7 +7,7 @@ trialCutoffs(30,:)=[1 95];
 %%
 clear U
 layer = 'BVL5b';
-cellNum = [1 29:38 41:50];
+cellNum = [1 29:38 41:59];
 trialCutoffs = repmat([1 250],numel(cellNum),1);
 trialCutoffs(10,:)=[1 95];
 %%
@@ -19,7 +19,7 @@ trialCutoffs(30,:)=[1 95];
 %%
 clear U
 layer = 'NL5b';
-cellNum = [1:6 12:13 17:27];
+cellNum = [1:7 9:11 13:29];
 trialCutoffs = repmat([1 500],numel(cellNum),1);
 %%
 clear U
@@ -183,7 +183,7 @@ traj = 1;
         d.S_ctk(15,:,i) = 0;
         d.S_ctk(15,pinIn:pinOut,i) = 1;
         d.S_ctk(16, ceil(1000*T.trials{useTrials(i)}.beamBreakTimes(T.trials{useTrials(i)}.beamBreakTimes > 0 & T.trials{useTrials(i)}.beamBreakTimes < d.t/1000)),i) = 1;
-        d.S_ctk(17,timeIdx,i) = T.trials{useTrials(i)}.whiskerTrial.meanKappa{traj};
+%         d.S_ctk(17,timeIdx,i) = T.trials{useTrials(i)}.whiskerTrial.meanKappa{traj};
 
         d.S_ctk(6,setdiff(1:d.t,contacts{useTrials(i)}.contactInds{traj}),i) = 0;
         d.S_ctk(7,setdiff(1:d.t,contacts{useTrials(i)}.contactInds{traj}),i) = 0;
@@ -220,8 +220,8 @@ traj = 1;
     U{cellStep}.meta.nogoPosition      = cellfun(@(x)x.behavTrial.nogoPosition,T.trials(useTrials));
     U{cellStep}.meta.trialType         = cellfun(@(x)x.behavTrial.trialType,T.trials(useTrials));
     U{cellStep}.meta.trialCorrect      = cellfun(@(x)x.behavTrial.trialCorrect,T.trials(useTrials));
-    U{cellStep}.meta.poleOnset         = cellfun(@(x)x.behavTrial.pinDescentOnsetTime,T.trials(useTrials));
-    U{cellStep}.meta.poleOffset        = cellfun(@(x)x.behavTrial.pinAscentOnsetTime,T.trials(useTrials));
+    U{cellStep}.meta.poleOnset         = cellfun(@(x)x.behavTrial.pinDescentOnsetTime,T.trials(useTrials)) - T.whiskerTrialTimeOffset; 
+    U{cellStep}.meta.poleOffset        = cellfun(@(x)x.behavTrial.pinAscentOnsetTime,T.trials(useTrials)) - T.whiskerTrialTimeOffset; 
     U{cellStep}.meta.layer             = layer;
     U{cellStep}.meta.depth             = T.depth;
     U{cellStep}.meta.ranges            = unique([cellfun(@(x)x.behavTrial.nogoPosition,T.trials(useTrials)),cellfun(@(x)x.behavTrial.goPosition,T.trials(useTrials))]);

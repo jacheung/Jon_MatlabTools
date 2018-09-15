@@ -142,7 +142,7 @@ for i = 1:length(pop)
 allspikes = cell2mat(pop{i}.theta.raw);
 meanbase = mean(mean(allspikes(:,1:51),2));
 stdbase = std(mean(allspikes(:,1:51),2));
-postresponses = allspikes(:,52:end);
+postresponses = allspikes(:,55:end);
 xresp = mean(postresponses,2);
 zscore = (xresp - meanbase) ./ stdbase;
 

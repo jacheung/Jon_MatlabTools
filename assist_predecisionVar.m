@@ -22,12 +22,10 @@ flninety= fls(ceil(numel(fls)*.9));
 
 for k =1:array.k %for each trial
     postsamp=array.meta.poleOnset(k)+.95; %pole onset time + time to be touchable (.2s) + sampling period (.75s)
-%     postsamp = find(array.S_ctk(15,:,k)==1,1,'first')/1000+.95; %AHHHHHHH
-    
     lixtmp=find(array.S_ctk(16,:,k)==1);
     lix=lixtmp(find(lixtmp>=postsamp*1000,1,'first')); %find first lick after sampling period
-    %lix=find(array.S_ctk(16,:,k)==1,1,'first');%first lick in that trial
     alltouches=[find(array.S_ctk(9,:,k)==1), find(array.S_ctk(12,:,k)==1)]; %all touches in trial
+    
     if lix>0 %all touches before first decision
         prelix=alltouches(alltouches<lix); 
     else

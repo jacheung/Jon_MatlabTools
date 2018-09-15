@@ -82,7 +82,7 @@ for p=1:length(ndata)
     hold on
     plot([avail avail],[0 max(avggospks)],'k:')
     plot([onset onset],[0 max(avggospks)],'k:')
-    print(gcf,'-dpng',['Z:\Users\Jon\Projects\Characterization\' layer '\Figures\' cellcode '_' 'Behavioral_Sorted_Raster'])
+%     print(gcf,'-dpng',['Z:\Users\Jon\Projects\Characterization\' layer '\Figures\' cellcode '_' 'Behavioral_Sorted_Raster'])
 end
     %% plot raster go v no go v CR v FA v HIT v Miss
     figure(41);clf

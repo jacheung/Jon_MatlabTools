@@ -1,4 +1,7 @@
 function [F1scores] = F1score(predictions,actual,numClasses)
+%% OUTPUTS PREDICTIONS which is is 3 columns (goF1, nogo F1)
+
+
 
 F1scores = zeros(1,numClasses);
 

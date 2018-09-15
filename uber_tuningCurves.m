@@ -118,7 +118,7 @@ for p=1:length(U)
         splitavg(i)=mean(Tsorted{i});
     end
     Tcibin=zeros(2,length(theta_sp)); %doing 95% ci of each bin in relation to each bin
-    for i=1:length(theta_sp);
+    for i=1:length(theta_sp)
         [phat, pci] = binofit(sum(Tsorted{i}),numel(Tsorted{i}));
         Tcibin([2 1],i) = pci*1000;
     end
