@@ -11,7 +11,7 @@
 % - kappaattheta which is a cell array that bins kappatheta pairs by
 % trialoutcomes (hit,FA,CR,miss) 
 % - tnumskt is cell array of same structure that lists the specific trial
-% number associated with teach kappatheta pair
+% number associated with each kappatheta pair
 % Written 180320 JC
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -21,14 +21,15 @@ function [kappaattheta,tnumskt] = uber_rollmodel(array)
 mask = objmask.touch;
 kappas = squeeze(array.S_ctk(17,:,:));
 phases = squeeze(array.S_ctk(5,:,:));
-phasemask = nan(size(phases));
-phasemask(phases<0) = 1;
+prophasemask = nan(size(phases));
+ret
+prophasemask(phases<0) = 1;
 thetas = squeeze(array.S_ctk(1,:,:));
 thetas(thetas<1) = nan;
 
 
-kappas = kappas.*phasemask.*mask;
-thetas = thetas.*phasemask.*mask;
+kappas = kappas.*prophasemask.*mask;
+thetas = thetas.*prophasemask.*mask;
 tnums=ceil(intersect(find(~isnan(kappas)),find(~isnan(thetas)))/4000);
 
 %filtering out any trials with nan in kappa/theta
@@ -101,21 +102,21 @@ tnumskt = {hitkappas(:,2),FAkappas(:,2),CRkappas(:,2),misskappas(:,2)};
 
 allgoskappas = [hitkappas ; misskappas ] ;
 allnogokappas = [FAkappas; CRkappas];
-%
-%     %plotting for raw theta:dkappa
-%     figure(30);subplot(2,5,rec)
-%     scatter(combined(:,2), combined(:,1),'.')
-%
-%     %plotting for mean+/-2std of the ranges (pretty much filter)
-%     figure(50);subplot(2,5,rec)
-%     errorbar(1:length(sorted4),cellfun(@mean,sorted4),2.*cellfun(@std,sorted4),'.k')
-%
-%     %plotting distributions for go/nogo
-%     figure(40);subplot(2,5,rec)
-%     histogram(allgoskappas,'normalization','probability','binedges',-.025 :.0025 : .075)
-%     hold on; histogram(allnogoskappas,'normalization','probability','binedges',-.025 :.0025 : .075)
-%     set(gca,'xlim',[min([allgoskappas; allnogoskappas])-.025 max([allgoskappas ;allnogoskappas])+.025])
-%     title(['go:' num2str(goranges(1)) '-' num2str(goranges(2)) ' nogo:' num2str(nogoranges(1)) '-' num2str(nogoranges(2))  ])
+%% 
+    %plotting for raw theta:dkappa
+    figure(30);subplot(2,5,rec)
+    scatter(combined(:,2), combined(:,1),'.')
+
+    %plotting for mean+/-2std of the ranges (pretty much filter)
+    figure(50);subplot(2,5,rec)
+    errorbar(1:length(sorted4),cellfun(@mean,sorted4),2.*cellfun(@std,sorted4),'.k')
+
+    %plotting distributions for go/nogo
+    figure(40);subplot(2,5,rec)
+    histogram(allgoskappas,'normalization','probability','binedges',-.025 :.0025 : .075)
+    hold on; histogram(allnogoskappas,'normalization','probability','binedges',-.025 :.0025 : .075)
+    set(gca,'xlim',[min([allgoskappas; allnogoskappas])-.025 max([allgoskappas ;allnogoskappas])+.025])
+    title(['go:' num2str(goranges(1)) '-' num2str(goranges(2)) ' nogo:' num2str(nogoranges(1)) '-' num2str(nogoranges(2))  ])
 
 
 

@@ -7,6 +7,7 @@ selectedCells = find(touchCells==1);
 [rc] = numSubplots(length(selectedCells));
 %%
 U = Uraw(selectedCells);
+ U=U(ocells); %inherited from varattouchwindow
 % U = Uraw;
 
 

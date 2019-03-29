@@ -2,7 +2,7 @@ touchCells = touchCell(U,2,.5);
 selectedCells = find(touchCells==1);
 [rc] = numSubplots(length(selectedCells));
 %%
-for k = 12
+for k = 1:length(selectedCells)
     curr = U{selectedCells(k)};
     motors = curr.meta.motorPosition';
     
@@ -10,9 +10,8 @@ for k = 12
     velTR = nan(curr.k,1);
     ftvelTR = velTR;
     thetaTR = nan(curr.k,1);
-    ampTR = thetaTR;
-    phaseTR = thetaTR;
-    midpointTR = thetaTR;
+
+    
     for b = 1:curr.k
         ttouchIdx = [find(curr.S_ctk(9,:,b)==1) find(curr.S_ctk(12,:,b)==1)];
         ftouchIdx = [find(curr.S_ctk(9,:,b)==1)];
@@ -34,33 +33,53 @@ for k = 12
         end
        
     end
-
+    
+    % POPULATION comparison pro vs ret
+    ttouchIdx = [find(curr.S_ctk(9,:,:)==1) ;find(curr.S_ctk(12,:,:)==1)];
+    tphase =squeeze(curr.S_ctk(5,:,:));
+    tspks = squeeze(curr.R_ntk(1,:,:));
+    
+    ret = find(tphase(ttouchIdx)>0);
+    pro = find(tphase(ttouchIdx)<0);
+    sspks = sum(tspks(ttouchIdx + (0:50)),2);
+    
+    prc = nan(2000,2);
+    prc(1:length(ret),1) = sspks(ret);
+    prc(1:length(pro),2) = sspks(pro); 
+    
+   [prp(k),~,~]=anova1(prc,[],'off');
+    prcmeans(k,:) = nanmean(prc) ;
+    prccounts(k,:) = [numel(ret) numel(pro)];
+    
+   figure(102);subplot(4,8,k);
+   if prp(k)<.05
+   scatter(tphase(ttouchIdx),sspks,[],'r.')
+   else 
+   scatter(tphase(ttouchIdx),sspks,[],'k.')
+   end
+   hold on; plot([0 0],[0 20],'k-.')
+   set(gca,'xlim',[-5 5],'ylim',[0 max(sspks)])
+   
+   
+   
+   
+    % HEATMAP PLOTTING 
     keepIdx = ~isnan(meanTRraw(:,1));
-    phaseTR = phaseTR(keepIdx,:);
-    ampTR = ampTR(keepIdx,:);
-    midpointTR = midpointTR(keepIdx,:);
     thetaTR = thetaTR(keepIdx,:);
     velTR = velTR(keepIdx,:);
     ftvelTR = ftvelTR(keepIdx,:);
-%     meanTR = smoothdata(meanTRraw(keepIdx,:)')';
+%    meanTR = smoothdata(meanTRraw(keepIdx,:)')';
     meanTR = meanTRraw(keepIdx,:);
     
     [~,velIdx] = sort(velTR); 
     [~,ftvelIdx] = sort(ftvelTR);
     [~,thetaIdx] = sort(thetaTR); 
     [~,motorIdx] = sort(motors(keepIdx));
-    [~,ampIdx] = sort(ampTR); 
-    [~,mpIdx] = sort(midpointTR);    
-    [~,pIdx] = sort(phaseTR); 
     
     smdata = meanTR(motorIdx,:);
     stdata = meanTR(flipud(thetaIdx),:);
     svdata = meanTR(velIdx,:); %MEAN VELOCITY/TOUCH 
     sftvdata = meanTR(ftvelIdx,:); %FIRST TOUCH VELOCITY 
-    
-    pdata = meanTR(flipud(pIdx),:);
-    adata = meanTR(flipud(ampIdx),:);
-    mpdata = meanTR(flipud(mpIdx),:);
     
     
     %FT VEL ANALYSIS DIRECTIONALITY 
@@ -97,21 +116,52 @@ for k = 12
     
     
 end
-gmeans = cell2mat(cellfun(@nanmean,comp,'uniformoutput',0)');
+%num cells sig diff in ret/pro
+prcmeans = (prcmeans./50)*1000;
+keep = prcmeans(prp<.05,:);
+[~,prpIdx ] = max(keep,[],2);
 
-figure(44);clf
-scatter(gmeans(:,1),gmeans(:,2),[],'k','filled')
+ut=(length(selectedCells)-length(prpIdx))./length(selectedCells);
+pt=sum(prpIdx==2)./length(prpIdx);
+rt=sum(prpIdx==1)./length(prpIdx);
+
+figure(90);clf
+scatter(prcmeans(prp>.05,1),prcmeans(prp>.05,2),[],'k','filled')
+hold on;scatter(keep(prpIdx==2,1),keep(prpIdx==2,2),[],'b','filled');
+hold on;scatter(keep(prpIdx==1,1),keep(prpIdx==1,2),[],'r','filled');
+plot([0 100],[0 100],'-.k')
+set(gca,'xlim',[0 100],'ylim',[0 100],'xtick',0:25:100,'ytick',0:25:100)
 axis square
-set(gca,'xlim',[0 5],'ylim',[0 5],'xtick',0:2.5:5,'ytick',0:2.5:5)
-hold on; plot([0 5],[0 5],'-.k')
-xlabel('retraction touch z score');ylabel('protraction touch z score')
+legend('no diff','protraction tuned','retraction tuned','location','southeast')
+xlabel('mean retraction spk/s (50ms post)');ylabel('mean protraction spk/s (50ms post)');
 
-tmp = gmeans(12,:);
-hold on; scatter(tmp(:,1),tmp(:,2),[],'r','filled')
+plotprc = prccounts(prp<.05,:);
+figure(48);clf
+scatter(prccounts(prp>.05,1),prccounts(prp>.05,2),[],'k','filled')
+hold on;scatter(plotprc(prpIdx==2,1),plotprc(prpIdx==2,2),[],'b','filled');
+hold on;scatter(plotprc(prpIdx==1,1),plotprc(prpIdx==1,2),[],'r','filled');
+hold on; plot([0 2500],[0 2500],'-.k')
+set(gca,'xlim',[0 2500],'ylim',[0 2500],'xtick',0:500:3000,'ytick',0:500:3000)
+legend('non sig diff','protraction tuned','retraction tuned','location','southeast')
+xlabel('ret touch num samples');ylabel('pro touch num samples')
+axis square
 
-%ZSCORE PLOT
-figure(8);clf;bar(1:length(zscore),zscore,'k')
-set(gca,'xtick',[],'xlim',[0 length(zscore)+1])
+
+% gmeans = cell2mat(cellfun(@nanmean,comp,'uniformoutput',0)');
+% 
+% figure(44);clf
+% scatter(gmeans(:,1),gmeans(:,2),[],'k','filled')
+% axis square
+% set(gca,'xlim',[0 5],'ylim',[0 5],'xtick',0:2.5:5,'ytick',0:2.5:5)
+% hold on; plot([0 5],[0 5],'-.k')
+% xlabel('retraction touch z score');ylabel('protraction touch z score')
+% 
+% tmp = gmeans(12,:);
+% hold on; scatter(tmp(:,1),tmp(:,2),[],'r','filled')
+% 
+% %ZSCORE PLOT
+% figure(8);clf;bar(1:length(zscore),zscore,'k')
+% set(gca,'xtick',[],'xlim',[0 length(zscore)+1])
 
     %%
         

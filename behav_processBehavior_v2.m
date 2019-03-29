@@ -25,7 +25,7 @@ function output = behav_processBehavior_v2(info,hist,trim)
         tmp2(i+1)=tmp{i};
     end
     rew=zeros(length(hist.AnalysisSection_PercentCorrect),1);
-    for i = 2:length(hist.AnalysisSection_PercentCorrect);
+    for i = 2:length(hist.AnalysisSection_PercentCorrect)
         if tmp2(i)>=tmp2(i-1)
             rew(i-1) = 1;
         end

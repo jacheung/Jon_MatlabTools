@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [RMSEgroup] = rebuildPsychoflip(U,V,predArray)
+function [RMSEgroup,meanNoise] = rebuildPsychoflip(U,V,predArray)
 
 
 
@@ -65,14 +65,25 @@ for rec = 1:length(U)
             legend('Mouse Performance','Model Performance','location','southeast')
         end
         
-        
+        meanNoise(rec) = nanmean(lickstd(:,2));
         set(gca,'xtick',[xranges(1) xranges(end-(length(lickmean)-2)) xranges(end)],'xticklabel',[-1 0 1],'ylim',[0 1],'xlim',[xranges(1)-5000 xranges(end)+5000])
         xlabel('Motor Position')
         ylabel('Lick Probability')
         text(xranges(end)*.5,.4,['RMSE = ' num2str(RMSE)])
         
     elseif strcmp(U{1}.meta.layer,'BV')
-        [sorted]= binslin(predArray{rec}(:,1),predArray{rec},'equalE',12,U{rec}.meta.ranges(1),U{rec}.meta.ranges(2));
+%         [sorted]= binslin(predArray{rec}(:,1),predArray{rec},'equalE',12,U{rec}.meta.ranges(1),U{rec}.meta.ranges(2));
+        [sorted]= binslin(predArray{rec}(:,1),predArray{rec},'equalX',12);
+        real=[U{rec}.meta.motorPosition;V(rec).trialNums.matrix(5,:)]';%only taking lick row and motorPos row
+        [realsorted]= binslin(real(:,1),real,'equalE',12,U{rec}.meta.ranges(1),U{rec}.meta.ranges(2));
+       
+        
+        figure(5);subplot(2,5,rec)
+        hold on;filex_shadedErrorBar(linspace(-1,1,numel(realsorted)), flipud(cellfun(@mean,sorted)),flipud(cellfun(@std,realsorted)),'k');
+        hold on; plot(xranges',flipud(reallickmean(:,2)),'r','linewidth',5)
+        
+        
+        
         lickmean=cell2mat(cellfun(@mean,sorted,'uniformoutput',0));
         lickstd=cell2mat(cellfun(@std,sorted,'uniformoutput',0));
         xranges = U{rec}.meta.ranges(1):10000:U{rec}.meta.ranges(2);
@@ -97,6 +108,7 @@ for rec = 1:length(U)
 %             
         end
         
+        meanNoise(rec) = nanmean(lickstd(:,2));
 %         xlabel('Motor Position')
 %         ylabel('Lick Probability')
         text(xranges(end)*.5,.3,['RMSE = ' num2str(RMSE)])

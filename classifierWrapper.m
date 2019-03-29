@@ -11,7 +11,7 @@ for rec = 1:length(uberarray)
     
     array=uberarray{rec};
 
-    V(rec).varNames = {'theta','velocity','amplitude','setpoint','phase','deltaKappa','timing.timetotouch/startTheta/whiskcycleVelocity','torsionBytheta','maxProtraction'};
+    V(rec).varNames = {'theta','velocity','amplitude','setpoint','phase','deltaKappa','timing.timetotouch/startTheta/whiskcycleVelocity','torsionBytheta','maxProtraction','pOnset:firsttouch(ms)','RadialDistance'};
     
     [~ ,prelixGo, prelixNoGo, ~ ,~ ,~] = assist_predecisionVar(array);
     varx=[1:6];
@@ -19,7 +19,8 @@ for rec = 1:length(uberarray)
     
     % TOUCH VARIABLES AND TOUCH COUNT
     for f=1:length(varx)
-        [~, ~,V(rec).var.hit{f}, V(rec).var.miss{f}, V(rec).var.FA{f}, V(rec).var.CR{f},~,~] = assist_vardistribution(array,varx(f),prelixGo,prelixNoGo,[-25:0],[5:25]);
+%         [~, ~,V(rec).var.hit{f}, V(rec).var.miss{f}, V(rec).var.FA{f}, V(rec).var.CR{f},~,~] = assist_vardistribution(array,varx(f),prelixGo,prelixNoGo,[-25:0],[5:25]);
+          [~, ~,V(rec).var.hit{f}, V(rec).var.miss{f}, V(rec).var.FA{f}, V(rec).var.CR{f},~,~] = assist_vardistribution(array,varx(f),prelixGo,prelixNoGo,[-25:0],-1);
         if f == 1
             V(rec).touchNum.hit=cellfun(@numel,V(rec).var.hit{1}); % count number of predecision touches using theta vals
             V(rec).touchNum.miss=cellfun(@numel,V(rec).var.miss{1});
@@ -33,6 +34,13 @@ for rec = 1:length(uberarray)
         V(rec).var.CR{f}    =      cell2mat(V(rec).var.CR{f});
         
     end
+    
+    % Average radial distance at touch
+    [outputs] = radialDistance(array);
+    V(rec).var.hit{11} = [outputs{1}];
+    V(rec).var.FA{11} = [outputs{2}];
+    V(rec).var.CR{11} = [outputs{3}];
+    V(rec).var.miss{11} = [outputs{4}];
     
     % FINDING TIMES FROM POLE ONSET TO FIRST TOUCH
     [ttimes] = onsetTotouch(array);

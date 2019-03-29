@@ -6,7 +6,7 @@ for mouse = 1:length(mouselist)
     close all
     mouseNum = mouselist{mouse};
     
-    d = (['Z:\Users\Jon\DATA\Behavior\OnAxes']);
+    d = (['C:\Users\jacheung\Dropbox\HLabBackup\Jon\DATA\Behavior\OnAxes']);
     cd(d);
     filelist=dir([d filesep '*.mat']);
     list = [];
@@ -183,7 +183,7 @@ ylabel('Percent Accuracy')
 % print(figure(10),'-dtiff',['Z:\Users\Jon\Projects\Characterization\BV\Figures\' mouseNum '_onAxes_POPaccuracy'])
 
 alpha = .01; %significance level of .01 
-[p,tbl,stats] = anova1(popAVG); %anova1 
+[p,tbl,stats] = anova1(popAVG,[],'off'); %anova1 
 comp = multcompare(stats); %comparison between all groups. 
 bonfcorr = alpha/numel(mouselist); %post hoc bonferroni correction of pval alpha/n
 

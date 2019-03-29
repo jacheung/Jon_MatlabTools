@@ -67,7 +67,7 @@ end
 if strcmp(samp,'random')
     %Filling all NaN values with randomly sampled theta vals
     selvar = [thetatmps{1} thetatmps{2} thetatmps{3} thetatmps{4}];
-    disp(['Filling in ' num2str(sum(isnan(selvar))) ' values out of ' num2str(numel(selvar))])
+%     disp(['Filling in ' num2str(sum(isnan(selvar))) ' values out of ' num2str(numel(selvar))])
     uniformthetas= unique(round(selvar));
     uniformthetas(isnan(uniformthetas))=[];
     selvar(isnan(selvar))=[];

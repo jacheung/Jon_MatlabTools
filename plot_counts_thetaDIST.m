@@ -3,9 +3,9 @@ type = {SM,BV};
 
 collat =[];thetacollat = [];
 
-for d = 1:length(type)
+for d = 2
     colors = {'DarkMagenta','DarkTurquoise'};
-    U=type{d} ;
+    U=BV
     
     gocountssum = zeros(1,16);
     nogocountssum = zeros(1,16);
@@ -56,6 +56,8 @@ for d = 1:length(type)
             g{rec}=goDist./numel(gos);
             ng{rec}=nogoDist./numel(nogos);
             
+            gngratio(rec) = sum(goDist.*(0:15))./sum(nogoDist.*(0:15));
+            
         end
     end
     
@@ -76,11 +78,11 @@ for d = 1:length(type)
     gocibin=zeros(2,length(gocountssum));
     nogocibin=zeros(2,length(nogocountssum));%doing 95% ci of each bin in relation to each bin
     for i=1:length(gocountssum)
-        x=groupKappgo(:,i)
-        SEM = nanstd(x)/sqrt(length(x));               % Standard Error
-        ts = tinv([0.025  0.975],length(x)-1);      % T-Score
-        Tcibingo([2 1],i) = nanmean(x) + ts*SEM;   
-       
+%         x=groupKappgo(:,i)
+%         SEM = nanstd(x)/sqrt(length(x));               % Standard Error
+%         ts = tinv([0.025  0.975],length(x)-1);      % T-Score
+%         Tcibingo([2 1],i) = nanmean(x) + ts*SEM;   
+%        
         [~, pci] = binofit(golmeans(i).*gocountssum(i),gocountssum(i));
         gocibin([2 1],i) = pci;
         [~, pcing] = binofit(nogolmeans(i).*nogocountssum(i),nogocountssum(i));
@@ -128,6 +130,10 @@ for d = 1:length(type)
     gnglickProb{d} = [nanmean(cell2mat(glick')) ;nanmean(cell2mat(nglick'))];
     gngcountsratios{d} = ratio;
     POPcountsoverlap{d} = countsoverlap;
+    
+    sum(goDist.*(0:15))./sum(nogoDist.*(0:15))
+    
+    
     %% THETA DIST for one single mouse
     
     
@@ -236,7 +242,6 @@ for d = 1:length(type)
     
     % figure(321);hold on;h=scatter(iv{d},thetameandiff,'filled');
     % h.CData = rgb(colors{d});
-    
     
     
 end

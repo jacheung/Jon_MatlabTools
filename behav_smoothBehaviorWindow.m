@@ -10,7 +10,8 @@ end
 perfthresh = .75; %threshold for performance
 
 linearize=cat(1,o.trialResults); %linearize all behavioral sessions
-uno=find(linearize(:,7)==1);selected=(linearize(uno,:)); %select only trials that are within trimmed areas
+uno=find(linearize(:,7)==1);
+selected=(linearize(uno,:)); %select only trials that are within trimmed areas
 % tmp = size(linearize);
 
 %     figure(5);clf;plot(smooth(selected(:,4),swin,'moving'));

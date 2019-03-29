@@ -4,10 +4,11 @@
 % vs Hitrate. Will only work for continuous uber array.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function uber_continuousPrecision(U)
+function discrimination_precision(U)
 
 
 popA = cell(1,6);
+p = nan(length(U),6);
 figure(430);clf
 for ms = 1:length(U)
     motors = U{ms}.meta.motorPosition;
@@ -22,23 +23,47 @@ for ms = 1:length(U)
     a = [6  5  4 3 2 1];
     b = [7 8 9 10 11 12];
     colors = prism(6);
+    FAmat{ms} = nan(1000,length(b));
+    HRmat{ms} = nan(1000,length(b));
     for d = 1:length(b)
         onemm = [sorted{a(d)};sorted{b(d)}];
         onemmFA = 1-mean(onemm(onemm(:,2)==0,3));
         onemmHR = mean(onemm(onemm(:,2)==1,3));
         
+        FAs = onemm(onemm(:,2)==0,3)==0; %find nogos that are incorrect;
+        HRs = onemm(onemm(:,2)==1,3)==1; %find gos that are correct;
+        
+        FAmat{ms}(1:length(FAs),d) = FAs;
+        HRmat{ms}(1:length(HRs),d) = HRs;
+
+        [~,p(ms,d)] = ttest2(FAs,HRs);
+
         popA{d}(ms,:) = [onemmFA onemmHR];
         
-%         figure(430);subplot(2,5,ms)
         figure(430);
         hold on; scatter(onemmFA,onemmHR,'markeredgecolor',colors(d,:));
     end
     plot([0 1],[0 1],'-k')
     xlabel('FA rate');ylabel('Hit rate')
-%     if ms == 5
-%         legend('1mm','2mm','3mm','4mm','5mm')
-%     end
 end
+
+% groupPvals
+gFA = cell2mat(FAmat');
+gHR = cell2mat(HRmat');
+for k = 1:length(b)
+    hr = gHR(:,k);
+    fa=gFA(:,k);
+    hr=hr(~isnan(hr));
+    fa=fa(~isnan(fa));
+    
+    mean(hr) - mean(fa)
+    
+    [~,pg(k),ci,stats(k)] =ttest2(hr,fa);
+    
+    % used to see how many trials are in each bin
+    [length(hr) length(fa)]
+end
+    
 
 groupPrecision=cell2mat(cellfun(@mean,popA,'uniformoutput',0)');
 
@@ -66,6 +91,10 @@ end
 set(gca,'ytick',[0 .5 1],'xtick',[0 .5 1],'ylim',[0 1]);
 plot([0 1],[0 1],'-k')
 axis square
+
+%MATRIX for all pvals 
+pmat = [.5 1 2 3 4 5 ; nan(1,6) ;p ; nan(1,6) ; sum(p<.1) ;sum(p<.05) ; sum(p<.01)]
+
 % legend('1mm','2mm','3mm','4mm','5mm','location','southeast')
 
 % set(figure(430), 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);

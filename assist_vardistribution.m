@@ -52,14 +52,19 @@ for j = 1:length(go)
     if exist('wndow') %when doing averages (for vel or kappa) after touch, need to elim those touches that have indices past 4000 frames
         gotouchOnIdx=gotouchOnIdx(gotouchOnIdx+max(wndow)<array.t);
     end
-    if variable == 2 || variable ==6
+    %     if variable == 2 || variable ==6
+    if variable ==6
         
         gotmp=zeros(size(wndow,2),length(gotouchOnIdx)); %create matrix of m(time points before/after touch) x n(number of touches)
         pregotmp=zeros(size(wndow,2),length(prelixGo{j}));
         
         for f=1:length(wndow) %fill the above matrix with velocity values around window
-            gotmp(f,:)=array.S_ctk(variable,gotouchOnIdx+wndow(f),go(j));
-            pregotmp(f,:)=array.S_ctk(variable,prelixGo{j}+wndow(f),go(j));
+            %             gotmp(f,:)=array.S_ctk(variable,gotouchOnIdx+wndow(f),go(j));%
+            %       switched to var 17 becuase one ms before touch for Dkappa is
+            %             0. 17 is RAW kappa
+            %             pregotmp(f,:)=array.S_ctk(variable,prelixGo{j}+wndow(f),go(j));
+            gotmp(f,:)=array.S_ctk(17,gotouchOnIdx+wndow(f),go(j));
+            pregotmp(f,:)=array.S_ctk(17,prelixGo{j}+wndow(f),go(j));
         end
         
         govar{j}=nanmean(gotmp,1); %get average of all velocity values before touch
@@ -82,14 +87,19 @@ for k = 1:length(nogo)
     if exist('wndow')
         nogotouchOnIdx= nogotouchOnIdx(nogotouchOnIdx+max(wndow)<array.t);
     end
-    if variable == 2 || variable ==6
+    %     if variable == 2 || variable ==6
+    if variable == 6
         
         nogotmp=zeros(size(wndow,2),length(nogotouchOnIdx));
         prenogotmp=zeros(size(wndow,2),length(prelixNoGo{k}));
         
         for f=1:length(wndow)
-            nogotmp(f,:)=array.S_ctk(variable,nogotouchOnIdx+wndow(f),nogo(k));
-            prenogotmp(f,:)=array.S_ctk(variable,prelixNoGo{k}+wndow(f),nogo(k));
+            %             nogotmp(f,:)=array.S_ctk(variable,nogotouchOnIdx+wndow(f),nogo(k));
+            %             switched to var 17 becuase one ms before touch for Dkappa is
+            %             0. 17 is RAW kappa
+            %             prenogotmp(f,:)=array.S_ctk(variable,prelixNoGo{k}+wndow(f),nogo(k));
+            nogotmp(f,:)=array.S_ctk(17,nogotouchOnIdx+wndow(f),nogo(k));
+            prenogotmp(f,:)=array.S_ctk(17,prelixNoGo{k}+wndow(f),nogo(k));
         end
         
         nogovar{k}=nanmean(nogotmp,1); %get average of velocity before touch

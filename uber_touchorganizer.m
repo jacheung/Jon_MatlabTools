@@ -1,10 +1,116 @@
 % build object that provides you index of touch, preD,postD
+clearvars -except U
+
 for rec=1:length(U)
-DT(rec).touchIdx= [find(U{rec}.S_ctk(9,:,:)==1) ; find(U{rec}.S_ctk(13,:,:)==1)];
-lickidx=find(U{rec}.S_ctk(16,:,:)==1)/4000;
-firstlix={};
-for f = 1:U{rec}.k
-    firstlix{f}=find(ceil(lickidx)==f,1);
+    window = [-50:150];
+    touchIdx= [find(U{rec}.S_ctk(9,:,:)==1) ; find(U{rec}.S_ctk(12,:,:)==1)];
+    lickidx=find(U{rec}.S_ctk(16,:,:)==1)/4000;
+    spks = squeeze(U{rec}.R_ntk);
+    
+    touchSpks = spks(repmat(touchIdx,1,length(window))+repmat(window,size(touchIdx,1),1));
+    sTrains(rec,:) = mean(touchSpks); 
+    blclose = mean(touchSpks(:,36:50),2);
+    prclose = mean(touchSpks(:,52:66),2);
+    
+    blmid = mean(touchSpks(:,26:50),2);
+    prmid = mean(touchSpks(:,52:76),2);
+    
+    blfar =  mean(touchSpks(:,1:25),2);
+    prfar = mean(touchSpks(:,77:101),2);
+    
+    
+    blpr(1,:) = [mean(blclose) mean(prclose)];
+    blpr(2,:)=[mean(blmid) mean(prmid)];
+    blpr(3,:)=[mean(blfar) mean(prfar)];
+    
+    ttanalysis = logical([ttest2(blclose,prclose,'alpha',.01) ttest2(blmid,prmid,'alpha',.01) ttest2(blfar,prfar,'alpha',.01)]');
+    
+    if ismember(1,ttanalysis)
+        
+        sigs = find(ttanalysis==1);
+        diffs = blpr(sigs,2)-blpr(sigs,1) ;
+        
+        if mean(diffs>0)
+            touchORnaw(rec) = 1;% TOUCH ON
+        elseif  mean(diffs<0)
+            touchORnaw(rec) = -1; %TOUCH OFF
+        else
+            touchORnaw(rec) = 0; %NONTOUCH
+        end
+    end
+    
 end
-DT(rec).preDtouchIdx
+
+figure(40);clf;
+rowColumns = numSubplots(length(U));
+plotrow=rowColumns(1);
+plotcol=rowColumns(2);
+
+for k = 1:size(sTrains,1)
+    subplot(plotrow,plotcol,k);
+    avgSpikes = sTrains(k,:);
+    if touchORnaw(k)==1
+        bar(-50:150,avgSpikes,'b');
+    elseif touchORnaw(k) == -1 
+        bar(-50:150,avgSpikes,'r');
+    else
+        b=bar(-50:150,avgSpikes,'k');
+        b.FaceColor = [.5 .5 .5];
+    end
+    hold on; plot([0 0],[0 max(sTrains(k,:))*1.5],'-.k','linewidth',2)
+    set(gca,'xlim',[-25 50],'xtick',0,'ytick',[]);
+    
 end
+
+%% HEATMAP PLOTTING 
+tc=find(touchORnaw==1);
+heatSpks = nan(length(tc),76);
+for g = 1:sum(touchORnaw==1)
+    avgSpikes = sTrains(tc(g),:);
+    heatSpks(g,:) = normalize_var(avgSpikes(25:100),0,1);
+end
+[~,idx]  = max(heatSpks');
+[~,ftidx] = sort(idx);
+
+ntc = find(touchORnaw==0);
+for g = 1:sum(touchORnaw==0)
+    avgSpikes = sTrains(ntc(g),:);
+    ntheatSpks(g,:) = normalize_var(avgSpikes(25:100),0,1);
+end
+
+INHIBtc=find(touchORnaw==-1);
+INHIBheatSpks = nan(length(INHIBtc),76);
+for g = 1:sum(touchORnaw==-1)
+    avgSpikes = sTrains(INHIBtc(g),:);
+    INHIBheatSpks(g,:) = normalize_var(avgSpikes(25:100),0,1);
+end
+[~,idx]  = min(INHIBheatSpks(:,25:end)');
+[~,INHIBftidx] = sort(idx);
+
+
+
+figure(48);clf;
+subplot(4,1,[1 2])
+imagesc(heatSpks(ftidx,:))
+hold on; plot([26 26],[0 length(tc)],'-.w','linewidth',3)
+colorbar
+colormap(jet)
+caxis([0 1])
+set(gca,'xtick',1:25:76,'xticklabel',-25:25:75,'ytick',[])
+
+figure(48);hold on;
+subplot(4,1,[3])
+imagesc(INHIBheatSpks(INHIBftidx,:))
+hold on; plot([26 26],[0 length(tc)],'-.w','linewidth',3)
+colorbar
+colormap(jet)
+caxis([0 1])
+set(gca,'xtick',125:76,'xticklabel',-25:25:75,'ytick',[])
+
+subplot(4,1,[4])
+imagesc(ntheatSpks)
+hold on; plot([26 26],[0 length(ntc)],'-.w','linewidth',3)
+colorbar
+colormap(jet)
+caxis([0 1])
+set(gca,'xtick',1:25:76,'xticklabel',-25:25:75,'ytick',[])

@@ -1,4 +1,4 @@
-function [p,opt_thresh,Z] = ML_predictOneVsAll(all_theta, X,varargin)
+function [p,opt_thresh,h] = ML_predictOneVsAll(all_theta, X,varargin)
 %PREDICT Predict the label for a trained one-vs-all classifier. The labels 
 %are in the range 1..K, where K = size(all_theta, 1). 
 %  p = PREDICTONEVSALL(all_theta, X) will return a vector of predictions
@@ -16,19 +16,6 @@ p = zeros(size(X, 1), 1);
 
 % Add ones to the X data matrix
 X = [ones(m, 1) X];
-
-% ====================== YOUR CODE HERE ======================
-% Instructions: Complete the following code to make predictions using
-%               your learned logistic regression parameters (one-vs-all).
-%               You should set p to a vector of predictions (from 1 to
-%               num_labels).
-%
-% Hint: This code can be done all vectorized using the max function.
-%       In particular, the max function can also return the index of the 
-%       max element, for more information see 'help max'. If your examples 
-%       are in rows, then, you can use max(A, [], 2) to obtain the max 
-%       for each row.
-%       
 
 metho = varargin{2} ;
 
@@ -50,25 +37,6 @@ switch metho
         opt_thresh = min(Z);
 end
         
-        
-% switch num_labels
-%     case 2
-% 
-%     case 3
-%         
-% end
-
-Z=h(:,1);
-
-% if nargin>2
-%     opt_thresh = varargin{1};
-% 
-% else
-%     [~ , p] =max(h,[],2);
-% 
-% end
-%     Z=h(:,1);
-% =========================================================================
 
 
 end

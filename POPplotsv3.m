@@ -108,7 +108,7 @@ hold on; errorbar(1:3,mean(plotval,2),std(plotval,[],2),'ko')
 colors=jet(5);
 for d = 2
 %     gcmat = {timingtxp{d},countstxp{d},thetatxp{d},motortxp{d},uberedtxp{d}};
-    gcmat = {thetatxp{d},pastxp{d},dtimetxp{d}};
+    gcmat = {thetatxp{d},timingtxp{d},countstxp{d},radtxp{d}};
     for k = 1:length(gcmat)
         cmatcurr = gcmat{k};
         for rec = 1:length(cmatcurr)
@@ -145,8 +145,8 @@ set(gca,'ylim',[-.25 1],'ytick',0:.5:1)
 
 
 figure(100);clf
-scatter(repmat(1:5,1,10)',mcc{2}(:),[],[.8 .8 .8],'filled')
-hold on; errorbar(1:5,mean(mcc{d}'),std(mcc{d}'),'ko','linewidth',2)
+scatter(repmat(1:4,1,10)',mcc{2}(:),[],[.8 .8 .8],'filled')
+hold on; errorbar(1:4,mean(mcc{d}'),std(mcc{d}'),'ko','linewidth',2)
 set(gca,'xlim',[.5 5.5],'ytick',[-.5:.5:1],'xtick',[])
 
 

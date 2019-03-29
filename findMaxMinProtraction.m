@@ -88,10 +88,10 @@ function [P] = findMaxMinProtraction(array,ampthresh,varargin)
     
     
 %         %%
-         %% test a trial to make sure that theta is aligned right
+%          %% test a trial to make sure that theta is aligned right
 %             touchIdx = [find(array.S_ctk(9,:,:)==1);find(array.S_ctk(12,:,:)==1)];
 %             
-%             trial = 54; %shifted by 1 (ex. trial=0 ..> trial =1)
+%             trial = datasample(1:array.k,1); %shifted by 1 (ex. trial=0 ..> trial =1)
 %             figure(trial+1);clf;plot(theta(:,trial+1));
 %             xlabel('Time from Trial Start (ms)');ylabel('Whisker Position')
 %         
@@ -101,9 +101,10 @@ function [P] = findMaxMinProtraction(array,ampthresh,varargin)
 %             excurx=round(((validx/array.t)-trial)*array.t);
 %             touchexcurx=round(((validtouchx/array.t)-trial)*array.t);
 %             
+%             hold on; plot([find(mask==1,1,'first') find(mask==1,1,'first')],[-20 40],'-.k')
+%             
 %             for i = 1:length(excurx)
 %                 hold on; scatter(excurx(i),theta(excurx(i),trial+1),'ro')
-%                
 %             end
 %             
 %             for i = 1:length(touchexcurx)

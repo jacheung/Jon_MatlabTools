@@ -17,7 +17,7 @@
 % printdir = '\NoiseProject\NoiseManuscript\Fig5\Materials\'
 
 
-touchCells = touchCell(U,.75);
+touchCells = touchCell(U,2,.5);
 selectedCells = find(touchCells==1);
 
 for rec = 1:length(selectedCells)

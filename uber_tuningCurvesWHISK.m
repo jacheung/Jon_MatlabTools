@@ -36,9 +36,9 @@
 % cont.thetaNORM = [];
 
 
-wndow=[5:10];%because spikes don't occur right when theta happens, we are going to average spikes [wndow] after theta occurs
+wndow=[0];%because spikes don't occur right when theta happens, we are going to average spikes [wndow] after theta occurs
 
-for p=1
+for p=1:length(U)
 %     cellcode = txt{p};
     rec = p;
     %% this is used to mask out touches and allow analysis for phase, setpoint, and amplitude
@@ -64,6 +64,13 @@ for p=1
        
     thetaSpikes(:,2) = nanmean(U{rec}.R_ntk(repmat(theta_Idx,1,length(wndow))+repmat(wndow,numel(theta_Idx),1)),2);  
 
+    
+    [~,idx] = sort(thetaSpikes(:,1));
+    stspks = thetaSpikes(idx,:);
+    
+     figure(9);clf;plot(stspks(:,1),smooth(stspks(:,2),1000))
+    
+    
     [Tsorted TsortedBy TbinBounds]=binslin(thetaSpikes(:,1),thetaSpikes(:,2),'equalX',13);
     
     theta_sp = zeros(12,1);
