@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function [] = rebuildPsychoflip_v2(U,V,predArray)
+function [psycho] = rebuildPsychoflip_v2(U,V,predArray)
 
 
 
@@ -77,13 +77,16 @@ for rec = 1:length(U)
         [realsorted]= binslin(real(:,1),real(:,2),'equalE',12,U{rec}.meta.ranges(1),U{rec}.meta.ranges(2));
         
         
-        figure(5);subplot(2,5,rec)
+        figure(5);subplot(3,5,rec)
         hold on;filex_shadedErrorBar(linspace(-1,1,numel(sorted)), flipud(cellfun(@mean,sorted)),flipud(cellfun(@std,sorted)),'k');
         hold on; plot(linspace(-1,1,numel(sorted)), flipud(cellfun(@mean,realsorted)),'r','linewidth',5)
         set(gca,'xlim',[-1 1],'xtick',[-1:1:1],'ylim',[0 1],'ytick',[0:.5:1])
         
+        psycho{rec} = sorted; 
     end
     
     
 end
+
+
 set(gcf, 'Units', 'pixels', 'Position', [0, 0, 2000, 1000]);

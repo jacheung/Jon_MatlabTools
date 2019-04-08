@@ -1,4 +1,5 @@
 clearvars -except BV
+load('C:\Users\jacheung\Dropbox\LocalizationBehavior\DataStructs\BV.mat')
 U=BV;
 clear V F1G RMSEgroup F1Gtree RMSEdecomp
 [V] = classifierWrapper_v2(U,'all','all');
@@ -7,10 +8,11 @@ clear V F1G RMSEgroup F1Gtree RMSEdecomp
 clear trueXpreds
 clear motorXpreds
 
-vars = {'countsBinary','counts'}; %Fig 3 %BUILD WITH ALL TOUCH DIRECTIONS AND NO drop
+% vars = {'countsBinary','counts'}; %Fig 3 %BUILD WITH ALL TOUCH DIRECTIONS AND NO drop
 % vars = {'countsBinary','counts'}; %Fig 4 %BUILD WITH ALL TOUCH DIRECTIONS AND NO drop
 % vars = {'kappa','timing','timeTotouch','counts','radialD','angle'}; %FIG6
 % vars = {'motor','kappa','timing','timeTotouch','counts','radialD','angle','uberedRadial'}; %Fig 7
+vars = {'uberedRadial'}; %for supplemental finding out optimal precision of model 
 
 % Fig 9 and BEYOND PROTRACTION ONLY
 % vars = {'angle','hilbert'} %Fig 9B
@@ -29,7 +31,7 @@ for k = 1:length(vars)
     % 1) 'angle' 2) 'hilbert' (phase amp midpoint) 3) 'counts' 4) 'ubered'
     % 5) 'timing' 6) 'motor' 7) 'decompTime' OR ,'kappa'
     % 'timeTotouch','onsetangle','velocity','Ivelocity' OR 'phase','amp','midpoint'
-    params.classes = 'lick';
+    params.classes = 'gonogo';
     % 1) 'gonogo' 2) 'lick'
     
     % Only for 'ubered' or 'hilbert'
@@ -80,9 +82,7 @@ for k = 1:length(vars)
             
             display(['iteration ' num2str(u) ' for sample ' num2str(rec) ' using optimal lambda ' num2str(learnparam.lambda(rec))])
             [DmatX, DmatY, motorX] = designMatrixBuilderv4(V(rec),U{rec},params);
-            
-%             DmatY = DmatY(randperm(length(DmatY))); %RANDOMLY SHUFFLED DMATY TO TEST FOR SIG.
-            
+           
             if strcmp(learnparam.biasClose,'yes')
                 mean_norm_motor = motorX - mean(BV{rec}.meta.ranges);
                 close_trials = find(abs(mean_norm_motor)<learnparam.distance_round_pole*10000);
@@ -167,11 +167,21 @@ end
 
 
 % Psychometric Curve Comparison b/t Model and Mouse
-% if strcmp(params.classes,'lick')
-%     rebuildPsychoflip_v2(U,V,train_motorPlick);
-%     suptitle([U{rec}.meta.layer ' ' params.designvars ' ' params.classes])
-%     %print(figure(5),'-depsc',['C:\Users\jacheung\Dropbox\LocalizationBehavior\Figures\Parts\'  U{rec}.meta.layer '_' params.classes '_' params.designvars '_LOGPSYCHO'])
-% end
+if strcmp(params.classes,'lick')
+    psycho = rebuildPsychoflip_v2(U,V,train_motorPlick);
+    suptitle([U{rec}.meta.layer ' ' params.designvars ' ' params.classes])
+    %print(figure(5),'-depsc',['C:\Users\jacheung\Dropbox\LocalizationBehavior\Figures\Parts\'  U{rec}.meta.layer '_' params.classes '_' params.designvars '_LOGPSYCHO'])
+    
+    probRL = cell2mat(cellfun(@(x) cellfun(@mean,x),psycho,'uniformoutput',0));
+    optimal = repmat([0 0 0 0 0 .5 1 1 1 1 1]',1,size(probRL,2));
+    MAEerror = nansum(abs((probRL- optimal)),2) ./ size(probRL,2);
+    SEMAEerror = nanstd(abs(probRL- optimal),[],2) ./ sqrt(size(probRL,2));
+    RMSEerror = sqrt(nansum((probRL - optimal).^2,2) ./ size(probRL,2));
+    figure;shadedErrorBar(-5:5,flipud(MAEerror),flipud(SEMAEerror))
+    ylabel('absolute error');xlabel('go - nogo')
+
+    
+end
 
 %% Visualization of the decision boundaries.
 colors = {'b','r'};

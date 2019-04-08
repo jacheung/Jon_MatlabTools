@@ -3,7 +3,7 @@ ranges = -75:1:75;
 % sbiasthree = nan(length(U),1);
 % sbiasfour = nan(length(U),1);
 
-type = {SM,BV};
+type = {U2};
 % type = {Nx,BVx};
 clearvars -except U D BV SM BVx Nx type ranges POP
 close all
@@ -14,13 +14,16 @@ for q=1
     %%
     for rec =1:length(U)
         
-        %choosing trials with which to evaluate exploration
-        if strcmp(U{rec}.meta.layer,'D')
-            farthestnogoT = find(U{rec}.meta.trialType==0);
-        else
-            farthestnogoT= find(U{rec}.meta.motorPosition<min(U{rec}.meta.motorPosition)+10000);
-        end
         
+        farthestnogoT= find(U{rec}.meta.motorPosition<min(U{rec}.meta.motorPosition)+10000);
+        
+%         %choosing trials with which to evaluate exploration
+%         if strcmp(U{rec}.meta.layer,'D')
+%             farthestnogoT = find(U{rec}.meta.trialType==0);
+%         else
+%             farthestnogoT= find(U{rec}.meta.motorPosition<min(U{rec}.meta.motorPosition)+10000);
+%         end
+%         
         %Only use farthest nogo to calculate thetas (uninhibited whisking)
         thetasall = squeeze(U{rec}.S_ctk(1,:,:));
         thetasnan = nan(size(thetasall));
@@ -40,7 +43,7 @@ for q=1
         % FIND POLE POSITION RANGES (inherited from searchbias_v2 so may
         % have lots of excess; trim sometime... 180517)
         %p(pole at theta) distribution
-        ppoles = nan(U{rec}.k,30);
+        ppoles = nan(U{rec}.k,1000);
         for b = 1:U{rec}.k
             touchIdx = [find(U{rec}.S_ctk(9,:,b)==1) find(U{rec}.S_ctk(12,:,b)==1)];
             if ~isempty(touchIdx)
