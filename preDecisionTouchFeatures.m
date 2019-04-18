@@ -60,5 +60,5 @@ if variableNumber == 17
 end
 
 
-meanFeature = nanmean(touchFeature);
+meanFeature = touchFeature;
 numTouches = nansum(preD_dir_Touch_mask);

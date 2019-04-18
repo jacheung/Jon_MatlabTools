@@ -3,7 +3,7 @@ function peakProtractionFeature(U)
 clearvars -except U
 
 %Identify indices of peak protractions 
-for i = [1:15]
+for i = 1:length(U)
     [w] = findMaxMinProtraction(U{i},5,'sampling');
     whisks(i) = w;
 end
@@ -11,7 +11,7 @@ end
 for i = 1:length(U)
     
     % Find theta at the discrimination boundary using touch indices 
-    ppoles = nan(U{i}.k,50);
+    ppoles = nan(U{i}.k,1000);
     pOnset = round(mean(U{i}.meta.poleOnset)*1000);
     %find touch indices 
     for b = 1:U{i}.k

@@ -55,7 +55,6 @@ for i = [ocellidx']
     curvature_conv = conv2(basisFunction,1,curvature,'same');
     touchmat_conv = conv2(basisFunction,1,touchmat,'same');
     
-    
     %INDEX BUILDER FOR LAGS
     startIdx = buildIndices'+touchIdx';
     
@@ -84,7 +83,7 @@ for i = [ocellidx']
     DmatX(trialsToRemoveIdx,:) = [] ;
     DmatY(trialsToRemoveIdx,:) = [] ;
     
-    %NORMALIZATION
+    %STANDARDIZATOIN
     DmatXNorm = (DmatX-nanmean(DmatX))./nanstd(DmatX);
     
     %VIEW DESIGN MAT FOR xNumTrials;
@@ -181,30 +180,8 @@ for i = [ocellidx']
         spksProbFull = predProb>pcBins;
         
         for j = 1:length(0:.05:1)
-            cmat=confusionmat(testDmatY,double(spksProbFull(:,j)));
-            TP = cmat(1);FP = cmat(3);
-            TN = cmat(4);FN = cmat(2);
-            
-            %MCC FULL
-            top  = TP*TN - FP*FN;
-            bottom = sqrt((TP+FP) * (TP+FN) * (TN+FP)* (TN+FN));
-            mccFull(j) = top./bottom;
-            if isnan(mccFull(j))
-                mccFull(j) = 0 ;
-            end
-            
-            cmat=confusionmat(testDmatY,double(spksProbNull(:,j)));
-            TP = cmat(1);FP = cmat(3);
-            TN = cmat(4);FN = cmat(2);
-            
-            %MCC NULL
-            top  = TP*TN - FP*FN;
-            bottom = sqrt((TP+FP) * (TP+FN) * (TN+FP)* (TN+FN));
-            mccNull(j) = top./bottom;
-            if isnan(mccNull(j))
-                mccNull(j) = 0 ;
-            end
-            
+            mccFull(j) = mccCalculator(testDmatY,double(spksProbFull(:,j)));
+            mccNull(j) = mccCalculator(testDmatY,double(spksProbNull(:,j)));
         end
         
         [mccDiff(p,1), maxidx] = max(mccFull-mccNull);
@@ -226,17 +203,19 @@ for i = [ocellidx']
     %constructing output structure of model
     glmModel{i}.modelParams = glmnetOpt; 
     
-    coeffsIter = cell2mat(sFitCoeffs);
+    
     glmModel{i}.basisFunctions.touch = touchShiftIdx;
     glmModel{i}.basisFunctions.features = touchShiftIdxRaw;
-    
-    glmModel{i}.coeffs.raw = cell2mat(sFitCoeffs);
     glmModel{i}.coeffs.touchCoeffs = mean(coeffsIter(2:2+size(touchShiftIdx,2)-1,:),2);
     glmModel{i}.coeffs.phaseCoeffs = mean(coeffsIter(2+size(touchShiftIdx,2):2+size(touchShiftIdx,2)+length(glmnetOpt.bf.indicesToAdd )-1,:),2);
     glmModel{i}.coeffs.ampCoeffs = mean(coeffsIter(2+size(touchShiftIdx,2)+length(glmnetOpt.bf.indicesToAdd ):2+size(touchShiftIdx,2)+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )-1,:),2);
     glmModel{i}.coeffs.midpointCoeffs = mean(coeffsIter(2+size(touchShiftIdx,2)+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd ):2+size(touchShiftIdx,2)+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )-1,:),2);
-        glmModel{i}.coeffs.curvatureCoeffs = mean(coeffsIter(2+size(touchShiftIdx,2)+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd ):2+size(touchShiftIdx,2)+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )-1,:),2);
+    glmModel{i}.coeffs.curvatureCoeffs = mean(coeffsIter(2+size(touchShiftIdx,2)+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd ):2+size(touchShiftIdx,2)+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )+length(glmnetOpt.bf.indicesToAdd )-1,:),2);
     
+    
+    coeffsIter = cell2mat(sFitCoeffs);
+    glmModel{i}.coeffs.raw = cell2mat(sFitCoeffs);
+
     glmModel{i}.raw.spikes = reshape(DmatY,length(buildIndices),length(DmatY)/length(buildIndices))';
     glmModel{i}.raw.angle = rawAngle;
     glmModel{i}.raw.angle(trialsToRemove) = [];
