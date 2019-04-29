@@ -57,7 +57,7 @@ for rec = 1:length(U)
         lickstd(isnan(lickstd(:,1)),:)=[];
         reallickmean(isnan(reallickmean(:,1)),:)=[];
         scatter(xranges(1),flipud(lickmean(1,2)),'ko','filled')
-        hold on;filex_shadedErrorBar(xranges(end-(length(lickmean)-2):end),flipud(lickmean(2:end,2)),flipud(lickstd(2:end,2)),'k')
+        hold on;shadedErrorBar(xranges(end-(length(lickmean)-2):end),flipud(lickmean(2:end,2)),flipud(lickstd(2:end,2)),'k')
         scatter(xranges(1),flipud(reallickmean(1,2)),'ro','linewidth',1)
         plot(xranges(end-(length(lickmean)-2):end),flipud(reallickmean(2:end,2)),'r','linewidth',2)
         
@@ -78,7 +78,7 @@ for rec = 1:length(U)
         
         
         figure(5);subplot(3,5,rec)
-        hold on;filex_shadedErrorBar(linspace(-1,1,numel(sorted)), flipud(cellfun(@mean,sorted)),flipud(cellfun(@std,sorted)),'k');
+        hold on;shadedErrorBar(linspace(-1,1,numel(sorted)), flipud(cellfun(@mean,sorted)),flipud(cellfun(@std,sorted)),'k');
         hold on; plot(linspace(-1,1,numel(sorted)), flipud(cellfun(@mean,realsorted)),'r','linewidth',5)
         set(gca,'xlim',[-1 1],'xtick',[-1:1:1],'ylim',[0 1],'ytick',[0:.5:1])
         

@@ -4,7 +4,7 @@ for z = 1:length(learnparam.lambda)
     clear Bfeat
     for rec = 1:length(U)
         
-        [DmatX, DmatY, motorX] = designMatrixBuilderv4(V(rec),U{rec},params);
+        [DmatX, DmatY, motorX] = designMatrixBuilder_v4(V(rec),U{rec},params);
         
         if strcmp(learnparam.biasClose,'yes')
             mean_norm_motor = motorX - mean(U{rec}.meta.ranges);

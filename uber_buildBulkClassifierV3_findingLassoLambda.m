@@ -10,9 +10,9 @@ clear motorXpreds
 
 % vars = {'countsBinary','counts'}; %Fig 3 %BUILD WITH ALL TOUCH DIRECTIONS AND NO drop
 % vars = {'countsBinary','counts'}; %Fig 4 %BUILD WITH ALL TOUCH DIRECTIONS AND NO drop
-% vars = {'kappa','timing','timeTotouch','counts','radialD','angle'}; %FIG6
+vars = {'kappa','timing','timeTotouch','counts','radialD','angle','uberedRadial'}; %FIG6
 % vars = {'motor','kappa','timing','timeTotouch','counts','radialD','angle','uberedRadial'}; %Fig 7
-vars = {'uberedRadial'}; %for supplemental finding out optimal precision of model 
+% vars = {'uberedRadial'}; %for supplemental finding out optimal precision of model 
 
 % Fig 9 and BEYOND PROTRACTION ONLY
 % vars = {'angle','hilbert'} %Fig 9B
@@ -42,13 +42,13 @@ for k = 1:length(vars)
     % 1) 'yes' = drop trials with 0 touches
     % 2) 'no' = keep all trials
     
-    [DmatX, ~, ~] = designMatrixBuilderv4(V(1),U{1},params);
+    [DmatX, ~, ~] = designMatrixBuilder_v4(V(1),U{1},params);
     
     %learning parameters
     learnparam.regMethod = 'lasso';
     learnparam.lambda = loadLambda;
     % 1) 'lasso' or L1 regularization;
-    % 2) 'ridge' or L2 regularziation;
+    % 2) 'ridge' or L2 regularization;
     
     learnparam.cvKfold = 5;
     learnparam.biasClose = 'no';
@@ -81,7 +81,7 @@ for k = 1:length(vars)
         for u = 1:learnparam.numIterations 
             
             display(['iteration ' num2str(u) ' for sample ' num2str(rec) ' using optimal lambda ' num2str(learnparam.lambda(rec))])
-            [DmatX, DmatY, motorX] = designMatrixBuilderv4(V(rec),U{rec},params);
+            [DmatX, DmatY, motorX] = designMatrixBuilder_v4(V(rec),U{rec},params);
            
             if strcmp(learnparam.biasClose,'yes')
                 mean_norm_motor = motorX - mean(BV{rec}.meta.ranges);
