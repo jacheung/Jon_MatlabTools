@@ -21,3 +21,4 @@ octave-workspace
 # Simulink autosave extension
 .autosave
 uber_tuningCurvesWHISK.asv
+tensor-demo/

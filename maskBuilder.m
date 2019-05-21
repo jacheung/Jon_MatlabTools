@@ -16,6 +16,7 @@ function [mask] = maskBuilder(array)
     offset=round(array.meta.poleOffset*1000);
     offmax=find(offset>array.t);
     offset(offmax)=array.t;
+    meanOffset = round(mean(array.meta.poleOffset)*1000); 
     samplingPeriod = 750;
    
     
@@ -52,8 +53,10 @@ function [mask] = maskBuilder(array)
     touchEx_mask(1:100,:) = 1; %since bleedover from end of trials before, tihs ensure we keep end
 
     avail_mask=ones(size(squeeze(array.S_ctk(1,:,:))));
+    avail_meanOffset = NaN(size(squeeze(array.S_ctk(1,:,:))));
     for j=1:array.k
         avail_mask(avail:offset(j),j)=NaN; %block out all periods between pole availability
+        avail_meanOffset(pOnset:meanOffset,j) = 1; 
     end
     
     sampling_mask=NaN(size(squeeze(array.S_ctk(1,:,:))));
@@ -84,6 +87,7 @@ function [mask] = maskBuilder(array)
     mask.onsettolick = pOnsetToFirstLick;
     mask.onsettoMedianlick = pOnsetToMedianFirstLick;
     mask.availtolick = availToFirstlick;
+    mask.availtoMeanOffset = avail_meanOffset; 
     mask.touch = touchEx_mask;
     mask.first = firsttouchEx_mask;
     mask.availend = availToEnd;
