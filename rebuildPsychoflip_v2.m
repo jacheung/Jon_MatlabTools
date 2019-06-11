@@ -76,7 +76,6 @@ for rec = 1:length(U)
         real=[U{rec}.meta.motorPosition;V(rec).trialNums.matrix(5,:)]';%only taking lick row and motorPos row
         [realsorted]= binslin(real(:,1),real(:,2),'equalE',12,U{rec}.meta.ranges(1),U{rec}.meta.ranges(2));
         
-        
         figure(5);subplot(3,5,rec)
         hold on;shadedErrorBar(linspace(-1,1,numel(sorted)), flipud(cellfun(@mean,sorted)),flipud(cellfun(@std,sorted)),'k');
         hold on; plot(linspace(-1,1,numel(sorted)), flipud(cellfun(@mean,realsorted)),'r','linewidth',5)
