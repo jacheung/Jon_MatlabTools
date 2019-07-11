@@ -81,7 +81,8 @@ for rec = 1:length(U)
         hold on; plot(linspace(-1,1,numel(sorted)), flipud(cellfun(@mean,realsorted)),'r','linewidth',5)
         set(gca,'xlim',[-1 1],'xtick',[-1:1:1],'ylim',[0 1],'ytick',[0:.5:1])
         
-        psycho{rec} = sorted; 
+        psycho.mouse{rec} = realsorted;
+        psycho.model{rec} = sorted; 
     end
     
     

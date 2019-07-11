@@ -219,7 +219,8 @@ summary.params(2,3) = mean(heights);
 summary.params(3,3) = mean(knots);
 
 summary.params(1,4) = models(maxIndex).peakLocation;
-summary.params(2,4) = models(maxIndex).peakHeight;
+% summary.params(2,4) = models(maxIndex).peakHeight; %commented out JC
+% 190618
 summary.params(3,4) = length(models(maxIndex).knots);
 
 summary.models = models;
@@ -729,7 +730,7 @@ function bd = makeBinnedData(data,dataRange,trials,nf)
     bd.x_rawmax = max(bd.x_raw) + .5*bd.bin_width;
     bd.xg = (bd.x_raw - bd.x_rawmin)/(bd.x_rawmax - bd.x_rawmin);
     
-    bd.scale_factor = 1/(trials * bd.bin_width);
+    bd.scale_factor = 1./(trials .* bd.bin_width); %added . to do dot multiplcation and division for varying trial nums
     bd.trials = trials;
     
     bd.fg = (0:nf-1) * (max(bd.xg) - min(bd.xg)) / (nf-1) + min(bd.xg);

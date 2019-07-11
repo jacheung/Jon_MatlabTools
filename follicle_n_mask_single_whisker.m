@@ -17,9 +17,9 @@ numOfWhiskers = 1;
 % % % % % % end
 
 if exist('optional','var')
-    d = (['Z:\Data\Video\' videoloc filesep mouseName filesep sessionName filesep optional filesep])
+    d = (['E:\' videoloc filesep mouseName filesep sessionName filesep optional filesep])
 else
-    d = (['Z:\Data\Video\' videoloc filesep mouseName filesep sessionName filesep])
+    d = (['E:\' videoloc filesep mouseName filesep sessionName filesep])
 end
 cd(d)
 
