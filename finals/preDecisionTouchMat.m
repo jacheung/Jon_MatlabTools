@@ -1,4 +1,4 @@
-function [preDecisionTouchIdx] = preDecisionTouchMat(U)
+function [preDecisionTouchIdx, preDecisionMask] = preDecisionTouchMat(U)
 
 %preDecision Touches
 preDecisionTouchIdx = cell(length(U),1);
@@ -34,4 +34,5 @@ for rec = 1:length(U)
     lickMask(poleOnset:medianLickTime,nonlickTrials)=1; %filling non lick trials with median lickTimes;
     
     preDecisionTouchIdx{rec} = st.*lickMask;
+    preDecisionMask{rec} = lickMask; 
 end
