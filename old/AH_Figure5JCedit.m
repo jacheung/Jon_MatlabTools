@@ -7,24 +7,13 @@
 
 
 %% Figure 5A
-% This cell will plot all L4 touch tuning in the style of Figure 5A
-% The example figure in paper uses rec = 23.  Other cells can be plotted by
-% changing rec to equal other cell numbers.  Code for phase modulated touch
-% and printing is present but commented out.  Figure 5B requires that this
-% the intermediate variables calculated in this 5A cell are present for rec
-% 1:31
 
-% printdir = '\NoiseProject\NoiseManuscript\Fig5\Materials\'
-
-
-touchCells = touchCell(U,2,.5);
-selectedCells = find(touchCells==1);
+selectedCells = find(cellfun(@(x) strcmp(x.meta.touchProperties.responseType,'excited'),U));
 
 for rec = 1:length(selectedCells)
     array=U{selectedCells(rec)}
-    array.onsetLatency=8;
-    trange=1:25;
-    k_range = [1:20];
+    array.onsetLatency=array.meta.touchProperties.responseWindow(1);
+    trange=1:diff(array.meta.touchProperties.responseWindow);
     % Adaptation across touches
     % Adaptation by ITI
     % Phase at touch
@@ -116,79 +105,6 @@ for rec = 1:length(selectedCells)
     
    theta_raster = zeros(length(idx_theta),151); %this is for building raster of theta and the spikes -50ms:100ms post touch
    theta_raster = v(rec).spikes(repmat(v(rec).allTouchIdx(idx_theta),1,151)+repmat([-50:100],length(idx_theta),1));
- 
-    %  Raster plots
-    %% THETA
-    
-    figure(53);clf;set(gcf,'paperposition',[0 0 4 4]);subplot(3,4,[5 7])
-    plot([51 51],[1 size(theta_raster,1)],'--','color',[.5 .5 .5])
-    hold on
-    plot(mod(find(theta_raster'),151), ceil(find(theta_raster')/151) ,'k.','markersize',4)
-    ylabel('Sorted touches')
-    axis([1 151 1 size(theta_raster,1)]);
-    colormap([1 1 1;0 0 0])
-    box off
-    set(gca,'xlim',[26 101],'xtick',[26 51 101],'xticklabel',[-25 0 50],'ytick',[])
-    ax1 = gca;
-    ax1;hold on
-    ax1_pos = get(ax1,'Position');
-    axes('Position',ax1_pos,...
-        'XAxisLocation','top',...
-        'yaxislocation','right','Color','none');hold on
-    
-    plot(mat2gray(sort_theta(:,2)),1:length(sort_theta),'r')
-    axis tight
-    norm_theta_range = mat2gray([sort_theta(1,2) 0 sort_theta(end,2)]);
-    plot([norm_theta_range(2)]*[1;1],[1 size(sort_theta,1)],'--','color',[1 .5 .5])
-    set(gca,'ytick',[],'xcolor','r','xtick',mat2gray([sort_theta(1,2) sort_theta(end,2)]),'xticklabel',round([sort_theta(1,2) (sort_theta(end,2))]))
-    xlabel('Theta at Touch','color','r')
-    
-    subplot(3,4,8)
-    thetax=linspace(mean(v(rec).theta.binBounds(1:2)),mean(v(rec).theta.binBounds(end-1:end)),length(v(rec).theta.binBounds)-1);
-    plot(v(rec).theta.lh, thetax,'k')
-    hold on
-    box off
-    set(gca,'ylim',[round([sort_theta(1,2) (sort_theta(end,2))])],'ytick',[],'xlim',[0 max(v(rec).theta.lh)])
-   
-    plot(v(rec).theta.lci,thetax, 'color',[.5 .5 .5])
-    
-    
-    
-    set(gca,'color','none')
-    %    print(gcf,'-depsc2',[printdir 'Raster_Velocity_Cell_' num2str(rec)])
-    %% VELOCITY
-    
-    figure(52);clf;set(gcf,'paperposition',[0 0 4 4]);subplot(3,4,[5 7])
-    plot([51 51],[1 size(vel_raster,1)],'--','color',[.5 .5 .5])
-    hold on
-    plot(mod(find(vel_raster'),151), ceil(find(vel_raster')/151) ,'k.','markersize',4)
-    ylabel('Sorted touches')
-    axis([1 151 1 size(vel_raster,1)]);
-    colormap([1 1 1;0 0 0])
-    box off
-    set(gca,'xlim',[26 101],'xtick',[26 51 101],'xticklabel',[-25 0 50],'ytick',[])
-    ax1 = gca;
-    ax1;hold on
-    ax1_pos = get(ax1,'Position');
-    axes('Position',ax1_pos,...
-        'XAxisLocation','top',...
-        'yaxislocation','right','Color','none');hold on
-    plot(mat2gray(sort_vel(:,2)),1:length(sort_vel),'r')
-    axis tight
-    norm_vel_range = mat2gray([sort_vel(1,2) 0 sort_vel(end,2)]);
-    plot([norm_vel_range(2)]*[1;1],[1 size(sort_vel,1)],'--','color',[1 .5 .5])
-    set(gca,'ytick',[],'xcolor','r','xtick',mat2gray([sort_vel(1,2) 0 sort_vel(end,2)]),'xticklabel',round([sort_vel(1,2) 0 (sort_vel(end,2))]))
-    xlabel('Pretouch velocity','color','r')
-    
-    subplot(3,4,8)
-    plot(v(rec).velocity.lh, 1:10,'k')
-    hold on
-    box off
-    set(gca,'ylim',[0.5 10.5],'ytick',[])
-    plot(v(rec).velocity.lci,1:10, 'color',[.5 .5 .5])
-    
-    set(gca,'color','none')
-    %    print(gcf,'-depsc2',[printdir 'Raster_Velocity_Cell_' num2str(rec)])
     
     %% ADAPTATION
     [sort_adapt,idx_adapt] = sortrows ([v(rec).allTouchIdx, v(rec).touchNumber'],2);
