@@ -29,8 +29,8 @@ else
         sorted=cell(length(binBounds)-1,1);
         sortedBy=cell(length(binBounds)-1,1);
     for i=1:length(binBounds)-1
-        sorted{i}=toSort(sortBy>=binBounds(i) & sortBy<=binBounds(i+1),:); %removed all columns JC 160902
-        sortedBy{i}=sortBy(sortBy>=binBounds(i) & sortBy<=binBounds(i+1));
+        sorted{i}=toSort(sortBy>binBounds(i) & sortBy<=binBounds(i+1),:); %removed all columns JC 160902
+        sortedBy{i}=sortBy(sortBy>binBounds(i) & sortBy<=binBounds(i+1));
     end
 end
     

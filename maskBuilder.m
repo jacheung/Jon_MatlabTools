@@ -81,7 +81,7 @@ function [mask] = maskBuilder(array)
     whisking(amplitude>5)=1;
     
     quiet = nan(size(squeeze(array.S_ctk(1,:,:))));
-    quiet(amplitude<5)=1;
+    quiet(amplitude<2.5)=1;
     
     mask.nonlickTrials = nonLickTrials; 
     mask.onsettolick = pOnsetToFirstLick;
