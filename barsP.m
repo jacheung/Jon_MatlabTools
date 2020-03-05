@@ -694,9 +694,9 @@ function knots = firstKnots(bd, bp)
     % uniform distribution
     if (bp.use_logspline)
         if exist('nlsd_mex') ~= 3
-            disp(' You must compile nlsd_mex.c to use logspline:')
-            disp(' > mex nlsd_mex.c');
-            disp(' Using equally spaced knots instead.');
+%             disp(' You must compile nlsd_mex.c to use logspline:')
+%             disp(' > mex nlsd_mex.c');
+%             disp(' Using equally spaced knots instead.');
             knots = (1:bp.k)'/(bp.k+1);
         else        
             knots = nlsd_mex(bd.xg,bd.y);
